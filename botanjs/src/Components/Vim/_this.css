@@ -1,0 +1,4 @@
+textarea[data-vimarea="1"] {
+	color: transparent;
+	text-shadow: 0 0 0 #000;
+}
