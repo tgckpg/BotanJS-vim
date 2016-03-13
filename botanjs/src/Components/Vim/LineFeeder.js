@@ -29,10 +29,18 @@
 			lineBuffers[i] = new LineBuffer( cols, lineBuffers[ i + 1 ] );
 		}
 
-		this.cursor = new Cursor( lineBuffers );
-
 		this.lineBuffers = lineBuffers;
+
+		this.panX = 0;
+		this.panY = 0;
+
 		this.setRender();
+
+		this.cursor = new Cursor( this );
+		this.dispatcher = new EventDispatcher();
+
+		this.__clseLine = null;
+		this.__moreAt = -1;
 	};
 
 	Feeder.prototype.init = function( content, wrap )
@@ -52,38 +60,35 @@
 	{
 		if( placeholder == undefined ) placeholder = true;
 
-		if( placeholder )
-		{
-			this.__render = function( line, steps )
-			{
-				var display = ( line == undefined ? "" : line ) + "";
+		var _self = this;
 
-				for( var i = 0;
-					line && i < steps && ( line = line.next );
-					i ++ )
+		var placeholdCond = placeholder
+			? function( line ) { return true; }
+			:  function( line ) { return !line.placeholder; }
+			;
+
+		this.__render = function( line, steps )
+		{
+			var display = ( line == undefined ? "" : line ) + "";
+
+			var atSpace = false
+			for( var i = 0;
+				line && i < steps && ( line = line.next ) && placeholdCond( line );
+				i ++ )
+			{
+				if( atSpace || ( line.br && steps < ( i + line.visualLines.length ) ) )
 				{
-					display += "\n" + line;
+					if( !atSpace ) _self.__clseLine = line;
+					atSpace = true;
+					display += "\n@";
+					continue;
 				}
 
-				return display;
-			};
-		}
-		else
-		{
-			this.__render = function( line, steps )
-			{
-				var display = ( line == undefined ? "" : line ) + "";
+				display += "\n" + line;
+			}
 
-				for( var i = 0;
-					line && i < steps && ( line = line.next ) && !line.placeholder;
-					i ++ )
-				{
-					display += "\n" + line;
-				}
-
-				return display;
-			};
-		}
+			return display;
+		};
 	}
 
 	Feeder.prototype.render = function( start, length )
@@ -100,6 +105,43 @@
 
 		return this.__render( buffs[ start ], length - 1 );
 	};
+
+	Feeder.prototype.pan = function( dX, dY )
+	{
+		if( dX == undefined ) dX = 0;
+		if( dY == undefined ) dY = 0;
+
+		var X = this.panX + dX;
+		var Y = this.panY + dY;
+
+		// this.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+	};
+
+	__readOnly( Feeder.prototype, "moreAt", function() {
+		if( 0 < this.__moreAt ) return this.__moreAt;
+
+		var line = this.lineBuffers[0];
+		if( line.placeholder ) return 0;
+
+		var i = 0;
+		do
+		{
+			if( this.__clseLine == line ) break;
+			if( line.br ) i ++;
+		}
+		while( line = line.next );
+
+		return ( this.__moreAt = i );
+	} );
+
+	__readOnly( Feeder.prototype, "lineStat", function() {
+		var X = this.cursor.X;
+		return ( this.cursor.Y + this.panY + 1 ) + "," + X + "-" + ( X );
+	} );
+
+	__readOnly( Feeder.prototype, "docPos", function() {
+		return "Top";
+	} );
 
 	__readOnly( Feeder.prototype, "linesOccupied", function() {
 		var line = this.lineBuffers[0];

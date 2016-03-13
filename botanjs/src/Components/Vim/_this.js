@@ -16,6 +16,7 @@
 		"INSERT": "-- INSERT --"
 		, "REPLACE": "-- REPLACE --"
 		, "MORE": "-- MORE --"
+		, "VISLINE": "-- VISUAL LINE --"
 		, "WRITE": "\"%1\" %2L, %3C written"
 		, "CONTINUE": "Press ENTER or type command to continue"
 		, "SEARCH_HIT_BOTTOM": "Seach hit BOTTOM, contining at TOP"

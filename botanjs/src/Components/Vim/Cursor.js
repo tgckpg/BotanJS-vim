@@ -37,42 +37,39 @@
 		/** @type {Components.Vim.LineBuffer} */
 		var offset = 0;
 
+		LineLoop:
 		for( var i = 0, line = buffs[0];
 			line && i < l; i ++ )
 		{
 			while( line )
 			{
-				if( line.br )
+				if( line.next && line.next.placeholder )
+					break LineLoop;
+
+				if( line.next && line.next.br )
 				{
-					offset += line.prev.toString().length + 1;
-
-					// Empty line has a special space
-					if( line.content == "" ) offset ++;
-
+					offset += line.toString().length + 1;
 					line = line.next;
 					break;
 				}
 				else
 				{
-					if( offset == 0 ) offset -= 1;
-
-					if( line.next && !line.next.br )
-						offset += line.cols + 1;
+					offset += line.cols + 1;
 				}
 
 				line = line.next;
 			}
 		}
 
-		debug.Info( offset );
-
 		return offset;
 	};
 
-	var Cursor = function( buffs )
+	var Cursor = function( feeder )
 	{
-		this.buffers = buffs;
-		this.cols = buffs[0].cols;
+		/** @type {Components.Vim.LineFeeder} */
+		this.feeder = feeder;
+
+		this.cols = feeder.lineBuffers[0].cols;
 
 		// The preferred X position
 		this.pX = 0;
@@ -98,7 +95,7 @@
 
 		if( !d ) d = 1;
 
-		var buffs = this.buffers;
+		var buffs = this.feeder.lineBuffers;
 
 		/** @type {Components.Vim.LineBuffer} */
 		var line = GetLine( buffs, this.Y );
@@ -133,18 +130,34 @@
 
 	Cursor.prototype.lineEnd = function()
 	{
-		/** @type {Components.Vim.LineBuffer} */
 		this.moveX( Number.MAX_VALUE );
 	};
 
 	Cursor.prototype.updatePosition = function()
 	{
-		this.P = this.X + LineOffset( this.buffers, this.Y );
+		this.P = this.X + LineOffset( this.feeder.lineBuffers, this.Y );
 	};
 
 	Cursor.prototype.moveY = function( d )
 	{
-		this.Y += d;
+		var Y = this.Y;
+
+		Y += d;
+		if( Y < 0 ) Y = 0;
+
+		if( this.feeder.moreAt < Y )
+		{
+			this.feeder.pan( undefined, Y - this.feeder.moreAt );
+
+			// Keep original position after panning
+			this.moveX();
+			this.updatePosition();
+			this.refresh();
+			return;
+		}
+
+		this.Y = Y;
+
 		this.moveX();
 		this.updatePosition();
 	};

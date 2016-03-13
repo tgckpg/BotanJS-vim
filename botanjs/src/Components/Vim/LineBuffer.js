@@ -24,7 +24,6 @@
 		{
 			nextLineBuffer.prev = this;
 		}
-
 	};
 
 	LineBuffer.prototype.Push = function( content, wrap )
@@ -32,6 +31,7 @@
 		if( content == undefined || content === "" )
 		{
 			this.content = "~";
+			this.br = true;
 			this.placeholder = true;
 			if( this.next ) this.next.Push( content, wrap );
 			return;

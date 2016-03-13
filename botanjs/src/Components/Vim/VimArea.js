@@ -52,6 +52,7 @@
 		{
 			// Cursor movements
 			case 72: // h
+			case 8: // Backspace
 				cfeeder.cursor.moveX( -1 );
 				break;
 			case 74: // j
@@ -86,6 +87,14 @@
 			case 112: // F1, help
 		}
 
+		var sfeeder = sender.statusFeeder;
+		var statusBar = sender.statusBar;
+
+		sfeeder.init( statusBar.statusText );
+		sender.stage.element.value =
+			cfeeder.render( 0, sender.rows - sfeeder.linesOccupied )
+			+ "\n" + sfeeder.render();
+
 		sender.__blink = false;
 		sender.select( cfeeder.cursor.position );
 	};
@@ -112,7 +121,13 @@
 		this.PosX = 1;
 		this.PosY = 1;
 
+		this.__active = false;
+
+		var _self = this;
+
 		stage.addEventListener( "KeyDown", KeyHandler( this, VimControls ) );
+		stage.addEventListener( "Focus", function() { _self.__active = true; } );
+		stage.addEventListener( "Blur", function() { _self.__active = false; } );
 
 		// Init
 		this.content = element.value;
@@ -125,6 +140,7 @@
 
 	VimArea.prototype.select = function( sel )
 	{
+		if( !this.__active ) return;
 		var textarea = this.stage.element;
 
 		if( sel )
@@ -154,12 +170,12 @@
 		// XXX: Placeholder
 		var statusBar = new StatusBar( c );
 		statusBar.stamp( -18, function(){
-			return "1,1-1";
+			return cfeeder.lineStat;
 		});
 
 		statusBar.stamp( -3, function(){
-			return "All";
-		});
+			return cfeeder.docPos;
+		} );
 
 		sfeeder.init( statusBar.statusText );
 
@@ -167,8 +183,13 @@
 			cfeeder.render( 0, r - sfeeder.linesOccupied )
 			+ "\n" + sfeeder.render();
 
+		cfeeder.dispatcher.addEventListener( "VisualUpdate", function()
+		{
+		} );
+
 		this.contentFeeder = cfeeder;
 		this.statusFeeder = sfeeder;
+		this.statusBar = statusBar;
 
 		this.__cursor = cfeeder.cursor;
 
