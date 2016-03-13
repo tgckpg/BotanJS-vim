@@ -20,6 +20,7 @@
 		this.br = false;
 		this.placeholder = true;
 		this.lineNum = 0;
+		this.tabWidth = 8;
 
 		if( nextLineBuffer )
 		{
@@ -45,9 +46,10 @@
 		var br = false;
 
 		var i = 0;
+		var numTabs = 0;
 		if( wrap )
 		{
-			for( ; i < this.cols; i ++ )
+			for( ; i < this.cols - numTabs * this.tabWidth; i ++ )
 			{
 				var c = content[i];
 				if( c === undefined ) break;
@@ -57,6 +59,10 @@
 					br = true;
 					i ++;
 					break;
+				}
+				else if( c == "\t" )
+				{
+					numTabs ++;
 				}
 
 				line += c;
@@ -75,8 +81,12 @@
 					i ++;
 					break;
 				}
+				else if( c == "\t" )
+				{
+					numTabs ++;
+				}
 
-				if( i < this.cols )
+				if( i < this.cols - numTabs * this.tabWidth )
 				{
 					line += c;
 				}

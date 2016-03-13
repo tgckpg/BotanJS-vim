@@ -54,7 +54,7 @@
 				}
 				else
 				{
-					offset += line.cols + 1;
+					offset += line.toString().length + 1;
 				}
 
 				line = line.next;
@@ -179,6 +179,8 @@
 			// Keep original position after panning
 			this.moveX();
 			this.updatePosition();
+
+			feeder.softReset();
 
 			return;
 		}

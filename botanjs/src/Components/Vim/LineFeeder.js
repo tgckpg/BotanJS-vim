@@ -75,7 +75,8 @@
 		{
 			var display = ( line == undefined ? "" : line ) + "";
 
-			var atSpace = false
+			var atSpace = false;
+
 			for( var i = 0;
 				line && i < steps && ( line = line.next ) && placeholdCond( line );
 				i ++ )
@@ -93,6 +94,23 @@
 
 			return display;
 		};
+
+		this.__softRender = function()
+		{
+			var line = _self.lineBuffers[ _self.__rStart ];
+			var steps = _self.__rLength;
+
+			for( var i = 0;
+				line && i < steps && ( line = line.next ) && placeholdCond( line );
+				i ++ )
+			{
+				if( line.br && steps < ( i + line.visualLines.length ) )
+				{
+					_self.__clseLine = line;
+					break;
+				}
+			}
+		};
 	}
 
 	Feeder.prototype.render = function( start, length )
@@ -107,7 +125,9 @@
 
 		if( length == 0 ) return "";
 
-		return this.__render( buffs[ start ], length - 1 );
+		this.__rStart = start;
+		this.__rLength = length - 1;
+		return this.__render( buffs[ start ], this.__rLength );
 	};
 
 	Feeder.prototype.pan = function( dX, dY )
@@ -137,12 +157,23 @@
 		this.panY = Y;
 	};
 
+	Feeder.prototype.softReset = function()
+	{
+		this.__moreAt = -1;
+		this.__clseLine = null;
+		this.__softRender();
+	};
+
 	__readOnly( Feeder.prototype, "firstBuffer", function() {
 		return this.lineBuffers[ 0 ];
 	} );
 
 	__readOnly( Feeder.prototype, "lastBuffer", function() {
 		return this.lineBuffers[ this.__rows - 1 ];
+	} );
+
+	__readOnly( Feeder.prototype, "EOF", function() {
+		return this.lineBuffers[ this.__rows ].placeholder;
 	} );
 
 	__readOnly( Feeder.prototype, "moreAt", function() {
@@ -159,24 +190,42 @@
 		}
 		while( line = line.next );
 
+		if( line == undefined ) i --;
+
 		return ( this.__moreAt = i );
 	} );
 
 	__readOnly( Feeder.prototype, "lineStat", function() {
 		var X = this.cursor.X;
-		return ( this.cursor.getLine().lineNum + 1 ) + "," + X + "-" + ( X );
+
+		var line = this.cursor.getLine();
+		var tabStat = "";
+
+		var tabs = line.content.match( /\t/g );
+
+		if( tabs )
+		{
+			tabStat = "-" + ( X + tabs.length * line.tabWidth );
+		}
+
+		return ( line.lineNum + 1 ) + "," + X + tabStat;
 	} );
 
 	__readOnly( Feeder.prototype, "docPos", function() {
 		var pos = "ALL";
 
-		if( this.panY == 0 )
+		if( 0 < this.panY &&  this.EOF )
+		{
+			pos = "BOTTOM";
+		}
+		else
 		{
 			if( this.__clseLine || !this.EOF )
 			{
 				pos = "TOP";
 			}
 		}
+
 
 		return pos;
 	} );
