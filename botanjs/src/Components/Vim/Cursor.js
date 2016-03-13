@@ -69,7 +69,7 @@
 		/** @type {Components.Vim.LineFeeder} */
 		this.feeder = feeder;
 
-		this.cols = feeder.lineBuffers[0].cols;
+		this.cols = feeder.firstBuffer.cols;
 
 		// The preferred X position
 		this.pX = 0;
@@ -136,6 +136,7 @@
 	Cursor.prototype.updatePosition = function()
 	{
 		this.P = this.X + LineOffset( this.feeder.lineBuffers, this.Y );
+		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
 	Cursor.prototype.moveY = function( d )
@@ -143,16 +144,42 @@
 		var Y = this.Y;
 
 		Y += d;
-		if( Y < 0 ) Y = 0;
-
-		if( this.feeder.moreAt < Y )
+		if( Y < 0 )
 		{
-			this.feeder.pan( undefined, Y - this.feeder.moreAt );
+			Y = 0;
+		}
+		else if( this.feeder.moreAt < Y )
+		{
+			var feeder = this.feeder;
+			var lastLine = feeder.lastBuffer.lineNum;
 
+			var i = 0;
+			while( true )
+			{
+				feeder.pan( undefined, Y - feeder.moreAt + i );
+
+				// If it is the same line we keep scrolling it
+				// until the entire line cosumes the screen
+				if( feeder.lastBuffer.lineNum == lastLine )
+				{
+					i ++;
+				}
+				else break;
+			}
+
+			for( i = 0, line = feeder.firstBuffer;
+				line != feeder.lastBuffer;
+				line = line.next )
+			{
+				if( line.br ) i ++;
+				if( line.lineNum == Y ) break;
+			}
+
+			this.Y = i;
 			// Keep original position after panning
 			this.moveX();
 			this.updatePosition();
-			this.refresh();
+
 			return;
 		}
 
@@ -162,6 +189,21 @@
 		this.updatePosition();
 	};
 
+	Cursor.prototype.getLine = function()
+	{
+		var feeder = this.feeder;
+		var line = feeder.firstBuffer;
+		for( var i = 0;
+			line != feeder.lastBuffer;
+			line = line.next )
+		{
+			if( line.br ) i ++;
+			if( this.Y == i ) break;
+		}
+
+		return line;
+	};
+
 	__readOnly( Cursor.prototype, "position", function()
 	{
 		return {
@@ -169,7 +211,6 @@
 			, end: this.P + 1
 		};
 	} );
-
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Cursor", Cursor );
 })();

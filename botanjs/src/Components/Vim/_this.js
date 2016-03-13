@@ -30,15 +30,29 @@
 		"E486": "E486: Pattern not found: %1"
 	};
 
-	var Message = function( key )
+	var GetString = function( arr, key, restArgs )
 	{
-		var restArgs = Array.prototype.slice.apply( arguments, 1 );
+		if( arr[ key ] == undefined ) return key;
+
 		var i = 0;
-		return messages[ key ].replace( /%\d+/g, function( e )
+		return arr[ key ].replace( /%\d+/g, function( e )
 		{
 			return restArgs[ i ++ ];
 		} );
 	};
 
+	var Message = function( key )
+	{
+		var restArgs = Array.prototype.slice.call( arguments, 1 );
+		return GetString( messages, key, restArgs );
+	};
+
+	var Error = function( key )
+	{
+		var restArgs = Array.prototype.slice.call( arguments, 1 );
+		return GetString( errors, key, restArgs );
+	};
+
 	ns[ NS_EXPORT ]( EX_FUNC, "Message", Message );
+	ns[ NS_EXPORT ]( EX_FUNC, "Error", Error );
 })();

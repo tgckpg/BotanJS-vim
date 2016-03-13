@@ -19,6 +19,8 @@
 	/** @type {Components.Vim.StatusBar} */
 	var StatusBar = ns[ NS_INVOKE ]( "StatusBar" );
 
+	var mesg = ns[ NS_INVOKE ]( "Message" );
+
 	var KeyHandler = function( sender, handler )
 	{
 		return function( e )
@@ -87,16 +89,6 @@
 			case 112: // F1, help
 		}
 
-		var sfeeder = sender.statusFeeder;
-		var statusBar = sender.statusBar;
-
-		sfeeder.init( statusBar.statusText );
-		sender.stage.element.value =
-			cfeeder.render( 0, sender.rows - sfeeder.linesOccupied )
-			+ "\n" + sfeeder.render();
-
-		sender.__blink = false;
-		sender.select( cfeeder.cursor.position );
 	};
 
 	/* stage @param {Dandelion.IDOMElement} */
@@ -130,8 +122,7 @@
 		stage.addEventListener( "Blur", function() { _self.__active = false; } );
 
 		// Init
-		this.content = element.value;
-		this.VisualizeVimFrame();
+		this.VisualizeVimFrame( element.value );
 	};
 
 	VimArea.prototype.startInput = function( mode )
@@ -150,7 +141,7 @@
 		}
 	};
 
-	VimArea.prototype.VisualizeVimFrame = function()
+	VimArea.prototype.VisualizeVimFrame = function( content )
 	{
 		var _self = this;
 
@@ -161,7 +152,7 @@
 		// Content feeder
 		var cfeeder = new LineFeeder( r, c );
 
-		cfeeder.init( this.content );
+		cfeeder.init( content );
 
 		// Status feeder
 		sfeeder = new LineFeeder( r, c );
@@ -174,18 +165,25 @@
 		});
 
 		statusBar.stamp( -3, function(){
-			return cfeeder.docPos;
+			return mesg( cfeeder.docPos );
 		} );
 
 		sfeeder.init( statusBar.statusText );
 
-		element.value =
-			cfeeder.render( 0, r - sfeeder.linesOccupied )
-			+ "\n" + sfeeder.render();
-
-		cfeeder.dispatcher.addEventListener( "VisualUpdate", function()
+		var Update = function()
 		{
-		} );
+			sfeeder.init( statusBar.statusText );
+
+			element.value =
+				cfeeder.render( 0, r - sfeeder.linesOccupied )
+				+ "\n" + sfeeder.render();
+
+			_self.__blink = false;
+			_self.select( cfeeder.cursor.position );
+		};
+
+		cfeeder.dispatcher.addEventListener( "VisualUpdate", Update );
+		Update();
 
 		this.contentFeeder = cfeeder;
 		this.statusFeeder = sfeeder;
@@ -203,6 +201,10 @@
 			);
 		}, 600 );
 	};
+
+	__readOnly( VimArea.prototype, "content", function() {
+		return this.contentFeeder.content;
+	} );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "VimArea", VimArea );
 })();

@@ -19,6 +19,7 @@
 		this.next = nextLineBuffer;
 		this.br = false;
 		this.placeholder = true;
+		this.lineNum = 0;
 
 		if( nextLineBuffer )
 		{
@@ -26,14 +27,15 @@
 		}
 	};
 
-	LineBuffer.prototype.Push = function( content, wrap )
+	LineBuffer.prototype.Push = function( content, wrap, n )
 	{
+		this.lineNum = n;
 		if( content == undefined || content === "" )
 		{
 			this.content = "~";
 			this.br = true;
 			this.placeholder = true;
-			if( this.next ) this.next.Push( content, wrap );
+			if( this.next ) this.next.Push( content, wrap, n + 1 );
 			return;
 		}
 
@@ -42,9 +44,10 @@
 		var line = "";
 		var br = false;
 
+		var i = 0;
 		if( wrap )
 		{
-			for( var i = 0; i < this.cols; i ++ )
+			for( ; i < this.cols; i ++ )
 			{
 				var c = content[i];
 				if( c === undefined ) break;
@@ -62,7 +65,7 @@
 		else
 		{
 			br = true;
-			for( var i = 0; true; i ++ )
+			for( ; true; i ++ )
 			{
 				var c = content[i];
 				if( c === undefined ) break;
@@ -83,7 +86,7 @@
 		if( this.next )
 		{
 			this.next.br = br;
-			this.next.Push( content.substr( i ), wrap );
+			this.next.Push( content.substr( i ), wrap, br ? n + 1 : n );
 		}
 
 		this.content = line;
@@ -105,7 +108,6 @@
 
 		return lines;
 	} );
-
 
 	ns[ NS_EXPORT ]( EX_CLASS, "LineBuffer", LineBuffer );
 })();

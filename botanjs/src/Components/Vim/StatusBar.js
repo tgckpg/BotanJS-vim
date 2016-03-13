@@ -1,4 +1,5 @@
-(function(){ var ns = __namespace( "Components.Vim" );
+(function(){
+	var ns = __namespace( "Components.Vim" );
 
 	/** @type {Dandelion} */
 	var Dand                                    = __import( "Dandelion" );

@@ -21,12 +21,12 @@
 	{
 		var lineBuffers = [];
 
-		// Last line
-		lineBuffers[ rows - 1 ] = new LineBuffer( cols );
+		// Last line, hidden buffer that won't be rendered
+		this.__xBuffer = lineBuffers[ rows ] = new LineBuffer( cols );
 
-		for( var i = rows - 2; 0 <= i; i -- )
+		for( var i = rows - 1; 0 <= i; i -- )
 		{
-			lineBuffers[i] = new LineBuffer( cols, lineBuffers[ i + 1 ] );
+			lineBuffers[ i ] = new LineBuffer( cols, lineBuffers[ i + 1 ] );
 		}
 
 		this.lineBuffers = lineBuffers;
@@ -41,19 +41,23 @@
 
 		this.__clseLine = null;
 		this.__moreAt = -1;
+		this.__rows = rows;
+
+		this.__wrap = true;
 	};
 
 	Feeder.prototype.init = function( content, wrap )
 	{
-		if( wrap == undefined ) wrap = true;
-		if( this.lineBuffers.length )
-		{
-			this.lineBuffers[0].Push( content, wrap ); 
-		}
+		this.content = content;
+		this.setWrap( wrap );
+
+		this.firstBuffer.Push( content, this.__wrap, 0 ); 
 	};
 
-	Feeder.prototype.wrap = function( setwrap )
+	Feeder.prototype.setWrap = function( wrap )
 	{
+		if( wrap == undefined ) return;
+		this.__wrap = wrap;
 	};
 
 	Feeder.prototype.setRender = function( placeholder )
@@ -96,10 +100,10 @@
 		var buffs = this.lineBuffers;
 
 		if( start == undefined ) start = 0;
-		else if( buffs.length < start ) return "";
+		else if( this.__rows < start ) return "";
 
-		if( length == undefined || ( buffs.length - start ) < length ) 
-			length = buffs.length - start;
+		if( length == undefined || ( this.__rows - start ) < length ) 
+			length = this.rows - start;
 
 		if( length == 0 ) return "";
 
@@ -111,16 +115,40 @@
 		if( dX == undefined ) dX = 0;
 		if( dY == undefined ) dY = 0;
 
+		if( dX == 0 && dY == 0 ) return;
+
 		var X = this.panX + dX;
 		var Y = this.panY + dY;
 
-		// this.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+		var f = this.content.indexOf( "\n" );
+		var i = 1;
+
+		while( f != - 1 && i < Y )
+		{
+			i ++;
+			f = this.content.indexOf( "\n", f + 1 );
+		}
+
+		this.firstBuffer.Push(
+			this.content.substr( f + 1 )
+			, this.__wrap, i );
+
+		this.panX = X;
+		this.panY = Y;
 	};
+
+	__readOnly( Feeder.prototype, "firstBuffer", function() {
+		return this.lineBuffers[ 0 ];
+	} );
+
+	__readOnly( Feeder.prototype, "lastBuffer", function() {
+		return this.lineBuffers[ this.__rows - 1 ];
+	} );
 
 	__readOnly( Feeder.prototype, "moreAt", function() {
 		if( 0 < this.__moreAt ) return this.__moreAt;
 
-		var line = this.lineBuffers[0];
+		var line = this.firstBuffer;
 		if( line.placeholder ) return 0;
 
 		var i = 0;
@@ -136,15 +164,25 @@
 
 	__readOnly( Feeder.prototype, "lineStat", function() {
 		var X = this.cursor.X;
-		return ( this.cursor.Y + this.panY + 1 ) + "," + X + "-" + ( X );
+		return ( this.cursor.getLine().lineNum + 1 ) + "," + X + "-" + ( X );
 	} );
 
 	__readOnly( Feeder.prototype, "docPos", function() {
-		return "Top";
+		var pos = "ALL";
+
+		if( this.panY == 0 )
+		{
+			if( this.__clseLine || !this.EOF )
+			{
+				pos = "TOP";
+			}
+		}
+
+		return pos;
 	} );
 
 	__readOnly( Feeder.prototype, "linesOccupied", function() {
-		var line = this.lineBuffers[0];
+		var line = this.firstBuffer;
 		if( line.placeholder ) return 0;
 
 		var i = 0;
