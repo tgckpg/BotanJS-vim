@@ -38,6 +38,8 @@
 			if( text )
 			{
 				text = text();
+				if( text == undefined || text === "" ) continue;
+
 				display += text.substr( 0, avail );
 				i = display.length - 1;
 			}

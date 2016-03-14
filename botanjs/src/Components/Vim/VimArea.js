@@ -50,11 +50,13 @@
 		var kCode = e.keyCode + ( e.shiftKey ? 1000 : 0 );
 
 		var cfeeder = sender.contentFeeder;
+		var sfeeder = sender.statusFeeder;
 		switch( kCode )
 		{
 			// Cursor movements
+			case 8: // Backspace, go back 1 char, regardless of line
+				break;
 			case 72: // h
-			case 8: // Backspace
 				cfeeder.cursor.moveX( -1 );
 				break;
 			case 74: // j
@@ -67,9 +69,24 @@
 				cfeeder.cursor.moveX( 1 );
 				break;
 
+			// Insert
 			case 65: // a
-			case 1065: // A
+				cfeeder.cursor.openInsert();
 				break;
+
+			case 1065: // A, append at the line end
+				break;
+			case 73: // i
+				break;
+			case 1073: // I, append before the line start, after spaces
+				break;
+
+			// remove characters
+			case 88: // x, remove in cursor
+				break;
+			case 1088: // X, remove before cursor
+				break;
+
 			case 1072: // H, First line buffer
 				break;
 			case 1076: // L, Last line buffer
@@ -169,6 +186,10 @@
 
 		statusBar.stamp( -3, function(){
 			return mesg( cfeeder.docPos );
+		} );
+
+		statusBar.stamp( 0, function(){
+			return cfeeder.cursor.message;
 		} );
 
 		sfeeder.init( statusBar.statusText );

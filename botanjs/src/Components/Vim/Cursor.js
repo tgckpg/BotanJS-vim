@@ -12,6 +12,8 @@
 	/** @type {System.Debug} */
 	var debug                                   = __import( "System.Debug" );
 
+	var Actions = __import( "Components.Vim.Actions.*" );
+
 	var GetLine = function( buffs, l )
 	{
 		/** @type {Components.Vim.LineBuffer} */
@@ -76,6 +78,9 @@
 
 		// The resulting position
 		this.P = 0;
+
+		/** @type {Components.Vim.IAction} */
+		this.action = null;
 	};
 
 	// Can only be 1, -1
@@ -210,6 +215,15 @@
 		this.updatePosition();
 	};
 
+	Cursor.prototype.openInsert = function()
+	{
+		var feeder = this.feeder;
+		if( this.action ) this.action.dispose();
+		this.action = new Actions[ "INSERT" ];
+
+		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+	};
+
 	Cursor.prototype.getLine = function()
 	{
 		var feeder = this.feeder;
@@ -224,6 +238,12 @@
 
 		return line;
 	};
+
+	__readOnly( Cursor.prototype, "message", function()
+	{
+		return this.action && this.action.getMessage();
+	} );
+
 
 	__readOnly( Cursor.prototype, "position", function()
 	{
