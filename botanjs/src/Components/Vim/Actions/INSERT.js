@@ -1,17 +1,8 @@
 (function(){
 	var ns = __namespace( "Components.Vim.Actions" );
 
-	/** @type {Dandelion} */
-	var Dand                                    = __import( "Dandelion" );
-	/** @type {Dandelion.IDOMElement} */
-	var IDOMElement                             = __import( "Dandelion.IDOMElement" );
-	/** @type {Dandelion.IDOMObject} */
-	var IDOMObject                              = __import( "Dandelion.IDOMObject" );
-	/** @type {System.Cycle} */
-	var Cycle                                   = __import( "System.Cycle" );
 	/** @type {System.Debug} */
-	var debug                                   = __import( "System.Debug" );
-
+	var debug = __import( "System.Debug" );
 	var Mesg = __import( "Components.Vim.Message" );
 
 	/** @type {Components.Vim.Cursor.IAction} */
@@ -23,6 +14,14 @@
 
 	INSERT.prototype.dispose = function()
 	{
+	};
+
+	INSERT.prototype.handler = function( e )
+	{
+		e.preventDefault();
+		if( e.key.length == "1" )
+		{
+		}
 	};
 
 	INSERT.prototype.getMessage = function()

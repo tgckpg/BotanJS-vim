@@ -1,16 +1,7 @@
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
-	/** @type {Dandelion} */
-	var Dand                                    = __import( "Dandelion" );
-	/** @type {Dandelion.IDOMElement} */
-	var IDOMElement                             = __import( "Dandelion.IDOMElement" );
-	/** @type {Dandelion.IDOMObject} */
-	var IDOMObject                              = __import( "Dandelion.IDOMObject" );
-	/** @type {System.Cycle} */
-	var Cycle                                   = __import( "System.Cycle" );
-	/** @type {System.Debug} */
-	var debug                                   = __import( "System.Debug" );
+	var debug = __import( "System.Debug" );
 
 	/** @type {Components.VimArea.LineFeeder} */
 	var LineFeeder = ns[ NS_INVOKE ]( "LineFeeder" );

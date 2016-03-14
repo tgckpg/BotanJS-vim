@@ -1,16 +1,8 @@
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
-	/** @type {Dandelion} */
-	var Dand                                    = __import( "Dandelion" );
-	/** @type {Dandelion.IDOMElement} */
-	var IDOMElement                             = __import( "Dandelion.IDOMElement" );
-	/** @type {Dandelion.IDOMObject} */
-	var IDOMObject                              = __import( "Dandelion.IDOMObject" );
-	/** @type {System.Cycle} */
-	var Cycle                                   = __import( "System.Cycle" );
 	/** @type {System.Debug} */
-	var debug                                   = __import( "System.Debug" );
+	var debug = __import( "System.Debug" );
 
 	var Actions = __import( "Components.Vim.Actions.*" );
 
@@ -219,7 +211,7 @@
 	{
 		var feeder = this.feeder;
 		if( this.action ) this.action.dispose();
-		this.action = new Actions[ "INSERT" ];
+		this.action = new (Actions[ "INSERT" ])( this );
 
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
