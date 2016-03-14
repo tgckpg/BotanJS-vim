@@ -135,13 +135,19 @@
 
 	Cursor.prototype.moveY = function( d )
 	{
-		var Y = this.Y;
+		var Y = this.Y + d;
 		var line;
 
-		Y += d;
 		if( Y < 0 )
 		{
-			Y = 0;
+			this.feeder.pan( undefined, d );
+
+			this.Y = 0;
+			this.moveX();
+			this.updatePosition();
+
+			this.feeder.softReset();
+			return;
 		}
 		else if( this.feeder.moreAt < Y )
 		{
@@ -186,7 +192,7 @@
 
 			return;
 		}
-		else if ( this.Y < Y )
+		else if ( 0 < d )
 		{
 			// If panning is forward
 			// and next line does not exists

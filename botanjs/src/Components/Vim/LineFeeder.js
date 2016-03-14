@@ -130,6 +130,7 @@
 		return this.__render( buffs[ start ], this.__rLength );
 	};
 
+	// Performs a line panning
 	Feeder.prototype.pan = function( dX, dY )
 	{
 		if( dX == undefined ) dX = 0;
@@ -140,13 +141,19 @@
 		var X = this.panX + dX;
 		var Y = this.panY + dY;
 
-		var f = this.content.indexOf( "\n" );
-		var i = 1;
+		var f = -1;
+		var i = 0;
 
-		while( f != - 1 && i < Y )
+		// Y cannot be negative
+		if( Y < 0 ) Y = 0;
+
+		if( 0 < Y )
 		{
-			i ++;
-			f = this.content.indexOf( "\n", f + 1 );
+			f = this.content.indexOf( "\n" );
+			for( i = 1; f != - 1 && i < Y; i ++ )
+			{
+				f = this.content.indexOf( "\n", f + 1 );
+			}
 		}
 
 		this.firstBuffer.Push(
