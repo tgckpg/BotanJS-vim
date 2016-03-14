@@ -71,7 +71,6 @@
 		// The resulting position
 		this.P = 0;
 
-		/** @type {Components.Vim.IAction} */
 		this.action = null;
 	};
 
@@ -207,13 +206,21 @@
 		this.updatePosition();
 	};
 
-	Cursor.prototype.openInsert = function()
+	Cursor.prototype.openAction = function( name )
 	{
-		var feeder = this.feeder;
 		if( this.action ) this.action.dispose();
-		this.action = new (Actions[ "INSERT" ])( this );
+		this.action = new (Actions[ name ])( this );
 
-		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+	};
+
+	Cursor.prototype.closeAction = function()
+	{
+		if( !this.action ) return;
+		this.action.dispose();
+		this.action = null;
+
+		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
 	Cursor.prototype.getLine = function()

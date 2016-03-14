@@ -5,18 +5,28 @@
 
 	var Controls = function( sender, e )
 	{
-		// Action Mode handled by the actions themselves
-		var cfeeder = sender.contentFeeder;
-		if( cfeeder.cursor.action )
-		{
-			cfeeder.cursor.action.handler( e );
-			return;
-		}
-
+		// Neve capture these keys
 		if( e.altKey
 			// F2 - F12
 			|| ( 112 < e.keyCode && e.keyCode < 124 )
 		) return;
+
+		// Action Mode handled by the actions themselves
+		var cfeeder = sender.contentFeeder;
+		if( cfeeder.cursor.action )
+		{
+			// Esc OR Ctrl+c
+			if( e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 ) )
+			{
+				e.preventDefault();
+				cfeeder.cursor.closeAction();
+			}
+			else
+			{
+				cfeeder.cursor.action.handler( e );
+			}
+			return;
+		}
 
 		e.preventDefault();
 
@@ -50,7 +60,7 @@
 
 			// Insert
 			case 65: // a
-				cfeeder.cursor.openInsert();
+				cfeeder.cursor.openAction( "INSERT" );
 				break;
 
 			case 1065: // A, append at the line end

@@ -49,9 +49,6 @@
 		this.rows = element.rows;
 		this.cols = element.cols;
 
-		this.PosX = 1;
-		this.PosY = 1;
-
 		this.__active = false;
 
 		var _self = this;
@@ -62,10 +59,6 @@
 
 		// Init
 		this.VisualizeVimFrame( element.value );
-	};
-
-	VimArea.prototype.startInput = function( mode )
-	{
 	};
 
 	VimArea.prototype.select = function( sel )

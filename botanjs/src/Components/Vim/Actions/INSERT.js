@@ -19,9 +19,7 @@
 	INSERT.prototype.handler = function( e )
 	{
 		e.preventDefault();
-		if( e.key.length == "1" )
-		{
-		}
+		var inputChar = e.key;
 	};
 
 	INSERT.prototype.getMessage = function()
