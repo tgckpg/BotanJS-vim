@@ -33,6 +33,7 @@
 		this.lineNum = n;
 		if( content == undefined || content === "" )
 		{
+			this.lineNum = ++n;
 			this.content = "~";
 			this.br = true;
 			this.placeholder = true;
@@ -106,6 +107,16 @@
 	{
 		return this.content || " ";
 	};
+
+	__readOnly( LineBuffer.prototype, "nextLine", function()
+	{
+		var line = this;
+		var thisLine = this.lineNum;
+
+		while( ( line = line.next ) && line.lineNum == thisLine );
+
+		return line;
+	} );
 
 	__readOnly( LineBuffer.prototype, "visualLines", function()
 	{

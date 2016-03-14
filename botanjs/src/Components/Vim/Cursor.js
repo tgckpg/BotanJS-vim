@@ -46,18 +46,12 @@
 				if( line.next && line.next.placeholder )
 					break LineLoop;
 
-				if( line.next && line.next.br )
-				{
-					offset += line.toString().length + 1;
-					line = line.next;
-					break;
-				}
-				else
-				{
-					offset += line.toString().length + 1;
-				}
-
+				// Using toString because tab is 1 byte 
+				// but variable width
+				offset += line.toString().length + 1;
 				line = line.next;
+
+				if( line && line.br ) break;
 			}
 		}
 
@@ -142,6 +136,7 @@
 	Cursor.prototype.moveY = function( d )
 	{
 		var Y = this.Y;
+		var line;
 
 		Y += d;
 		if( Y < 0 )
@@ -152,13 +147,16 @@
 		{
 			var feeder = this.feeder;
 			var lastLine = feeder.lastBuffer.lineNum;
+			var lineShift = Y - feeder.moreAt;
 
 			var i = 0;
 			while( true )
 			{
-				feeder.pan( undefined, Y - feeder.moreAt + i );
+				feeder.pan( undefined, lineShift + i );
 
-				// If it is the same line we keep scrolling it
+				// if it turns out to be the same line
+				// before after panning
+				// we keep scrolling it ( panning )
 				// until the entire line cosumes the screen
 				if( feeder.lastBuffer.lineNum == lastLine )
 				{
@@ -167,6 +165,10 @@
 				else break;
 			}
 
+			// The line number cursor need to be in
+			Y = lastLine + lineShift;
+
+			// Calculate the visual line position
 			for( i = 0, line = feeder.firstBuffer;
 				line != feeder.lastBuffer;
 				line = line.next )
@@ -183,6 +185,17 @@
 			feeder.softReset();
 
 			return;
+		}
+		else if ( this.Y < Y )
+		{
+			// If panning is forward
+			// and next line does not exists
+			line = this.getLine().nextLine;
+			if( !line || line.placeholder )
+			{
+				// do nothing
+				return;
+			}
 		}
 
 		this.Y = Y;

@@ -149,12 +149,15 @@
 		var r = this.rows;
 		var c = this.cols;
 
+		// StatusFeeder always consumes at least 1 line
+		var cRange = r - 1;
+
 		// Content feeder
-		var cfeeder = new LineFeeder( r, c );
+		var cfeeder = new LineFeeder( cRange, c );
 
 		cfeeder.init( content );
 
-		// Status feeder
+		// Status can consumes up to full screen, I think
 		sfeeder = new LineFeeder( r, c );
 		sfeeder.setRender( false );
 
