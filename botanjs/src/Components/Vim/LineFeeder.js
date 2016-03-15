@@ -26,6 +26,8 @@
 		this.panX = 0;
 		this.panY = 0;
 
+		this.wrap = true;
+
 		this.setRender();
 
 		this.cursor = new Cursor( this );
@@ -34,8 +36,6 @@
 		this.__clseLine = null;
 		this.__moreAt = -1;
 		this.__rows = rows;
-
-		this.__wrap = true;
 	};
 
 	Feeder.prototype.init = function( content, wrap )
@@ -43,13 +43,15 @@
 		this.content = content;
 		this.setWrap( wrap );
 
-		this.firstBuffer.Push( content, this.__wrap, 0 ); 
+		this.firstBuffer.Push( content, this.wrap, 0 ); 
 	};
 
 	Feeder.prototype.setWrap = function( wrap )
 	{
 		if( wrap == undefined ) return;
-		this.__wrap = wrap;
+		this.wrap = wrap;
+
+		// TODO: Update
 	};
 
 	Feeder.prototype.setRender = function( placeholder )
@@ -128,8 +130,6 @@
 		if( dX == undefined ) dX = 0;
 		if( dY == undefined ) dY = 0;
 
-		if( dX == 0 && dY == 0 ) return;
-
 		var X = this.panX + dX;
 		var Y = this.panY + dY;
 
@@ -142,7 +142,7 @@
 		if( 0 < Y )
 		{
 			f = this.content.indexOf( "\n" );
-			for( i = 1; f != - 1 && i < Y; i ++ )
+			for( i = 1; f != -1 && i < Y; i ++ )
 			{
 				f = this.content.indexOf( "\n", f + 1 );
 			}
@@ -150,7 +150,7 @@
 
 		this.firstBuffer.Push(
 			this.content.substr( f + 1 )
-			, this.__wrap, i );
+			, this.wrap, i );
 
 		this.panX = X;
 		this.panY = Y;
@@ -195,8 +195,7 @@
 	} );
 
 	__readOnly( Feeder.prototype, "lineStat", function() {
-		var X = this.cursor.X;
-
+		var X = this.cursor.aX;
 		var line = this.cursor.getLine();
 		var tabStat = "";
 

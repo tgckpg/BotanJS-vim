@@ -238,11 +238,31 @@
 		return line;
 	};
 
+	// The absX for current Line
+	__readOnly( Cursor.prototype, "aX", function()
+	{
+		var X = this.X;
+		var f = this.feeder;
+
+		// Calculate wordwrap offset
+		if( f.wrap )
+		{
+			var cols = f.firstBuffer.cols + 1;
+			var w = X < cols ? 0 : Math.floor( X / cols );
+
+			if( 0 < w )
+			{
+				X -= w;
+			}
+		}
+
+		return X;
+	} );
+
 	__readOnly( Cursor.prototype, "message", function()
 	{
 		return this.action && this.action.getMessage();
 	} );
-
 
 	__readOnly( Cursor.prototype, "position", function()
 	{

@@ -39,9 +39,10 @@
 
 		var i = 0;
 		var numTabs = 0;
+		var tabw = this.tabWidth - 1;
 		if( wrap )
 		{
-			for( ; i < this.cols - numTabs * this.tabWidth; i ++ )
+			for( ; i < this.cols - numTabs * tabw; i ++ )
 			{
 				var c = content[i];
 				if( c === undefined ) break;
@@ -78,7 +79,7 @@
 					numTabs ++;
 				}
 
-				if( i < this.cols - numTabs * this.tabWidth )
+				if( i < this.cols - numTabs * tabw )
 				{
 					line += c;
 				}

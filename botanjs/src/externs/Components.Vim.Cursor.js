@@ -28,6 +28,8 @@ Components.Vim.Cursor.pX;
 /** @type Number */
 Components.Vim.Cursor.P;
 /** @type Number */
+Components.Vim.Cursor.aX;
+/** @type Number */
 Components.Vim.Cursor.X;
 /** @type Number */
 Components.Vim.Cursor.Y;

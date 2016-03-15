@@ -28,6 +28,8 @@ Components.Vim.LineFeeder.setWrap;
 Components.Vim.LineFeeder.lineBuffers;
 /** @type Boolean */
 Components.Vim.LineFeeder.EOF;
+/** @type Boolean */
+Components.Vim.LineFeeder.wrap;
 /** @type Number */
 Components.Vim.LineFeeder.panX;
 /** @type Number */
