@@ -13,19 +13,16 @@
 		if( i == -1 || !this.__steps.length ) return null;
 
 
-		this.__i -= 2;
-		return this.__steps[ i ];
+		return this.__steps[ this.__i = i ];
 	};
 
 	Recorder.prototype.redo = function()
 	{
-		var i = this.__i + 1;
-		if( i == -1 || !this.__steps.length ) return null;
+		var State = this.__steps[ this.__i ];
 
-		var State = this.__steps[ i ];
 		if( State )
 		{
-			this.__i += 2;
+			this.__i ++;
 			return State;
 		}
 
@@ -35,9 +32,7 @@
 	Recorder.prototype.record = function( StateObj )
 	{
 		this.__steps[ this.__i ] = StateObj;
-		StateObj.id = this.__i;
-
-		delete this.__steps[ ++ this.__i ];
+		StateObj.id = this.__i ++;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Recorder", Recorder );

@@ -57,6 +57,7 @@
 
 	INSERT.prototype.dispose = function()
 	{
+		this.__cursor.moveX( -1 );
 		this.__rec( "", true );
 	};
 
@@ -67,12 +68,6 @@
 		var insertLength = this.__insertLength;
 		var contentUndo = this.__contentUndo;
 		var startPos = this.__startPosition;
-
-		if( insertLength < 0 )
-		{
-			startPos += insertLength;
-			insertLength = 0;
-		}
 
 		return function() {
 			var contentRedo = feeder.content.substr( startPos, insertLength );
@@ -128,8 +123,15 @@
 
 				var f = ContentPosition( feeder );
 
-				this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
-				this.__insertLength --;
+				if( this.__insertLength <= 0 )
+				{
+					this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
+					this.__startPosition --;
+				}
+				else
+				{
+					this.__insertLength --;
+				}
 
 				feeder.content =
 					feeder.content.substring( 0, f )
@@ -140,7 +142,6 @@
 				var f = ContentPosition( feeder );
 
 				this.__contentUndo += feeder.content.substr( f, 1 );
-				this.__insertLength ++;
 
 				feeder.content =
 					feeder.content.substring( 0, f )

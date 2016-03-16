@@ -45,7 +45,7 @@
 
 		e.preventDefault();
 		var kCode = e.keyCode
-			+ ( e.shiftKey ? SHIFT : 0 )
+			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
 			+ ( e.ctrlKey ? CTRL : 0 );
 
 		var cfeeder = sender.contentFeeder;
