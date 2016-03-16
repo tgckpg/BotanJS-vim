@@ -1,10 +1,12 @@
 (function(){
 	var ns = __namespace( "Components.Vim.Actions" );
 
-	var Mesg = __import( "Components.Vim.Message" );
-
 	/** @type {Components.Vim.State.Stack} */
-	var Stack = __import( "Components.Vim.State.Stack" );
+	var Stack                                 = __import( "Components.Vim.State.Stack" );
+	/** @type {System.Debug} */
+	var debug                                 = __import( "System.Debug" );
+
+	var Mesg = __import( "Components.Vim.Message" );
 
 	var Translate = function( c )
 	{
@@ -55,13 +57,33 @@
 
 	INSERT.prototype.dispose = function()
 	{
-
+		this.__rec( "", true );
 	};
 
-	INSERT.prototype.__storeState = function( c, pos )
+	INSERT.prototype.__storeState = function()
 	{
+		var cur = this.__cursor;
+		var feeder = cur.feeder;
+		var insertLength = this.__insertLength;
+		var contentUndo = this.__contentUndo;
+		var startPos = this.__startPosition;
+
+		if( insertLength < 0 )
+		{
+			startPos += insertLength;
+			insertLength = 0;
+		}
+
 		return function() {
-			debug.Inf( pos, c );
+			var contentRedo = feeder.content.substr( startPos, insertLength );
+			feeder.content =
+				feeder.content.substring( 0, startPos )
+				+ contentUndo
+				+ feeder.content.substring( startPos + insertLength );
+			insertLength = contentUndo.length;
+			contentUndo = contentRedo;
+
+			feeder.pan();
 		};
 	};
 
@@ -71,21 +93,67 @@
 		{
 			if( this.__stack )
 			{
-				var c = this.__content;
+				// If nothings changed
+				if( this.__insertLength == 0
+					&& this.__contentUndo === ""
+				) return;
 
 				this.__stack.store(
-					this.__storeState( c, this.__startPosition )
+					this.__storeState()
 				);
 
-				this.__cursor.rec.store( this.__stack );
+				this.__cursor.rec.record( this.__stack );
 			}
 
-			this.__content = "";
+			this.__insertLength = 0;
+			this.__contentUndo = "";
 			this.__stack = new Stack();
 			this.__startPosition = ContentPosition( this.__cursor.feeder );
 		}
 
-		this.__content += c;
+		this.__insertLength += c.length;
+	};
+
+	INSERT.prototype.__specialKey = function( e, inputChar )
+	{
+		var cur = this.__cursor;
+		var feeder = cur.feeder;
+
+		switch( e.keyCode )
+		{
+			case 8: // Backspace
+				if( cur.X == 0 ) return;
+
+				cur.moveX( -1 );
+
+				var f = ContentPosition( feeder );
+
+				this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
+				this.__insertLength --;
+
+				feeder.content =
+					feeder.content.substring( 0, f )
+					+ feeder.content.substring( f + 1 );
+
+				break;
+			case 46: // Delete
+				var f = ContentPosition( feeder );
+
+				this.__contentUndo += feeder.content.substr( f, 1 );
+				this.__insertLength ++;
+
+				feeder.content =
+					feeder.content.substring( 0, f )
+					+ feeder.content.substring( f + 1 );
+
+				break;
+			default:
+				// Do nothing
+				return;
+		}
+
+		feeder.pan();
+		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
 	INSERT.prototype.handler = function( e )
@@ -93,7 +161,11 @@
 		e.preventDefault();
 		var inputChar = Translate( e.key );
 
-		if( inputChar.length != 1 ) return;
+		if( inputChar.length != 1 )
+		{
+			this.__specialKey( e, inputChar );
+			return;
+		}
 
 		var cur = this.__cursor;
 		var feeder = cur.feeder;

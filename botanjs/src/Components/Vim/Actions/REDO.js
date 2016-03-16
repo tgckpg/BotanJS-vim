@@ -4,24 +4,24 @@
 	var Mesg = __import( "Components.Vim.Message" );
 
 	/** @type {Components.Vim.Cursor.IAction} */
-	var UNDO = function( Cursor )
+	var REDO = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
-		this.__message = "UNDO COMMAND";
+		this.__message = "REDO COMMAND";
 	};
 
-	UNDO.prototype.dispose = function()
+	REDO.prototype.dispose = function()
 	{
 
 	};
 
-	UNDO.prototype.handler = function( e )
+	REDO.prototype.handler = function( e )
 	{
 		e.preventDefault();
 
 		/** @type {Components.Vim.State.Stack} */
-		var stack = this.__cursor.rec.undo();
+		var stack = this.__cursor.rec.redo();
 		if( stack )
 		{
 			stack.play();
@@ -29,14 +29,14 @@
 		}
 		else
 		{
-			this.__message = Mesg( "UNDO_LIMIT" );
+			this.__message = Mesg( "REDO_LIMIT" );
 		}
 	};
 
-	UNDO.prototype.getMessage = function()
+	REDO.prototype.getMessage = function()
 	{
 		return this.__message;
 	};
 
-	ns[ NS_EXPORT ]( EX_CLASS, "UNDO", UNDO );
+	ns[ NS_EXPORT ]( EX_CLASS, "REDO", REDO );
 })();

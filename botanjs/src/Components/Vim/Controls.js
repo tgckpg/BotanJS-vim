@@ -3,6 +3,21 @@
 
 	var debug = __import( "System.Debug" );
 
+	var SHIFT = 1 << 9;
+	var CTRL = 1 << 10;
+
+	var BACKSPACE = 8;
+
+	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
+	var _5 = 53; var _6 = 54; var _7 = 55; var _8 = 56; var _9 = 57;
+
+	var A = 65; var B = 66; var C = 67; var D = 68; var E = 69;
+	var F = 70; var G = 71; var H = 72; var I = 73; var J = 74;
+	var K = 75; var L = 76; var M = 77; var N = 78; var O = 79;
+	var P = 80; var Q = 81; var R = 82; var S = 83; var T = 84;
+	var U = 85; var V = 86; var W = 87; var X = 88; var Y = 89;
+	var Z = 90;
+
 	var Controls = function( sender, e )
 	{
 		// Neve capture these keys
@@ -15,7 +30,7 @@
 		var cfeeder = sender.contentFeeder;
 		if( cfeeder.cursor.action )
 		{
-			// Esc OR Ctrl+c
+			// Esc OR Ctrl + c
 			if( e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 ) )
 			{
 				e.preventDefault();
@@ -29,76 +44,75 @@
 		}
 
 		e.preventDefault();
-
-		if( e.ctrlKey )
-		{
-			VimComboFunc( sender, e );
-			return;
-		}
-
-		var kCode = e.keyCode + ( e.shiftKey ? 1000 : 0 );
+		var kCode = e.keyCode
+			+ ( e.shiftKey ? SHIFT : 0 )
+			+ ( e.ctrlKey ? CTRL : 0 );
 
 		var cfeeder = sender.contentFeeder;
 		var sfeeder = sender.statusFeeder;
 		switch( kCode )
 		{
 			// Cursor movements
-			case 8: // Backspace, go back 1 char, regardless of line
+			case BACKSPACE: // Backspace, go back 1 char, regardless of line
 				break;
-			case 72: // h
+			case H: // Left
 				cfeeder.cursor.moveX( -1 );
 				break;
-			case 74: // j
-				cfeeder.cursor.moveY( 1 );
+			case L: // Right
+				cfeeder.cursor.moveX( 1 );
 				break;
-			case 75: // k
+			case K: // Up
 				cfeeder.cursor.moveY( -1 );
 				break;
-			case 76: // l
-				cfeeder.cursor.moveX( 1 );
+			case J: // Down
+				cfeeder.cursor.moveY( 1 );
 				break;
 
 			// Insert
-			case 65: // a
+			case A: // Append
+				cfeeder.cursor.moveX( 1 );
 				cfeeder.cursor.openAction( "INSERT" );
 				break;
-			case 73: // i
+			case I: // Insert
 				break;
-			case 85: // u, undo
+			case U: // Undo
 				cfeeder.cursor.openRunAction( "UNDO", e );
 				break;
-			case 88: // x, del
+			case CTRL + R: // Redo
+				cfeeder.cursor.openRunAction( "REDO", e );
 				break;
-			case 1065: // A, append at the line end
+			case X: // Del
 				break;
-			case 1088: // X, delete before
+			case SHIFT + A: // Append at the line end
 				break;
-			case 1085: // U, undo previous changes in oneline
+			case SHIFT + X: // Delete before
 				break;
-			case 1073: // I, append before the line start, after spaces
+			case SHIFT + U: // Undo previous changes in oneline
+				break;
+			case SHIFT + I: // Append before the line start, after spaces
 				break;
 
 			// remove characters
-			case 88: // x, remove in cursor
+			case X: // Remove in cursor
 				break;
-			case 1088: // X, remove before cursor
+			case SHIFT + X: // Remove before cursor
 				break;
 
-			case 1072: // H, First line buffer
+			case SHIFT + H: // First line buffer
 				break;
-			case 1076: // L, Last line buffer
+			case SHIFT + L: // Last line buffer
 				break;
-			case 1052: // $
+			case SHIFT + _4: // $, End
 				cfeeder.cursor.lineEnd();
 				break;
-			case 1053: // %
+			case SHIFT + _5: // %, Find next item
 				break;
-			case 1054: // ^
+			case SHIFT + _6: // ^, Start
 				cfeeder.cursor.lineStart();
 				break;
-			case 1074: // J, Join lines
+			case SHIFT + J: // Join lines
 				break;
-			case 1075: // K, manual entry
+			case SHIFT + K: // manual entry
 				break;
 			case 112: // F1, help
 		}

@@ -15,6 +15,7 @@
 		, "EXIT": "Type :quit<Enter>  to exit Vim"
 
 		, "UNDO_LIMIT": "Already at oldest change"
+		, "REDO_LIMIT": "Already at newest change"
 	};
 
 	var errors = {

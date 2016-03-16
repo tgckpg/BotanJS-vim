@@ -13,7 +13,8 @@
 		if( i == -1 || !this.__steps.length ) return null;
 
 
-		return this.__steps[ this.__i = i ];
+		this.__i -= 2;
+		return this.__steps[ i ];
 	};
 
 	Recorder.prototype.redo = function()
@@ -24,7 +25,7 @@
 		var State = this.__steps[ i ];
 		if( State )
 		{
-			this.__i = i;
+			this.__i += 2;
 			return State;
 		}
 
@@ -34,6 +35,8 @@
 	Recorder.prototype.record = function( StateObj )
 	{
 		this.__steps[ this.__i ] = StateObj;
+		StateObj.id = this.__i;
+
 		delete this.__steps[ ++ this.__i ];
 	};
 

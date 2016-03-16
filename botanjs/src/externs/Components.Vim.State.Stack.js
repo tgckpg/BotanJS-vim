@@ -5,3 +5,5 @@ Components.Vim.State.Stack = function(){};
 Components.Vim.State.Stack.play;
 /** @type Function */
 Components.Vim.State.Stack.store;
+/** @type Function */
+Components.Vim.State.Stack.time;
