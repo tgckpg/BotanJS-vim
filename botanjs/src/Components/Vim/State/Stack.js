@@ -4,10 +4,7 @@
 	/** @type {Components.Vim.DateTime} */
 	var RelativeTime = __import( "Components.Vim.DateTime.RelativeTime" );
 
-	var Stack = function()
-	{
-
-	};
+	var Stack = function() { };
 
 	Stack.prototype.store = function( handler )
 	{

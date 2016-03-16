@@ -4,7 +4,9 @@
 	var Recorder = function()
 	{
 		this.__steps = [];
+		this.__stacks = [];
 		this.__i = 0;
+		this.__j = 0;
 	};
 
 	Recorder.prototype.undo = function()
@@ -31,8 +33,12 @@
 
 	Recorder.prototype.record = function( StateObj )
 	{
-		this.__steps[ this.__i ] = StateObj;
-		StateObj.id = this.__i ++;
+		this.__steps[ this.__i ++ ] = StateObj;
+		this.__stacks[ this.__j ++ ] = StateObj;
+
+		delete this.__steps[ this.__i ];
+
+		StateObj.id = this.__j;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Recorder", Recorder );
