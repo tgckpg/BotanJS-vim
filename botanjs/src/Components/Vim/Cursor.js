@@ -4,6 +4,9 @@
 	/** @type {System.Debug} */
 	var debug = __import( "System.Debug" );
 
+	/** @type {Components.Vim.State.Recorder} */
+	var Recorder = __import( "Components.Vim.State.Recorder" );
+
 	var Actions = __import( "Components.Vim.Actions.*" );
 
 	var GetLine = function( buffs, l )
@@ -70,6 +73,9 @@
 
 		// The resulting position
 		this.P = 0;
+
+		// State recorder
+		this.rec = new Recorder();
 
 		this.action = null;
 	};
@@ -210,6 +216,7 @@
 	{
 		if( this.action ) this.action.dispose();
 		this.action = new (Actions[ name ])( this );
+		this.__pulseMsg = null;
 
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
@@ -219,6 +226,18 @@
 		if( !this.action ) return;
 		this.action.dispose();
 		this.action = null;
+		this.__pulseMsg = null;
+
+		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+	};
+
+	Cursor.prototype.openRunAction = function( name, e )
+	{
+		/** @type {Components.Vim.IAction} */
+		var action = new (Actions[ name ])( this );
+		action.handler( e );
+		this.__pulseMsg = action.getMessage();
+		action.dispose();
 
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
@@ -244,23 +263,52 @@
 		var X = this.X;
 		var f = this.feeder;
 
+		var w = 1;
+
 		// Calculate wordwrap offset
 		if( f.wrap )
 		{
-			var cols = f.firstBuffer.cols + 1;
-			var w = X < cols ? 0 : Math.floor( X / cols );
+			var lines = this.getLine().visualLines;
 
-			if( 0 < w )
+			for( var i in lines )
 			{
-				X -= w;
+				/** @type {Components.Vim.LineBuffer} */
+				var vline = lines[ i ];
+
+				// Actual length
+				var aLen = vline.content.toString().length;
+
+				// Visual length
+				var vLen = vline.toString().length;
+
+				// Plus the "\n" character
+				X -= vLen + 1;
+
+				if( 0 <= X )
+				{
+					w += aLen;
+				}
+				else if( X < 0 )
+				{
+					w += X + vLen;
+					break;
+				}
 			}
 		}
 
-		return X;
+		return w;
 	} );
 
 	__readOnly( Cursor.prototype, "message", function()
 	{
+		if( this.__pulseMsg )
+		{
+			var m = this.__pulseMsg;
+			this.__pulseMsg = null;
+
+			return m;
+		}
+
 		return this.action && this.action.getMessage();
 	} );
 

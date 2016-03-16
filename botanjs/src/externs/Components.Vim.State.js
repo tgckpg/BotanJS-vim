@@ -1,0 +1,2 @@
+/** @object */
+Components.Vim.State = {};

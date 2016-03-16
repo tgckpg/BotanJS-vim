@@ -13,6 +13,8 @@
 		, "BOTTOM": "Bot"
 		, "ALL": "All"
 		, "EXIT": "Type :quit<Enter>  to exit Vim"
+
+		, "UNDO_LIMIT": "Already at oldest change"
 	};
 
 	var errors = {

@@ -32,7 +32,7 @@
 				if( text == undefined || text === "" ) continue;
 
 				display += text.substr( 0, avail );
-				i = display.length - 1;
+				i = display.length;
 			}
 			else display += " ";
 		}

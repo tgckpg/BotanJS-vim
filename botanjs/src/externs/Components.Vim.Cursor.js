@@ -5,6 +5,8 @@ Components.Vim.Cursor = function(){};
 Components.Vim.Cursor.feeder;
 /** @type {Components.Vim.IAction} */
 Components.Vim.Cursor.action;
+/** @type {Components.Vim.State.Recorder} */
+Components.Vim.Cursor.rec;
 
 /** @type Function */
 Components.Vim.Cursor.moveX;
@@ -18,6 +20,8 @@ Components.Vim.Cursor.lineEnd;
 Components.Vim.Cursor.updatePosition;
 /** @type Function */
 Components.Vim.Cursor.openAction;
+/** @type Function */
+Components.Vim.Cursor.openRunAction;
 /** @type Function */
 Components.Vim.Cursor.closeAction;
 

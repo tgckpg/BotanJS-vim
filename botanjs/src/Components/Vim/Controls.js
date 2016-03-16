@@ -62,10 +62,18 @@
 			case 65: // a
 				cfeeder.cursor.openAction( "INSERT" );
 				break;
-
+			case 73: // i
+				break;
+			case 85: // u, undo
+				cfeeder.cursor.openRunAction( "UNDO", e );
+				break;
+			case 88: // x, del
+				break;
 			case 1065: // A, append at the line end
 				break;
-			case 73: // i
+			case 1088: // X, delete before
+				break;
+			case 1085: // U, undo previous changes in oneline
 				break;
 			case 1073: // I, append before the line start, after spaces
 				break;

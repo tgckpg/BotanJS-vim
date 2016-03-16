@@ -195,7 +195,7 @@
 	} );
 
 	__readOnly( Feeder.prototype, "lineStat", function() {
-		var X = this.cursor.aX;
+		var X = this.cursor.aX + 1;
 		var line = this.cursor.getLine();
 		var tabStat = "";
 
