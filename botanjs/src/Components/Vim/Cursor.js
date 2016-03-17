@@ -313,6 +313,33 @@
 		return w;
 	} );
 
+	// The absolute content position
+	__readOnly( Cursor.prototype, "aPos", function()
+	{
+		var f = this.feeder;
+		var line = this.getLine();
+		var n = line.lineNum;
+
+		var p = 0;
+		if( 0 < n )
+		{
+			p = f.content.indexOf( "\n" );
+			for( i = 1; p != -1 && i < n; i ++ )
+			{
+				p = f.content.indexOf( "\n", p + 1 );
+			}
+
+			if( f.wrap )
+			{
+				// wordwrap offset
+				p ++;
+			}
+		}
+
+		p += this.aX;
+		return p;
+	} );
+
 	__readOnly( Cursor.prototype, "message", function()
 	{
 		if( this.__pulseMsg )

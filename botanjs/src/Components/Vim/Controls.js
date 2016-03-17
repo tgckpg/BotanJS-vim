@@ -2,6 +2,7 @@
 	var ns = __namespace( "Components.Vim" );
 
 	var debug = __import( "System.Debug" );
+	var beep = ns[ NS_INVOKE ]( "Beep" );
 
 	var SHIFT = 1 << 9;
 	var CTRL = 1 << 10;
@@ -18,7 +19,49 @@
 	var U = 85; var V = 86; var W = 87; var X = 88; var Y = 89;
 	var Z = 90;
 
-	var Controls = function( sender, e )
+	var Controls = function()
+	{
+		this.__keyChains = [];
+	};
+
+	Controls.prototype.__comboG = function( e )
+	{
+		var keyON = this.__keyChains[ 0 ] == G;
+		if( keyON )
+		{
+			switch( e.keyCode )
+			{
+				default:
+					this.__keyChains = [];
+					return true;
+			}
+		}
+		else if( e.keyCode == G )
+		{
+			this.__keyChains[ 0 ] = G;
+			return true;
+		}
+
+		return false;
+	};
+
+	Controls.prototype.__comboT = function( e ) { return false; };
+
+	// <
+	Controls.prototype.__comboLeftShift = function( e ) { return false; };
+
+	// >
+	Controls.prototype.__comboRightShift = function( e ) { return false; };
+
+	Controls.prototype.__comboKey = function( e )
+	{
+		return this.__comboG( e )
+			|| this.__comboT( e )
+			|| this.__comboLeftShift( e )
+			|| this.__comboRightShift( e );
+	};
+
+	Controls.prototype.handler = function( sender, e )
 	{
 		// Neve capture these keys
 		if( e.altKey
@@ -28,10 +71,16 @@
 
 		// Action Mode handled by the actions themselves
 		var cfeeder = sender.contentFeeder;
+
+		// Esc OR Ctrl + c
+		var Escape = e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 );
+
+		// Clear the keychains in combo commands
+		if( Escape ) this.__keyChains = [];
+
 		if( cfeeder.cursor.action )
 		{
-			// Esc OR Ctrl + c
-			if( e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 ) )
+			if( Escape )
 			{
 				e.preventDefault();
 				cfeeder.cursor.closeAction();
@@ -48,39 +97,64 @@
 			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
 			+ ( e.ctrlKey ? CTRL : 0 );
 
+		// Handles long commands
+
+		if( this.__comboKey( kCode ) ) return;
+
 		var cfeeder = sender.contentFeeder;
 		var sfeeder = sender.statusFeeder;
+
+		var ccur = cfeeder.cursor;
+
+		var cMoveX = function( a, b, c )
+		{
+			var x = ccur.X;
+			ccur.moveX( a, b, c );
+			if( ccur.X == x ) beep();
+		};
+
+		var cMoveY = function( a )
+		{
+			var y = ccur.Y + cfeeder.panY;
+			ccur.moveY( a );
+			if( y == ( ccur.Y + cfeeder.panY ) )
+			{
+				if( 0 < a && !cfeeder.EOF ) return;
+				beep();
+			}
+		};
+
 		switch( kCode )
 		{
 			// Cursor movements
 			case BACKSPACE: // Backspace, go back 1 char, regardless of line
-				cfeeder.cursor.moveX( -1, true );
+				cMoveX( -1, true );
 				break;
 			case H: // Left
-				cfeeder.cursor.moveX( -1 );
+				cMoveX( -1 );
 				break;
 			case L: // Right
-				cfeeder.cursor.moveX( 1 );
+				cMoveX( 1 );
 				break;
 			case K: // Up
-				cfeeder.cursor.moveY( -1 );
+				cMoveY( -1 );
 				break;
 			case J: // Down
-				cfeeder.cursor.moveY( 1 );
+				cMoveY( 1 );
 				break;
 
 			// Insert
 			case A: // Append
-				cfeeder.cursor.moveX( 1, true, true );
-				cfeeder.cursor.openAction( "INSERT" );
+				cMoveX( 1, true, true );
+				ccur.openAction( "INSERT" );
 				break;
 			case I: // Insert
 				break;
 			case U: // Undo
-				cfeeder.cursor.openRunAction( "UNDO", e );
+				ccur.openRunAction( "UNDO", e );
 				break;
 			case CTRL + R: // Redo
-				cfeeder.cursor.openRunAction( "REDO", e );
+				ccur.openRunAction( "REDO", e );
 				break;
 			case X: // Del
 				break;
@@ -104,12 +178,12 @@
 			case SHIFT + L: // Last line buffer
 				break;
 			case SHIFT + _4: // $, End
-				cfeeder.cursor.lineEnd();
+				ccur.lineEnd();
 				break;
 			case SHIFT + _5: // %, Find next item
 				break;
 			case SHIFT + _6: // ^, Start
-				cfeeder.cursor.lineStart();
+				ccur.lineStart();
 				break;
 			case SHIFT + J: // Join lines
 				break;
@@ -120,5 +194,5 @@
 
 	};
 
-	ns[ NS_EXPORT ]( EX_FUNC, "Controls", Controls );
+	ns[ NS_EXPORT ]( EX_CLASS, "Controls", Controls );
 })();

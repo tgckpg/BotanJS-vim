@@ -21,37 +21,13 @@
 		}
 	};
 
-	/* @param {Components.Vim.LineFeeder} */
-	var ContentPosition = function( f )
-	{
-		var line = f.cursor.getLine();
-		var n = line.lineNum;
-
-		var p = 0;
-		if( 0 < n )
-		{
-			p = f.content.indexOf( "\n" );
-			for( i = 1; p != -1 && i < n; i ++ )
-			{
-				p = f.content.indexOf( "\n", p + 1 );
-			}
-
-			if( f.wrap )
-			{
-				// wordwrap offset
-				p ++;
-			}
-		}
-
-		p += f.cursor.aX;
-		return p;
-	};
-
 	/** @type {Components.Vim.Cursor.IAction} */
 	var INSERT = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
+
+		this.__startX = Cursor.aPos;
 
 		// Initialize this stack
 		this.__rec( "", true );
@@ -70,6 +46,7 @@
 		var insertLength = this.__insertLength;
 		var contentUndo = this.__contentUndo;
 		var startPos = this.__startPosition;
+		var startX = this.__startX;
 
 		return function() {
 			var contentRedo = feeder.content.substr( startPos, insertLength );
@@ -105,7 +82,7 @@
 			this.__insertLength = 0;
 			this.__contentUndo = "";
 			this.__stack = new Stack();
-			this.__startPosition = ContentPosition( this.__cursor.feeder );
+			this.__startPosition = this.__cursor.aPos;
 		}
 
 		if( c == "\n" )
@@ -129,7 +106,7 @@
 
 				cur.moveX( -1, true, true );
 
-				var f = ContentPosition( feeder );
+				var f = cur.aPos;
 
 				if( this.__insertLength <= 0 )
 				{
@@ -147,7 +124,7 @@
 
 				break;
 			case 46: // Delete
-				var f = ContentPosition( feeder );
+				var f = cur.aPos;
 
 				this.__contentUndo += feeder.content.substr( f, 1 );
 
@@ -179,7 +156,7 @@
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
 
-		var f = ContentPosition( feeder );
+		var f = cur.aPos;
 
 		feeder.content =
 			feeder.content.substring( 0, f )

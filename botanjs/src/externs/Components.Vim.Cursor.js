@@ -38,6 +38,8 @@ Components.Vim.Cursor.X;
 /** @type Number */
 Components.Vim.Cursor.Y;
 /** @type Number */
+Components.Vim.Cursor.aPos;
+/** @type Number */
 Components.Vim.Cursor.cols;
 /** @type message */
 Components.Vim.Cursor.string;

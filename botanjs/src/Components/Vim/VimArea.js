@@ -53,7 +53,12 @@
 
 		var _self = this;
 
-		stage.addEventListener( "KeyDown", KeyHandler( this, VimControls ) );
+		var controls = new VimControls();
+		stage.addEventListener(
+			"KeyDown"
+			, KeyHandler( this, controls.handler.bind( controls ) )
+		);
+
 		stage.addEventListener( "Focus", function() { _self.__active = true; } );
 		stage.addEventListener( "Blur", function() { _self.__active = false; } );
 
