@@ -54,6 +54,7 @@
 		{
 			// Cursor movements
 			case BACKSPACE: // Backspace, go back 1 char, regardless of line
+				cfeeder.cursor.moveX( -1, true );
 				break;
 			case H: // Left
 				cfeeder.cursor.moveX( -1 );
@@ -70,7 +71,7 @@
 
 			// Insert
 			case A: // Append
-				cfeeder.cursor.moveX( 1 );
+				cfeeder.cursor.moveX( 1, true, true );
 				cfeeder.cursor.openAction( "INSERT" );
 				break;
 			case I: // Insert

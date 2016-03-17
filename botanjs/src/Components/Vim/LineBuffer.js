@@ -97,6 +97,11 @@
 
 	LineBuffer.prototype.toString = function()
 	{
+		if( this.content.length < this.cols )
+		{
+			return this.content + " ";
+		}
+
 		return this.content || " ";
 	};
 

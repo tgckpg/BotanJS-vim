@@ -82,7 +82,7 @@
 
 	// Can only be 1, -1
 	// 0 will be treated as undefined
-	Cursor.prototype.moveX = function( d )
+	Cursor.prototype.moveX = function( d, penentrate, phantomSpace )
 	{
 		var x = this.pX;
 
@@ -93,15 +93,29 @@
 
 		var buffs = this.feeder.lineBuffers;
 
+		if( penentrate && x < 0 && ( 0 < this.feeder.panY || 0 < this.Y ) )
+		{
+			this.moveY( -1 );
+			this.lineEnd( phantomSpace );
+			return;
+		}
+
 		/** @type {Components.Vim.LineBuffer} */
 		var line = GetLine( buffs, this.Y );
 		var content = line.visualLines.join( "\n" );
+		var cLen = content.length;
 
 		var c = content[ x ];
 
-		if( c == undefined )
+		// Include empty lines befor cursor end
+		if( ( phantomSpace && cLen - 1 <= x ) || ( cLen == 1 && c == undefined ) )
 		{
-			x = d > 0 ? content.length - 1 : 0;
+			x = d > 0 ? cLen - 1 : 0;
+		}
+		// ( 2 < cLen ) Exclude empty lines at cursor end
+		else if( ( 2 < cLen && x == cLen - 1 && c == " " ) || c == undefined )
+		{
+			x = d > 0 ? cLen - 2 : 0;
 		}
 		else if( c == "\n" )
 		{
@@ -124,9 +138,9 @@
 		this.updatePosition();
 	};
 
-	Cursor.prototype.lineEnd = function()
+	Cursor.prototype.lineEnd = function( phantomSpace )
 	{
-		this.moveX( Number.MAX_VALUE );
+		this.moveX( Number.MAX_VALUE, false, phantomSpace );
 	};
 
 	Cursor.prototype.updatePosition = function()

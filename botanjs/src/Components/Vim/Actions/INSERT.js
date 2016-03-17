@@ -14,6 +14,8 @@
 		{
 			case "Tab":
 				return "\t";
+			case "Enter":
+				return "\n";
 			default:
 				return c;
 		}
@@ -106,6 +108,11 @@
 			this.__startPosition = ContentPosition( this.__cursor.feeder );
 		}
 
+		if( c == "\n" )
+		{
+			// todo
+		}
+
 		this.__insertLength += c.length;
 	};
 
@@ -117,9 +124,10 @@
 		switch( e.keyCode )
 		{
 			case 8: // Backspace
-				if( cur.X == 0 ) return;
+				var oY = feeder.panY + cur.Y;
+				if( cur.X == 0 && feeder.panY == 0 && cur.Y == 0 ) return;
 
-				cur.moveX( -1 );
+				cur.moveX( -1, true, true );
 
 				var f = ContentPosition( feeder );
 
