@@ -53,7 +53,7 @@
 
 		var _self = this;
 
-		var controls = new VimControls();
+		var controls = new VimControls( this );
 		stage.addEventListener(
 			"KeyDown"
 			, KeyHandler( this, controls.handler.bind( controls ) )

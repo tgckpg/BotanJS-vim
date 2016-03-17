@@ -144,7 +144,13 @@
 			f = this.content.indexOf( "\n" );
 			for( i = 1; f != -1 && i < Y; i ++ )
 			{
-				f = this.content.indexOf( "\n", f + 1 );
+				var a = this.content.indexOf( "\n", f + 1 );
+				if( a == -1 )
+				{
+					Y = i;
+					break;
+				}
+				f = a;
 			}
 		}
 
@@ -162,6 +168,10 @@
 		this.__clseLine = null;
 		this.__softRender();
 	};
+
+	__readOnly( Feeder.prototype, "linesTotal", function() {
+		return this.content.match( "\n" );
+	} );
 
 	__readOnly( Feeder.prototype, "firstBuffer", function() {
 		return this.lineBuffers[ 0 ];

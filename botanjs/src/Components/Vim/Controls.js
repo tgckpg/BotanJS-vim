@@ -19,24 +19,33 @@
 	var U = 85; var V = 86; var W = 87; var X = 88; var Y = 89;
 	var Z = 90;
 
-	var Controls = function()
+	var Controls = function( vimArea )
 	{
+		/** @type {Components.Vim.VimArea} */
+		this.__vimArea = vimArea
 		this.__keyChains = [];
 	};
 
-	Controls.prototype.__comboG = function( e )
+	Controls.prototype.__comboG = function( keyCode )
 	{
 		var keyON = this.__keyChains[ 0 ] == G;
 		if( keyON )
 		{
-			switch( e.keyCode )
+			var cursor = this.__vimArea.contentFeeder.cursor;
+			switch( keyCode )
 			{
+				case G:
+					cursor.moveY( -Number.MAX_VALUE );
+					cursor.moveX( -Number.MAX_VALUE, true );
+					this.__keyChains = [];
+					return true;
 				default:
 					this.__keyChains = [];
+					beep();
 					return true;
 			}
 		}
-		else if( e.keyCode == G )
+		else if( keyCode == G )
 		{
 			this.__keyChains[ 0 ] = G;
 			return true;
@@ -69,14 +78,20 @@
 			|| ( 112 < e.keyCode && e.keyCode < 124 )
 		) return;
 
+		var vArea = this.__vimArea;
 		// Action Mode handled by the actions themselves
-		var cfeeder = sender.contentFeeder;
+		var cfeeder = vArea.contentFeeder;
 
 		// Esc OR Ctrl + c
 		var Escape = e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 );
 
 		// Clear the keychains in combo commands
-		if( Escape ) this.__keyChains = [];
+		if( Escape && this.__keyChains.length )
+		{
+			this.__keyChains = [];
+			beep();
+			return;
+		}
 
 		if( cfeeder.cursor.action )
 		{
@@ -101,8 +116,8 @@
 
 		if( this.__comboKey( kCode ) ) return;
 
-		var cfeeder = sender.contentFeeder;
-		var sfeeder = sender.statusFeeder;
+		var cfeeder = vArea.contentFeeder;
+		var sfeeder = vArea.statusFeeder;
 
 		var ccur = cfeeder.cursor;
 
@@ -167,6 +182,10 @@
 			case SHIFT + I: // Append before the line start, after spaces
 				break;
 
+			case SHIFT + G: // Goto last line
+				ccur.moveY( Number.MAX_VALUE );
+				ccur.moveX( Number.MAX_VALUE, true );
+				break;
 			// remove characters
 			case X: // Remove in cursor
 				break;

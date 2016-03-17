@@ -149,7 +149,7 @@
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
-	Cursor.prototype.moveY = function( d )
+	Cursor.prototype.moveY = function( d, penentrate )
 	{
 		var Y = this.Y + d;
 		var line;
@@ -172,7 +172,7 @@
 			var lineShift = Y - feeder.moreAt;
 
 			var i = 0;
-			while( true )
+			while( !feeder.EOF )
 			{
 				feeder.pan( undefined, lineShift + i );
 
@@ -196,7 +196,7 @@
 				line = line.next )
 			{
 				if( line.br ) i ++;
-				if( line.lineNum == Y ) break;
+				if( line.lineNum == Y || line.next.placeholder ) break;
 			}
 
 			this.Y = i;
