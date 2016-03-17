@@ -168,29 +168,45 @@
 		else if( this.feeder.moreAt < Y )
 		{
 			var feeder = this.feeder;
-			var lastLine = feeder.lastBuffer.lineNum;
-			var lineShift = Y - feeder.moreAt;
-
 			var i = 0;
-			while( !feeder.EOF )
-			{
-				feeder.pan( undefined, lineShift + i );
 
-				// if it turns out to be the same line
-				// before after panning
-				// we keep scrolling it ( panning )
-				// until the entire line cosumes the screen
-				if( feeder.lastBuffer.lineNum == lastLine )
+			if( penentrate )
+			{
+				feeder.pan( undefined, Y - moreAt );
+			}
+			else if( feeder.linesTotal < Y )
+			{
+				while( !feeder.EOF )
 				{
-					i ++;
+					feeder.pan( undefined, 1 );
 				}
-				else break;
+			}
+			else
+			{
+				var lastLine = feeder.lastBuffer.lineNum;
+				var lineShift = Y - feeder.moreAt;
+
+				i = lineShift;
+				while( !feeder.EOF )
+				{
+					feeder.pan( undefined, i );
+
+					// if it turns out to be the same line
+					// before after panning
+					// we keep scrolling it ( panning )
+					// until the entire line cosumes the screen
+					if( feeder.lastBuffer.lineNum == lastLine )
+					{
+						i ++;
+					}
+					else break;
+				}
+
+				// The line number cursor need to be in
+				Y = lastLine + lineShift;
 			}
 
-			// The line number cursor need to be in
-			Y = lastLine + lineShift;
-
-			// Calculate the visual line position
+			// Calculate the visual line position "i"
 			for( i = 0, line = feeder.firstBuffer;
 				line != feeder.lastBuffer;
 				line = line.next )

@@ -9,6 +9,8 @@
 	/** @type {Components.Vim.Cursor} */
 	var Cursor = ns[ NS_INVOKE ]( "Cursor" );
 
+	var occurence = __import( "System.utils.Perf.CountSubstr" );
+
 	var Feeder = function( rows, cols )
 	{
 		var lineBuffers = [];
@@ -170,7 +172,7 @@
 	};
 
 	__readOnly( Feeder.prototype, "linesTotal", function() {
-		return this.content.match( "\n" );
+		return occurence( this.content, "\n" );
 	} );
 
 	__readOnly( Feeder.prototype, "firstBuffer", function() {

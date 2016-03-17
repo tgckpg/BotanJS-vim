@@ -37,6 +37,8 @@ Components.Vim.LineFeeder.panY;
 /** @type Number */
 Components.Vim.LineFeeder.moreAt;
 /** @type Number */
+Components.Vim.LineFeeder.linesTotal;
+/** @type Number */
 Components.Vim.LineFeeder.linesOccupied;
 /** @type String */
 Components.Vim.LineFeeder.docPos;
