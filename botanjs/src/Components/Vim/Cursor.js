@@ -55,6 +55,25 @@
 		return offset;
 	};
 
+	// Rush cursor to wanted position "d" then get the actual position
+	var GetRushPos = function( c, d )
+	{
+		var line = c.getLine();
+		var l = c.Y + d;
+		var i = c.Y;
+
+		// First line ( visual ) does not count
+		if( line != c.feeder.firstBuffer ) i --;
+
+		for( ; i < l; line = line.nextLine )
+		{
+			if( line.placeholder ) break;
+			if( line.br ) i ++;
+		}
+
+		return i;
+	};
+
 	var Cursor = function( feeder )
 	{
 		/** @type {Components.Vim.LineFeeder} */
@@ -151,24 +170,26 @@
 
 	Cursor.prototype.moveY = function( d, penentrate )
 	{
+		var i;
 		var Y = this.Y + d;
+		var feeder = this.feeder;
 		var line;
 
 		if( Y < 0 )
 		{
-			this.feeder.pan( undefined, d );
+			feeder.pan( undefined, d );
 
 			this.Y = 0;
 			this.moveX();
 			this.updatePosition();
 
-			this.feeder.softReset();
+			feeder.softReset();
 			return;
 		}
-		else if( this.feeder.moreAt < Y )
+		// More at bottom, start panning
+		else if( !feeder.EOF && feeder.moreAt < Y )
 		{
 			var feeder = this.feeder;
-			var i = 0;
 
 			if( penentrate )
 			{
@@ -180,6 +201,8 @@
 				{
 					feeder.pan( undefined, 1 );
 				}
+
+				i = GetRushPos( this, d );
 			}
 			else
 			{
@@ -204,15 +227,16 @@
 
 				// The line number cursor need to be in
 				Y = lastLine + lineShift;
-			}
 
-			// Calculate the visual line position "i"
-			for( i = 0, line = feeder.firstBuffer;
-				line != feeder.lastBuffer;
-				line = line.next )
-			{
-				if( line.br ) i ++;
-				if( line.lineNum == Y || line.next.placeholder ) break;
+				// Calculate the visual line position "i"
+				for( i = 0, line = feeder.firstBuffer;
+					line != feeder.lastBuffer;
+					line = line.next )
+				{
+					if( line.br ) i ++;
+					if( line.lineNum == Y || line.next.placeholder ) break;
+				}
+
 			}
 
 			this.Y = i;
@@ -220,20 +244,18 @@
 			this.moveX();
 			this.updatePosition();
 
+			// Because it is panned, soft reset is needed
 			feeder.softReset();
 
 			return;
 		}
 		else if ( 0 < d )
 		{
-			// If panning is forward
-			// and next line does not exists
-			line = this.getLine().nextLine;
-			if( !line || line.placeholder )
-			{
-				// do nothing
-				return;
-			}
+			var line = this.getLine();
+			// If already at bottom
+			if( line.nextLine.placeholder ) return;
+
+			Y = GetRushPos( this, d );
 		}
 
 		this.Y = Y;
