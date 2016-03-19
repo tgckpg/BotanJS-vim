@@ -112,11 +112,14 @@
 
 		var buffs = this.feeder.lineBuffers;
 
-		if( penentrate && x < 0 && ( 0 < this.feeder.panY || 0 < this.Y ) )
+		if( penentrate )
 		{
-			this.moveY( -1 );
-			this.lineEnd( phantomSpace );
-			return;
+			if( x < 0 && ( 0 < this.feeder.panY || 0 < this.Y ) )
+			{
+				this.moveY( -1 );
+				this.lineEnd( phantomSpace );
+				return;
+			}
 		}
 
 		/** @type {Components.Vim.LineBuffer} */

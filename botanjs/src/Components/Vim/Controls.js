@@ -55,6 +55,7 @@
 	};
 
 	Controls.prototype.__comboT = function( e ) { return false; };
+	Controls.prototype.__comboD = function( e ) { return false; };
 
 	// <
 	Controls.prototype.__comboLeftShift = function( e ) { return false; };
@@ -65,6 +66,7 @@
 	Controls.prototype.__comboKey = function( e )
 	{
 		return this.__comboG( e )
+			|| this.__comboD( e )
 			|| this.__comboT( e )
 			|| this.__comboLeftShift( e )
 			|| this.__comboRightShift( e );
@@ -159,11 +161,12 @@
 				break;
 
 			// Insert
+			case SHIFT + A: // Append at the line end
+				ccur.lineEnd();
 			case A: // Append
 				cMoveX( 1, true, true );
-				ccur.openAction( "INSERT" );
-				break;
 			case I: // Insert
+				ccur.openAction( "INSERT" );
 				break;
 			case U: // Undo
 				ccur.openRunAction( "UNDO", e );
@@ -172,8 +175,6 @@
 				ccur.openRunAction( "REDO", e );
 				break;
 			case X: // Del
-				break;
-			case SHIFT + A: // Append at the line end
 				break;
 			case SHIFT + X: // Delete before
 				break;
