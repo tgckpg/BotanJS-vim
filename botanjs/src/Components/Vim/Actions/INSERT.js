@@ -36,13 +36,21 @@
 	INSERT.prototype.__saveCur = function()
 	{
 		var c = this.__cursor;
-		return {
+		var obj = {
 			p: c.P
 			, x: c.X
 			, y: c.Y
 			, px: c.feeder.panX
 			, py: c.feeder.panY
 		};
+
+		if( 0 < obj.x )
+		{
+			obj.p -= 1;
+			obj.x -= 1;
+		}
+
+		return obj;
 	}
 
 	INSERT.prototype.dispose = function()
@@ -186,20 +194,23 @@
 			+ inputChar
 			+ feeder.content.substring( f );
 
-		feeder.pan();
-		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
-
-		this.__rec( inputChar );
-
 		if( inputChar == "\n" )
 		{
+			feeder.softReset();
+			feeder.pan();
 			cur.moveY( 1 );
 			cur.lineStart();
 		}
 		else
 		{
-			cur.moveX( 1 );
+			feeder.pan();
+			cur.moveX( 1, false, true );
 		}
+
+		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+
+		this.__rec( inputChar );
+
 	};
 
 	INSERT.prototype.getMessage = function()

@@ -92,7 +92,9 @@
 		// Content feeder
 		var cfeeder = new LineFeeder( cRange, c );
 
-		cfeeder.init( content );
+		// This "\n" fixes the last line "\n" not displaying
+		// it will be trimmed after saving
+		cfeeder.init( content + "\n" );
 
 		// Status can consumes up to full screen, I think
 		sfeeder = new LineFeeder( r, c );
@@ -147,7 +149,7 @@
 	};
 
 	__readOnly( VimArea.prototype, "content", function() {
-		return this.contentFeeder.content;
+		return this.contentFeeder.content.slice( 0, -1 );
 	} );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "VimArea", VimArea );

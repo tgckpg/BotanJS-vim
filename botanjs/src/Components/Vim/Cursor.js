@@ -9,26 +9,6 @@
 
 	var Actions = __import( "Components.Vim.Actions.*" );
 
-	var GetLine = function( buffs, l )
-	{
-		/** @type {Components.Vim.LineBuffer} */
-		var LineHead = buffs[0];
-		l ++;
-
-		for( var i = 0, line = LineHead;
-			line && i < l; i ++ )
-		{
-			LineHead = line;
-			while( line )
-			{
-				line = line.next;
-				if( line.br ) break;
-			}
-		}
-
-		return LineHead;
-	};
-
 	var LineOffset = function( buffs, l )
 	{
 		/** @type {Components.Vim.LineBuffer} */
@@ -123,7 +103,7 @@
 		}
 
 		/** @type {Components.Vim.LineBuffer} */
-		var line = GetLine( buffs, this.Y );
+		var line = this.getLine();
 		var content = line.visualLines.join( "\n" );
 		var cLen = content.length;
 
@@ -211,35 +191,40 @@
 			{
 				var lastLine = feeder.lastBuffer.lineNum;
 				var lineShift = Y - feeder.moreAt;
+				var thisLine = this.getLine().lineNum;
 
-				i = lineShift;
-				while( !feeder.EOF )
+				if( !feeder.EOF )
+					feeder.pan( undefined, lineShift );
+
+				// if it turns out to be the same line
+				// before after panning
+				// we keep scrolling it ( panning )
+				// until the entire line cosumes the screen
+				while( !feeder.EOF && feeder.lastBuffer.lineNum == lastLine )
 				{
-					feeder.pan( undefined, i );
-
-					// if it turns out to be the same line
-					// before after panning
-					// we keep scrolling it ( panning )
-					// until the entire line cosumes the screen
-					if( feeder.lastBuffer.lineNum == lastLine )
-					{
-						i ++;
-					}
-					else break;
+					feeder.pan( undefined, 1 );
 				}
 
 				// The line number cursor need to be in
-				Y = lastLine + lineShift;
+				Y = thisLine + d;
 
+				i = this.Y;
+				this.Y = 0;
 				// Calculate the visual line position "i"
-				for( i = 0, line = feeder.firstBuffer;
-					line != feeder.lastBuffer;
-					line = line.next )
+				for( var line = this.getLine();
+					line && line.lineNum != Y && !line.placeholder;
+					this.Y ++, line = this.getLine() )
 				{
-					if( line.br ) i ++;
-					if( line.lineNum == Y || line.next.placeholder ) break;
 				}
 
+				i = this.Y;
+
+				// Check if this line is collapsed
+				if( !feeder.EOF && feeder.lastBuffer.next.lineNum == line.lineNum )
+				{
+					// If yes, step back to last visible line
+					i --;
+				}
 			}
 
 			this.Y = i;
@@ -301,15 +286,16 @@
 	{
 		var feeder = this.feeder;
 		var line = feeder.firstBuffer;
+		var eBuffer = feeder.lastBuffer.next;
 		for( var i = 0;
-			line != feeder.lastBuffer;
+			line != eBuffer;
 			line = line.next )
 		{
 			if( line.br ) i ++;
-			if( this.Y == i ) break;
+			if( this.Y == i ) return line;
 		}
 
-		return line;
+		return null;
 	};
 
 	// The absX for current Line

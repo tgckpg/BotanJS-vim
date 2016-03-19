@@ -94,7 +94,7 @@
 		this.__softRender = function()
 		{
 			var line = _self.lineBuffers[ _self.__rStart ];
-			var steps = _self.__rLength;
+			var steps = _self.__rLength + 1;
 
 			for( var i = 0;
 				line && i < steps && ( line = line.next ) && placeholdCond( line );

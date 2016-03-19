@@ -19,6 +19,12 @@
 	var U = 85; var V = 86; var W = 87; var X = 88; var Y = 89;
 	var Z = 90;
 
+	var ESC = 27;
+
+	var F1 = 112; var F2 = 113; var F3 = 114; var F4 = 115; var F5 = 116;
+	var F6 = 117; var F7 = 118; var F8 = 119; var F9 = 120; var F10 = 121;
+	var F11 = 122; var F12 = 123;
+
 	var Controls = function( vimArea )
 	{
 		/** @type {Components.Vim.VimArea} */
@@ -77,7 +83,7 @@
 		// Neve capture these keys
 		if( e.altKey
 			// F2 - F12
-			|| ( 112 < e.keyCode && e.keyCode < 124 )
+			|| ( F1 < e.keyCode && e.keyCode < 124 )
 		) return;
 
 		var vArea = this.__vimArea;
@@ -85,7 +91,7 @@
 		var cfeeder = vArea.contentFeeder;
 
 		// Esc OR Ctrl + c
-		var Escape = e.keyCode == 27 || ( e.ctrlKey && e.keyCode == 67 );
+		var Escape = e.keyCode == ESC || ( e.ctrlKey && e.keyCode == C );
 
 		// Clear the keychains in combo commands
 		if( Escape && this.__keyChains.length )
@@ -141,26 +147,10 @@
 			}
 		};
 
+		var ActionHandled = true;
+		// Action Commands
 		switch( kCode )
 		{
-			// Cursor movements
-			case BACKSPACE: // Backspace, go back 1 char, regardless of line
-				cMoveX( -1, true );
-				break;
-			case H: // Left
-				cMoveX( -1 );
-				break;
-			case L: // Right
-				cMoveX( 1 );
-				break;
-			case K: // Up
-				cMoveY( -1 );
-				break;
-			case J: // Down
-				cMoveY( 1 );
-				break;
-
-			// Insert
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
 			case A: // Append
@@ -182,34 +172,57 @@
 				break;
 			case SHIFT + I: // Append before the line start, after spaces
 				break;
+			case SHIFT + J: // Join lines
+				break;
+			case SHIFT + K: // Find the manual entry
+				break;
 
-			case SHIFT + G: // Goto last line
-				ccur.moveY( Number.MAX_VALUE );
-				ccur.moveX( Number.MAX_VALUE, true );
+			case F1: // F1, help
 				break;
-			// remove characters
-			case X: // Remove in cursor
-				break;
-			case SHIFT + X: // Remove before cursor
-				break;
+			default:
+				ActionHandled = false;
+		}
+
+		if( ActionHandled ) return;
+
+		// Cursor Commands
+		switch( kCode )
+		{
+			case BACKSPACE: cMoveX( -1, true ); break; // Backspace, go back 1 char, regardless of line
+			case H: cMoveX( -1 ); break; // Left
+			case L: cMoveX( 1 ); break; // Right
+			case K: cMoveY( -1 ); break; // Up
+			case J: cMoveY( 1 ); break; // Down
 
 			case SHIFT + H: // First line buffer
 				break;
 			case SHIFT + L: // Last line buffer
 				break;
-			case SHIFT + _4: // $, End
-				ccur.lineEnd();
-				break;
-			case SHIFT + _5: // %, Find next item
-				break;
 			case SHIFT + _6: // ^, Start
 				ccur.lineStart();
 				break;
-			case SHIFT + J: // Join lines
+			case SHIFT + _4: // $, End
+				ccur.lineEnd();
 				break;
-			case SHIFT + K: // manual entry
+			case SHIFT + G: // Goto last line
+				ccur.moveY( Number.MAX_VALUE );
+				ccur.moveX( Number.MAX_VALUE, true );
 				break;
-			case 112: // F1, help
+
+			case SHIFT + _5: // %, Find next item
+				break;
+		}
+
+
+		// Integrated commands
+		switch( kCode )
+		{
+			case V: // Visual
+				ccur.openAction( "VISUAL" );
+				break;
+			case SHIFT + V: // Visual line
+				ccur.openAction( "VISUAL_LINE" );
+				break;
 		}
 
 	};
