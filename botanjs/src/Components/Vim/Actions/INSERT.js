@@ -33,6 +33,8 @@
 		this.__rec( "", true );
 	};
 
+	INSERT.prototype.allowMovement = false;
+
 	INSERT.prototype.__saveCur = function()
 	{
 		var c = this.__cursor;
@@ -80,7 +82,8 @@
 			insertLength = contentUndo.length;
 			contentUndo = contentRedo;
 
-			cur.P = st.p;
+			cur.PStart = st.p;
+			cur.PEnd = st.p + 1;
 			cur.X = st.x;
 			cur.Y = st.y;
 			feeder.panX = st.px;

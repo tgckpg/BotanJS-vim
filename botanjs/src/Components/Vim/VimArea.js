@@ -53,12 +53,6 @@
 
 		var _self = this;
 
-		var controls = new VimControls( this );
-		stage.addEventListener(
-			"KeyDown"
-			, KeyHandler( this, controls.handler.bind( controls ) )
-		);
-
 		stage.addEventListener( "Focus", function() { _self.__active = true; } );
 		stage.addEventListener( "Blur", function() { _self.__active = false; } );
 
@@ -141,11 +135,17 @@
 		Cycle.perma( "VimCursorBlinkCycle" + element.id, function()
 		{
 			_self.select(
-				( _self.__blink = !_self.__blink )
+				!_self.__cursor.blink || ( _self.__blink = !_self.__blink )
 					? _self.__cursor.position
 					: { start: 0, end: 0 }
 			);
 		}, 600 );
+
+		var controls = new VimControls( this );
+		this.stage.addEventListener(
+			"KeyDown"
+			, KeyHandler( this, controls.handler.bind( controls ) )
+		);
 	};
 
 	__readOnly( VimArea.prototype, "content", function() {

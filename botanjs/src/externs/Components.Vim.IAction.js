@@ -7,3 +7,6 @@ Components.Vim.IAction.dispose;
 Components.Vim.IAction.handler;
 /** @type Function */
 Components.Vim.IAction.getMessage;
+
+/** @type Boolean */
+Components.Vim.IAction.allowMovement;

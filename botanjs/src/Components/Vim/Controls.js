@@ -7,6 +7,10 @@
 	var SHIFT = 1 << 9;
 	var CTRL = 1 << 10;
 
+	var KEY_SHIFT = 16;
+	var KEY_CTRL = 17;
+	var KEY_ALT = 18;
+
 	var BACKSPACE = 8;
 
 	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
@@ -29,132 +33,62 @@
 	{
 		/** @type {Components.Vim.VimArea} */
 		this.__vimArea = vimArea
-		this.__keyChains = [];
+
+		this.__cfeeder = vimArea.contentFeeder;
+		this.__sfeeder = vimArea.statusFeeder;
+
+		this.__ccur = this.__cfeeder.cursor;
 	};
 
-	Controls.prototype.__comboG = function( keyCode )
+	Controls.prototype.__comp = function( kCode, handler )
 	{
-		var keyON = this.__keyChains[ 0 ] == G;
-		if( keyON )
+		if( handler )
 		{
-			var cursor = this.__vimArea.contentFeeder.cursor;
-			switch( keyCode )
-			{
-				case G:
-					cursor.moveY( -Number.MAX_VALUE );
-					cursor.moveX( -Number.MAX_VALUE, true );
-					this.__keyChains = [];
-					return true;
-				default:
-					this.__keyChains = [];
-					beep();
-					return true;
-			}
-		}
-		else if( keyCode == G )
-		{
-			this.__keyChains[ 0 ] = G;
+			if( !this.__compReg ) this.__compReg = [];
+			this.__compReg.push({
+				keys: Array.prototype.slice.call( arguments, 2 )
+				, handler: handler
+				, i: 0
+			});
 			return true;
 		}
 
+		for( var i = 0; i < this.__compReg.length; i ++ )
+		{
+			var compReg = this.__compReg[i];
+			var keys = compReg.keys;
+
+			if( keys[ compReg.i ++ ] == kCode )
+			{
+				if( compReg.i == keys.length )
+				{
+					compReg.handler();
+					compReg = null;
+					this.__cMovement = false;
+				}
+
+				return true;
+			}
+		}
+
+		if( this.__compReg ) beep();
+		this.__compReg = null;
+		this.__cMovement = false;
 		return false;
 	};
 
-	Controls.prototype.__comboT = function( e ) { return false; };
-	Controls.prototype.__comboD = function( e ) { return false; };
-
-	// <
-	Controls.prototype.__comboLeftShift = function( e ) { return false; };
-
-	// >
-	Controls.prototype.__comboRightShift = function( e ) { return false; };
-
-	Controls.prototype.__comboKey = function( e )
+	Controls.prototype.__actionCommand = function( e, kCode )
 	{
-		return this.__comboG( e )
-			|| this.__comboD( e )
-			|| this.__comboT( e )
-			|| this.__comboLeftShift( e )
-			|| this.__comboRightShift( e );
-	};
-
-	Controls.prototype.handler = function( sender, e )
-	{
-		// Neve capture these keys
-		if( e.altKey
-			// F2 - F12
-			|| ( F1 < e.keyCode && e.keyCode < 124 )
-		) return;
-
-		var vArea = this.__vimArea;
-		// Action Mode handled by the actions themselves
-		var cfeeder = vArea.contentFeeder;
-
-		// Esc OR Ctrl + c
-		var Escape = e.keyCode == ESC || ( e.ctrlKey && e.keyCode == C );
-
-		// Clear the keychains in combo commands
-		if( Escape && this.__keyChains.length )
-		{
-			this.__keyChains = [];
-			beep();
-			return;
-		}
-
-		if( cfeeder.cursor.action )
-		{
-			if( Escape )
-			{
-				e.preventDefault();
-				cfeeder.cursor.closeAction();
-			}
-			else
-			{
-				cfeeder.cursor.action.handler( e );
-			}
-			return;
-		}
-
-		e.preventDefault();
-		var kCode = e.keyCode
-			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
-			+ ( e.ctrlKey ? CTRL : 0 );
-
-		// Handles long commands
-
-		if( this.__comboKey( kCode ) ) return;
-
-		var cfeeder = vArea.contentFeeder;
-		var sfeeder = vArea.statusFeeder;
-
-		var ccur = cfeeder.cursor;
-
-		var cMoveX = function( a, b, c )
-		{
-			var x = ccur.X;
-			ccur.moveX( a, b, c );
-			if( ccur.X == x ) beep();
-		};
-
-		var cMoveY = function( a )
-		{
-			var y = ccur.Y + cfeeder.panY;
-			ccur.moveY( a );
-			if( y == ( ccur.Y + cfeeder.panY ) )
-			{
-				if( 0 < a && !cfeeder.EOF ) return;
-				beep();
-			}
-		};
-
 		var ActionHandled = true;
-		// Action Commands
+		var ccur = this.__ccur;
+
+		// Action Command
 		switch( kCode )
 		{
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
 			case A: // Append
-				cMoveX( 1, true, true );
+				this.__cMoveX( 1, true, true );
 			case I: // Insert
 				ccur.openAction( "INSERT" );
 				break;
@@ -177,22 +111,67 @@
 			case SHIFT + K: // Find the manual entry
 				break;
 
+			case V: // Visual
+				ccur.openAction( "VISUAL" );
+				break;
+			case SHIFT + V: // Visual line
+				ccur.openAction( "VISUAL_LINE" );
+				break;
+
 			case F1: // F1, help
 				break;
 			default:
 				ActionHandled = false;
 		}
 
-		if( ActionHandled ) return;
+		return ActionHandled;
+	};
 
-		// Cursor Commands
+	Controls.prototype.__cMoveX = function( a, b, c )
+	{
+		var ccur = this.__ccur;
+
+		var x = ccur.X;
+		ccur.moveX( a, b, c );
+		if( ccur.X == x ) beep();
+	};
+
+	Controls.prototype.__cMoveY = function( a )
+	{
+		var ccur = this.__ccur;
+		var cfeeder = this.__cfeeder;
+
+		var y = ccur.Y + cfeeder.panY;
+		ccur.moveY( a );
+		if( y == ( ccur.Y + cfeeder.panY ) )
+		{
+			if( 0 < a && !cfeeder.EOF ) return;
+			beep();
+		}
+	};
+
+	Controls.prototype.__cursorCommand = function( e, kCode )
+	{
+		if( this.__cMovement && this.__comp )
+		{
+			var k = e.keyCode;
+			if(!( k == KEY_SHIFT || k == KEY_CTRL  || k == KEY_ALT ))
+			{
+				this.__comp( kCode );
+				return true;
+			}
+		}
+
+		var ccur = this.__ccur;
+
+		var cursorHandled = true;
 		switch( kCode )
 		{
-			case BACKSPACE: cMoveX( -1, true ); break; // Backspace, go back 1 char, regardless of line
-			case H: cMoveX( -1 ); break; // Left
-			case L: cMoveX( 1 ); break; // Right
-			case K: cMoveY( -1 ); break; // Up
-			case J: cMoveY( 1 ); break; // Down
+			case BACKSPACE: this.__cMoveX( -1, true ); break; // Backspace, go back 1 char, regardless of line
+			case H: this.__cMoveX( -1 ); break; // Left
+			case L: this.__cMoveX( 1 ); break; // Right
+			case K: this.__cMoveY( -1 ); break; // Up
+			case J: this.__cMoveY( 1 ); break; // Down
 
 			case SHIFT + H: // First line buffer
 				break;
@@ -207,24 +186,78 @@
 			case SHIFT + G: // Goto last line
 				ccur.moveY( Number.MAX_VALUE );
 				ccur.moveX( Number.MAX_VALUE, true );
-				break;
+				break
 
 			case SHIFT + _5: // %, Find next item
 				break;
+
+			case G: // Go to top
+				this.__cMovement = true;
+				this.__comp( kCode, function(){
+					ccur.moveY( -Number.MAX_VALUE );
+					ccur.moveX( -Number.MAX_VALUE, true );
+				}, G );
+				this.__comp( kCode, function(){
+					ccur.openRunAction( "PRINT_HEX", e );
+				}, _8 );
+				break;
+
+			default:
+				cursorHandled = false;
 		}
 
+		return cursorHandled;
+	};
 
-		// Integrated commands
-		switch( kCode )
+	Controls.prototype.handler = function( sender, e )
+	{
+		// Neve capture these keys
+		if( e.altKey
+			// F2 - F12
+			|| ( F1 < e.keyCode && e.keyCode < 124 )
+		) return;
+
+		// Esc OR Ctrl + c
+		var Escape = e.keyCode == ESC || ( e.ctrlKey && e.keyCode == C );
+
+		// Clear composite command
+		if( Escape && this.__compReg )
 		{
-			case V: // Visual
-				ccur.openAction( "VISUAL" );
-				break;
-			case SHIFT + V: // Visual line
-				ccur.openAction( "VISUAL_LINE" );
-				break;
+			this.__compReg = null;
+			this.__cMovement = false;
+			beep();
+			return;
 		}
 
+		var cfeeder = this.__cfeeder;
+		var ccur = this.__ccur;
+
+		var kCode = e.keyCode
+			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
+			+ ( e.ctrlKey ? CTRL : 0 );
+
+		// Action commands are handled by the actions themselves
+		if( ccur.action )
+		{
+			if( Escape )
+			{
+				e.preventDefault();
+				ccur.closeAction();
+			}
+			else
+			{
+				if( ccur.action.allowMovement )
+					this.__cursorCommand( e, kCode );
+
+				ccur.action.handler( e );
+			}
+			return;
+		}
+
+		e.preventDefault();
+
+		if( this.__cursorCommand( e, kCode ) ) return;
+		if( this.__actionCommand( e, kCode ) ) return;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Controls", Controls );

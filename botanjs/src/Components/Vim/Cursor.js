@@ -71,12 +71,15 @@
 		this.Y = 0;
 
 		// The resulting position
-		this.P = 0;
+		this.PStart = 0;
+		this.PEnd = 1;
 
 		// State recorder
 		this.rec = new Recorder();
 
 		this.action = null;
+
+		this.blink = true;
 	};
 
 	// Can only be 1, -1
@@ -147,7 +150,11 @@
 
 	Cursor.prototype.updatePosition = function()
 	{
-		this.P = this.X + LineOffset( this.feeder.lineBuffers, this.Y );
+		var P = this.X + LineOffset( this.feeder.lineBuffers, this.Y );
+		this.PStart = P;
+		this.PEnd = P + 1;
+		this.__p = P;
+
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
@@ -383,8 +390,8 @@
 	__readOnly( Cursor.prototype, "position", function()
 	{
 		return {
-			start: this.P
-			, end: this.P + 1
+			start: this.PStart
+			, end: this.PEnd
 		};
 	} );
 

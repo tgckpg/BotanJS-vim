@@ -25,12 +25,16 @@ Components.Vim.Cursor.openRunAction;
 /** @type Function */
 Components.Vim.Cursor.closeAction;
 
+/** @type {Boolean} */
+Components.Vim.Cursor.blink;
 /** @type {Array} */
 Components.Vim.Cursor.lineBuffers;
 /** @type Number */
 Components.Vim.Cursor.pX;
 /** @type Number */
-Components.Vim.Cursor.P;
+Components.Vim.Cursor.PStart;
+/** @type Number */
+Components.Vim.Cursor.PEnd;
 /** @type Number */
 Components.Vim.Cursor.aX;
 /** @type Number */
