@@ -32,7 +32,7 @@
 			if ( e.keyCode ) code = e.keyCode;
 			else if ( e.which ) code = e.which;
 
-			handler( sender, new InputEvent( e ) );
+			handler( sender, new InputEvent( sender, e ) );
 		};
 	};
 

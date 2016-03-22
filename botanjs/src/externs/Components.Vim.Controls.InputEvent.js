@@ -1,6 +1,8 @@
 /** @constructor */
 Components.Vim.Controls.InputEvent = function(){};
 
+/** @type {Components.Vim.VimArea} */
+Components.Vim.Controls.InputEvent.target;
 /** @type String */
 Components.Vim.Controls.InputEvent.key;
 /** @type Boolean */

@@ -23,6 +23,7 @@
 		this.__leaveMesg = "";
 
 		Cursor.blink = false;
+		Cursor.pSpace = true;
 	};
 
 	VISUAL.prototype.allowMovement = true;
@@ -31,6 +32,7 @@
 	{
 		this.__msg = this.__leaveMesg;
 		this.__cursor.blink = true;
+		this.__cursor.pSpace = false;
 		this.__cursor.PStart = this.__selStart;
 		this.__cursor.PEnd = this.__selStart + 1;
 	};
@@ -41,27 +43,18 @@
 
 		if( e.ModKeys ) return;
 
+		var cur = this.__cursor;
 		var Action = null;
 		switch( true )
 		{
 			case e.kMap( "y" ):
-				Action = new YANK( this.__cursor );
+				Action = new YANK( cur );
 				break;
 			case e.kMap( "d" ):
-				Action = new DELETE( this.__cursor );
+				Action = new DELETE( cur );
 				break;
 		}
 
-		if( Action )
-		{
-			Action.handler( e );
-			this.__leaveMesg = Action.getMessage();
-			Action.dispose();
-
-			return true;
-		}
-
-		var cur = this.__cursor;
 		var prevPos = this.__start;
 		var newPos = cur.PStart;
 
@@ -76,6 +69,18 @@
 			prevPos += posDiff;
 			newPos = this.__start + 1;
 			this.__selStart = prevPos;
+		}
+
+		if( Action )
+		{
+			cur.suppressEvent();
+			Action.handler( e, this.__startaP );
+			this.__leaveMesg = Action.getMessage();
+			Action.dispose();
+			cur.unsuppressEvent();
+
+			this.__selStart = cur.PStart;
+			return true;
 		}
 
 		cur.PStart = prevPos;

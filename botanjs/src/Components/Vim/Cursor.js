@@ -80,6 +80,9 @@
 		this.action = null;
 
 		this.blink = true;
+		this.pSpace = false;
+
+		this.__suppEvt = 0;
 	};
 
 	// Set by VimArea
@@ -118,12 +121,12 @@
 		// Include empty lines befor cursor end
 		if( ( phantomSpace && cLen - 1 <= x ) || ( cLen == 1 && c == undefined ) )
 		{
-			x = d > 0 ? cLen - 1 : 0;
+			x = 0 < d ? cLen - 1 : 0;
 		}
 		// ( 2 < cLen ) Exclude empty lines at cursor end
-		else if( ( 2 < cLen && x == cLen - 1 && c == " " ) || c == undefined )
+		else if( ( 2 <= cLen && x == cLen - 1 && c == " " ) || c == undefined )
 		{
-			x = d > 0 ? cLen - 2 : 0;
+			x = 0 < d ? cLen - 2 : 0;
 		}
 		else if( c == "\n" )
 		{
@@ -158,6 +161,16 @@
 		this.PEnd = P + 1;
 		this.__p = P;
 
+		this.__fireUpdate();
+	};
+
+	Cursor.prototype.__fireUpdate = function()
+	{
+		if( 0 < this.__suppEvt )
+		{
+			debug.Info( "Event suppressed, suppression level is: " + this.__suppEvt );
+			return;
+		}
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
@@ -270,7 +283,7 @@
 		this.action = new (Actions[ name ])( this );
 		this.__pulseMsg = null;
 
-		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+		this.__fireUpdate();
 	};
 
 	Cursor.prototype.closeAction = function()
@@ -280,7 +293,7 @@
 		this.__pulseMsg = this.action.getMessage();
 		this.action = null;
 
-		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+		this.__fireUpdate();
 	};
 
 	// Open, Run, then close an action
@@ -292,8 +305,11 @@
 		this.__pulseMsg = action.getMessage();
 		action.dispose();
 
-		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+		this.__fireUpdate();
 	};
+
+	Cursor.prototype.suppressEvent = function() { ++ this.__suppEvt; };
+	Cursor.prototype.unsuppressEvent = function() { -- this.__suppEvt; };
 
 	Cursor.prototype.getLine = function()
 	{

@@ -14,6 +14,7 @@
 	var KEY_ALT = 18;
 
 	var BACKSPACE = 8;
+	var DELETE = 46;
 
 	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
 	var _5 = 53; var _6 = 54; var _7 = 55; var _8 = 56; var _9 = 57;
@@ -30,6 +31,8 @@
 	var F1 = 112; var F2 = 113; var F3 = 114; var F4 = 115; var F5 = 116;
 	var F6 = 117; var F7 = 118; var F8 = 119; var F9 = 120; var F10 = 121;
 	var F11 = 122; var F12 = 123;
+
+	var COMMA = 188; var FULLSTOP = 190;
 
 	var __maps = {};
 	var Map = function( str )
@@ -62,6 +65,9 @@
 		var kCode;
 		switch( sCode )
 		{
+			case "BS": kCode = Mod + BACKSPACE; break;
+			case "Del": kCode = Mod + DELETE; break;
+
 			case "A": Mod = SHIFT; case "a": kCode = Mod + A; break;
 			case "B": Mod = SHIFT; case "b": kCode = Mod + B; break;
 			case "C": Mod = SHIFT; case "c": kCode = Mod + C; break;
@@ -99,8 +105,11 @@
 			case "*": Mod = SHIFT; case "8": kCode = Mod + _8; break;
 			case "(": Mod = SHIFT; case "9": kCode = Mod + _9; break;
 			case ")": Mod = SHIFT; case "0": kCode = Mod + _0; break;
+			case "<": Mod = SHIFT; case ",": kCode = Mod + COMMA; break;
+			case ">": Mod = SHIFT; case ".": kCode = Mod + FULLSTOP; break;
+
 			default:
-				throw new Error( "No such keys: " + str );
+				throw new Error( "Unsupport keys: " + str );
 		}
 
 		return __maps[ str ] = kCode;
@@ -209,7 +218,7 @@
 		var ccur = this.__ccur;
 
 		var x = ccur.X;
-		ccur.moveX( a, b, c );
+		ccur.moveX( a, b, c || ccur.pSpace );
 		if( ccur.X == x ) beep();
 	};
 
@@ -245,7 +254,7 @@
 		var cursorHandled = true;
 		switch( kCode )
 		{
-			case BACKSPACE: this.__cMoveX( -1, true ); break; // Backspace, go back 1 char, regardless of line
+			case BACKSPACE: this.__cMoveX( -1, true ); break; // Backspace, go back 1 char
 			case H: this.__cMoveX( -1 ); break; // Left
 			case L: this.__cMoveX( 1 ); break; // Right
 			case K: this.__cMoveY( -1 ); break; // Up
@@ -259,7 +268,7 @@
 				ccur.lineStart();
 				break;
 			case SHIFT + _4: // $, End
-				ccur.lineEnd();
+				ccur.lineEnd( ccur.pSpace );
 				break;
 			case SHIFT + G: // Goto last line
 				ccur.moveY( Number.MAX_VALUE );
@@ -293,10 +302,10 @@
 	 * */
 	Controls.prototype.handler = function( sender, e )
 	{
-		// Neve capture these keys
-		if( e.ModKeys
+		// Never capture these keys
+		if( e.keyCode == ( ALT + D )
 			// F2 - F12
-			|| ( F1 < e.keyCode && e.keyCode < 124 )
+			|| ( F1 < e.keyCode && e.keyCode <= F12 )
 		) return;
 
 		// Clear composite command
@@ -334,36 +343,32 @@
 			return;
 		}
 
-		if( this.__cursorCommand( e ) )
-		{
-			e.preventDefault();
-			return;
-		}
+		e.preventDefault();
 
-		if( this.__actionCommand( e ) )
-		{
-			e.preventDefault();
-			return;
-		}
+		if( this.__cursorCommand( e ) ) return;
+		if( this.__actionCommand( e ) ) return;
 	};
 
-	var InputEvent = function( e )
+	var InputEvent = function( sender, e )
 	{
 		this.__e = e;
+		this.__target = sender;
 
 		var c = this.__e.keyCode;
 
 		this.__escape = c == ESC || ( e.ctrlKey && c == C );
 		this.__kCode = c
 			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
-			+ ( e.ctrlKey ? CTRL : 0 );
+			+ ( e.ctrlKey ? CTRL : 0 )
+			+ ( e.altKey ? ALT : 0 );
 
 		this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
 		this.__key = e.key;
 	};
 
- 	__readOnly( InputEvent.prototype, "key", function() { return this.__key; } );
- 	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
+	__readOnly( InputEvent.prototype, "target", function() { return this.__target; } );
+	__readOnly( InputEvent.prototype, "key", function() { return this.__key; } );
+	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
 	__readOnly( InputEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
 	__readOnly( InputEvent.prototype, "Escape", function() { return this.__escape; } );
 

@@ -17,6 +17,8 @@
 
 		, "UNDO_LIMIT": "Already at oldest change"
 		, "REDO_LIMIT": "Already at newest change"
+
+		, "LINE_FEWER": "%1 fewer lines"
 	};
 
 	var errors = {

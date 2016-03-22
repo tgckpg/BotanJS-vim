@@ -26,9 +26,15 @@ Components.Vim.Cursor.openAction;
 Components.Vim.Cursor.openRunAction;
 /** @type Function */
 Components.Vim.Cursor.closeAction;
+/** @type Function */
+Components.Vim.Cursor.suppressEvent;
+/** @type Function */
+Components.Vim.Cursor.unsuppressEvent;
 
 /** @type {Boolean} */
 Components.Vim.Cursor.blink;
+/** @type {Boolean} */
+Components.Vim.Cursor.pSpace;
 /** @type {Array} */
 Components.Vim.Cursor.lineBuffers;
 /** @type Number */
