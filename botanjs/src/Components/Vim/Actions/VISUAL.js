@@ -1,12 +1,17 @@
 (function(){
 	var ns = __namespace( "Components.Vim.Actions" );
 
-	/** @type {Components.Vim.State.Stack} */
-	var Stack                                 = __import( "Components.Vim.State.Stack" );
 	/** @type {System.Debug} */
-	var debug                                 = __import( "System.Debug" );
+	var debug = __import( "System.Debug" );
 
 	var Mesg = __import( "Components.Vim.Message" );
+	/** @type {Components.Vim.Controls} */
+	var Controls = __import( "Components.Vim.Controls" );
+
+	/** @type {Components.Vim.Cursor.IAction} */
+	var YANK = ns[ NS_INVOKE ]( "YANK" );
+	/** @type {Components.Vim.Cursor.IAction} */
+	var DELETE = ns[ NS_INVOKE ]( "DELETE" );
 
 	/** @type {Components.Vim.Cursor.IAction} */
 	var VISUAL = function( Cursor )
@@ -16,6 +21,8 @@
 		this.__startaP = Cursor.aPos;
 		this.__start = Cursor.PStart;
 		this.__selStart = Cursor.PStart;
+		this.__msg = Mesg( "VISUAL" );
+		this.__leaveMesg = "";
 
 		Cursor.blink = false;
 	};
@@ -24,17 +31,38 @@
 
 	VISUAL.prototype.dispose = function()
 	{
+		this.__msg = this.__leaveMesg;
 		this.__cursor.blink = true;
 		this.__cursor.PStart = this.__selStart;
 		this.__cursor.PEnd = this.__selStart + 1;
 	};
 
-
-	VISUAL.prototype.handler = function( e )
+	VISUAL.prototype.handler = function( e, done )
 	{
 		e.preventDefault();
 
-		if( [ 16, 17, 18 ].indexOf( e.keyCode ) != -1 ) return;
+		if( Controls.ModKeys( e ) ) return;
+
+		var Action = null;
+		switch( true )
+		{
+			case Controls.KMap( e, "y" ):
+				Action = new YANK( this.__cursor );
+				break;
+			case Controls.KMap( e, "d" ):
+				Action = new DELETE( this.__cursor );
+				break;
+		}
+
+		if( Action )
+		{
+			Action.handler( e );
+			this.__leaveMesg = Action.getMessage();
+			Action.dispose();
+
+			return true;
+		}
+
 		var cur = this.__cursor;
 		var prevPos = this.__start;
 		var newPos = cur.PStart;
@@ -58,9 +86,7 @@
 
 	VISUAL.prototype.getMessage = function()
 	{
-		var msg = Mesg( "VISUAL" );
-
-		return msg;
+		return this.__msg;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "VISUAL", VISUAL );

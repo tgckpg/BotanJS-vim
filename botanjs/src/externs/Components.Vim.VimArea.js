@@ -12,3 +12,5 @@ Components.Vim.VimArea.statusBar;
 Components.Vim.VimArea.rows;
 /** @type {Number} */
 Components.Vim.VimArea.cols;
+/** @type {Array} */
+Components.Vim.VimArea.Instances;

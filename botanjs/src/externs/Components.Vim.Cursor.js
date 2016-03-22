@@ -1,6 +1,8 @@
 /** @constructor */
 Components.Vim.Cursor = function(){};
 
+/** @type {Components.Vim.VimArea} */
+Components.Vim.Cursor.Vim;
 /** @type {Components.Vim.LineFeeder} */
 Components.Vim.Cursor.feeder;
 /** @type {Components.Vim.IAction} */

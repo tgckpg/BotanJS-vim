@@ -1,6 +1,7 @@
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
+	/** @type {System.Debug} */
 	var debug = __import( "System.Debug" );
 	var beep = ns[ NS_INVOKE ]( "Beep" );
 
@@ -28,6 +29,81 @@
 	var F1 = 112; var F2 = 113; var F3 = 114; var F4 = 115; var F5 = 116;
 	var F6 = 117; var F7 = 118; var F8 = 119; var F9 = 120; var F10 = 121;
 	var F11 = 122; var F12 = 123;
+
+	var __maps = {};
+	var Map = function( str )
+	{
+		if( __maps[ str ] ) return __maps[ str ];
+
+		// C-Left, A-Up ...
+		var Code = str.split( "-" );
+		var sCode = Code[0];
+
+		var Mod = 0;
+		if( Code.length == 2 )
+		{
+			var m = true;
+			switch( Code[0] )
+			{
+				case "C": Mod = CTRL; break;
+				case "A": Mod = ALT; break;
+				case "S": Mod = SHIFT; break;
+				default:
+					m = false;
+			}
+
+			if( m )
+			{
+				sCode = Code[1];
+			}
+		}
+
+		var kCode;
+		switch( sCode )
+		{
+			case "A": Mod = SHIFT; case "a": kCode = Mod + A; break;
+			case "B": Mod = SHIFT; case "b": kCode = Mod + B; break;
+			case "C": Mod = SHIFT; case "c": kCode = Mod + C; break;
+			case "D": Mod = SHIFT; case "d": kCode = Mod + D; break;
+			case "E": Mod = SHIFT; case "e": kCode = Mod + E; break;
+			case "F": Mod = SHIFT; case "f": kCode = Mod + F; break;
+			case "G": Mod = SHIFT; case "g": kCode = Mod + G; break;
+			case "H": Mod = SHIFT; case "h": kCode = Mod + H; break;
+			case "I": Mod = SHIFT; case "i": kCode = Mod + I; break;
+			case "J": Mod = SHIFT; case "j": kCode = Mod + J; break;
+			case "K": Mod = SHIFT; case "k": kCode = Mod + K; break;
+			case "L": Mod = SHIFT; case "l": kCode = Mod + L; break;
+			case "M": Mod = SHIFT; case "m": kCode = Mod + M; break;
+			case "N": Mod = SHIFT; case "n": kCode = Mod + N; break;
+			case "O": Mod = SHIFT; case "o": kCode = Mod + O; break;
+			case "P": Mod = SHIFT; case "p": kCode = Mod + P; break;
+			case "Q": Mod = SHIFT; case "q": kCode = Mod + Q; break;
+			case "R": Mod = SHIFT; case "r": kCode = Mod + R; break;
+			case "S": Mod = SHIFT; case "s": kCode = Mod + S; break;
+			case "T": Mod = SHIFT; case "t": kCode = Mod + T; break;
+			case "U": Mod = SHIFT; case "u": kCode = Mod + U; break;
+			case "V": Mod = SHIFT; case "v": kCode = Mod + V; break;
+			case "W": Mod = SHIFT; case "w": kCode = Mod + W; break;
+			case "X": Mod = SHIFT; case "x": kCode = Mod + X; break;
+			case "Y": Mod = SHIFT; case "y": kCode = Mod + Y; break;
+			case "Z": Mod = SHIFT; case "z": kCode = Mod + Z; break;
+
+			case "!": Mod = SHIFT; case "1": kCode = Mod + _1; break;
+			case "@": Mod = SHIFT; case "2": kCode = Mod + _2; break;
+			case "#": Mod = SHIFT; case "3": kCode = Mod + _3; break;
+			case "$": Mod = SHIFT; case "4": kCode = Mod + _4; break;
+			case "%": Mod = SHIFT; case "5": kCode = Mod + _5; break;
+			case "^": Mod = SHIFT; case "6": kCode = Mod + _6; break;
+			case "&": Mod = SHIFT; case "7": kCode = Mod + _7; break;
+			case "*": Mod = SHIFT; case "8": kCode = Mod + _8; break;
+			case "(": Mod = SHIFT; case "9": kCode = Mod + _9; break;
+			case ")": Mod = SHIFT; case "0": kCode = Mod + _0; break;
+			default:
+				throw new Error( "No such keys: " + str );
+		}
+
+		return __maps[ str ] = kCode;
+	};
 
 	var Controls = function( vimArea )
 	{
@@ -249,7 +325,10 @@
 				if( ccur.action.allowMovement )
 					this.__cursorCommand( e, kCode );
 
-				ccur.action.handler( e );
+				if( ccur.action.handler( e ) )
+				{
+					ccur.closeAction();
+				}
 			}
 			return;
 		}
@@ -259,6 +338,21 @@
 		if( this.__cursorCommand( e, kCode ) ) return;
 		if( this.__actionCommand( e, kCode ) ) return;
 	};
+
+	__static_method( Controls, "ModKeys", function( e )
+	{
+		var c = e.keyCode;
+		return c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
+	} );
+
+	__static_method( Controls, "KMap", function( e, map )
+	{
+		var kCode = e.keyCode
+			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
+			+ ( e.ctrlKey ? CTRL : 0 );
+
+		return kCode == Map( map );
+	} );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Controls", Controls );
 })();

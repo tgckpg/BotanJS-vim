@@ -82,6 +82,9 @@
 		this.blink = true;
 	};
 
+	// Set by VimArea
+	Cursor.prototype.Vim;
+
 	// Can only be 1, -1
 	// 0 will be treated as undefined
 	Cursor.prototype.moveX = function( d, penentrate, phantomSpace )
@@ -259,6 +262,8 @@
 		this.updatePosition();
 	};
 
+	// Open an action handler
+	// i.e. YANK, VISUAL, INSERT, UNDO, etc.
 	Cursor.prototype.openAction = function( name )
 	{
 		if( this.action ) this.action.dispose();
@@ -272,12 +277,13 @@
 	{
 		if( !this.action ) return;
 		this.action.dispose();
+		this.__pulseMsg = this.action.getMessage();
 		this.action = null;
-		this.__pulseMsg = null;
 
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
+	// Open, Run, then close an action
 	Cursor.prototype.openRunAction = function( name, e )
 	{
 		/** @type {Components.Vim.IAction} */

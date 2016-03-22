@@ -10,6 +10,9 @@
 	/** @type {System.Debug} */
 	var debug                                   = __import( "System.Debug" );
 
+	/** @type {Components.Vim.State.Registers} */
+	var Registers                               = __import( "Components.Vim.State.Registers" );
+
 	/** @type {Components.Vim.LineFeeder} */
 	var LineFeeder = ns[ NS_INVOKE ]( "LineFeeder" );
 	/** @type {Components.Vim.StatusBar} */
@@ -17,6 +20,8 @@
 
 	var VimControls = ns[ NS_INVOKE ]( "Controls" );
 	var mesg = ns[ NS_INVOKE ]( "Message" );
+
+	var Insts = [];
 
 	var KeyHandler = function( sender, handler )
 	{
@@ -58,6 +63,9 @@
 
 		// Init
 		this.VisualizeVimFrame( element.value );
+
+		// Push this instance
+		Insts.push( this );
 	};
 
 	VimArea.prototype.select = function( sel )
@@ -86,6 +94,7 @@
 		// Content feeder
 		var cfeeder = new LineFeeder( cRange, c );
 
+		// Feed the contents to content feeder
 		// This "\n" fixes the last line "\n" not displaying
 		// it will be trimmed after saving
 		cfeeder.init( content + "\n" );
@@ -94,19 +103,15 @@
 		sfeeder = new LineFeeder( r, c );
 		sfeeder.setRender( false );
 
-		// XXX: Placeholder
+		// Set the Vim instance
+		cfeeder.cursor.Vim = this;
+		sfeeder.cursor.Vim = this;
+
+		// Set the stamps
 		var statusBar = new StatusBar( c );
-		statusBar.stamp( -18, function(){
-			return cfeeder.lineStat;
-		});
-
-		statusBar.stamp( -3, function(){
-			return mesg( cfeeder.docPos );
-		} );
-
-		statusBar.stamp( 0, function(){
-			return cfeeder.cursor.message;
-		} );
+		statusBar.stamp( -18, function(){ return cfeeder.lineStat; } );
+		statusBar.stamp( -3, function(){ return mesg( cfeeder.docPos ); } );
+		statusBar.stamp( 0, function(){ return cfeeder.cursor.message; } );
 
 		sfeeder.init( statusBar.statusText );
 
@@ -128,6 +133,7 @@
 		this.contentFeeder = cfeeder;
 		this.statusFeeder = sfeeder;
 		this.statusBar = statusBar;
+		this.registers = new Registers();
 
 		this.__cursor = cfeeder.cursor;
 
@@ -147,6 +153,10 @@
 			, KeyHandler( this, controls.handler.bind( controls ) )
 		);
 	};
+
+	__readOnly( VimArea, "Instances", function() {
+		return Insts.slice();
+	} );
 
 	__readOnly( VimArea.prototype, "content", function() {
 		return this.contentFeeder.content.slice( 0, -1 );

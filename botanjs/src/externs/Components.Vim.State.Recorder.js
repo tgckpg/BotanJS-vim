@@ -2,8 +2,8 @@
 Components.Vim.State.Recorder = function(){};
 
 /** @type Function */
-Components.Vim.State.undo;
+Components.Vim.State.Recorder.undo;
 /** @type Function */
-Components.Vim.State.redo;
+Components.Vim.State.Recorder.redo;
 /** @type Function */
-Components.Vim.State.record;
+Components.Vim.State.Recorder.record;
