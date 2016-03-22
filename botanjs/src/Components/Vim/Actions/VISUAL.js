@@ -5,8 +5,6 @@
 	var debug = __import( "System.Debug" );
 
 	var Mesg = __import( "Components.Vim.Message" );
-	/** @type {Components.Vim.Controls} */
-	var Controls = __import( "Components.Vim.Controls" );
 
 	/** @type {Components.Vim.Cursor.IAction} */
 	var YANK = ns[ NS_INVOKE ]( "YANK" );
@@ -41,15 +39,15 @@
 	{
 		e.preventDefault();
 
-		if( Controls.ModKeys( e ) ) return;
+		if( e.ModKeys ) return;
 
 		var Action = null;
 		switch( true )
 		{
-			case Controls.KMap( e, "y" ):
+			case e.kMap( "y" ):
 				Action = new YANK( this.__cursor );
 				break;
-			case Controls.KMap( e, "d" ):
+			case e.kMap( "d" ):
 				Action = new DELETE( this.__cursor );
 				break;
 		}

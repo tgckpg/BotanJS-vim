@@ -7,6 +7,7 @@
 
 	var SHIFT = 1 << 9;
 	var CTRL = 1 << 10;
+	var ALT = 1 << 11;
 
 	var KEY_SHIFT = 16;
 	var KEY_CTRL = 17;
@@ -139,7 +140,7 @@
 				if( compReg.i == keys.length )
 				{
 					compReg.handler();
-					compReg = null;
+					this.__compReg = null;
 					this.__cMovement = false;
 				}
 
@@ -153,13 +154,13 @@
 		return false;
 	};
 
-	Controls.prototype.__actionCommand = function( e, kCode )
+	Controls.prototype.__actionCommand = function( e )
 	{
 		var ActionHandled = true;
 		var ccur = this.__ccur;
 
 		// Action Command
-		switch( kCode )
+		switch( e.keyCode )
 		{
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
@@ -226,12 +227,13 @@
 		}
 	};
 
-	Controls.prototype.__cursorCommand = function( e, kCode )
+	Controls.prototype.__cursorCommand = function( e )
 	{
+		var kCode = e.keyCode;
+
 		if( this.__cMovement && this.__comp )
 		{
-			var k = e.keyCode;
-			if(!( k == KEY_SHIFT || k == KEY_CTRL  || k == KEY_ALT ))
+			if( !e.ModKeys )
 			{
 				this.__comp( kCode );
 				return true;
@@ -285,19 +287,20 @@
 		return cursorHandled;
 	};
 
+	/**
+	 * sender @param  {Components.Vim.VimArea}
+	 * e @param {Components.Vim.Controls.InputEvent}
+	 * */
 	Controls.prototype.handler = function( sender, e )
 	{
 		// Neve capture these keys
-		if( e.altKey
+		if( e.ModKeys
 			// F2 - F12
 			|| ( F1 < e.keyCode && e.keyCode < 124 )
 		) return;
 
-		// Esc OR Ctrl + c
-		var Escape = e.keyCode == ESC || ( e.ctrlKey && e.keyCode == C );
-
 		// Clear composite command
-		if( Escape && this.__compReg )
+		if( e.Escape && this.__compReg )
 		{
 			this.__compReg = null;
 			this.__cMovement = false;
@@ -308,14 +311,12 @@
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
 
-		var kCode = e.keyCode
-			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
-			+ ( e.ctrlKey ? CTRL : 0 );
+		var kCode = e.keyCode;
 
 		// Action commands are handled by the actions themselves
 		if( ccur.action )
 		{
-			if( Escape )
+			if( e.Escape )
 			{
 				e.preventDefault();
 				ccur.closeAction();
@@ -333,26 +334,49 @@
 			return;
 		}
 
-		e.preventDefault();
+		if( this.__cursorCommand( e ) )
+		{
+			e.preventDefault();
+			return;
+		}
 
-		if( this.__cursorCommand( e, kCode ) ) return;
-		if( this.__actionCommand( e, kCode ) ) return;
+		if( this.__actionCommand( e ) )
+		{
+			e.preventDefault();
+			return;
+		}
 	};
 
-	__static_method( Controls, "ModKeys", function( e )
+	var InputEvent = function( e )
 	{
-		var c = e.keyCode;
-		return c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
-	} );
+		this.__e = e;
 
-	__static_method( Controls, "KMap", function( e, map )
-	{
-		var kCode = e.keyCode
+		var c = this.__e.keyCode;
+
+		this.__escape = c == ESC || ( e.ctrlKey && c == C );
+		this.__kCode = c
 			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
 			+ ( e.ctrlKey ? CTRL : 0 );
 
-		return kCode == Map( map );
-	} );
+		this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
+		this.__key = e.key;
+	};
+
+ 	__readOnly( InputEvent.prototype, "key", function() { return this.__key; } );
+ 	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
+	__readOnly( InputEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
+	__readOnly( InputEvent.prototype, "Escape", function() { return this.__escape; } );
+
+	InputEvent.prototype.kMap = function( map )
+	{
+		return this.__kCode == Map( map );
+	};
+
+	InputEvent.prototype.preventDefault = function()
+	{
+		if( this.__e ) this.__e.preventDefault();
+	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Controls", Controls );
+	ns[ NS_EXPORT ]( EX_CLASS, "InputEvent", InputEvent );
 })();
