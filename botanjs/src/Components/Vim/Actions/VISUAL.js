@@ -17,6 +17,7 @@
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 		this.__startaP = Cursor.aPos;
+		this.__startP = { x: Cursor.X, y: Cursor.Y, p: Cursor.P };
 		this.__start = Cursor.PStart;
 		this.__selStart = Cursor.PStart;
 		this.__msg = Mesg( "VISUAL" );
@@ -45,46 +46,63 @@
 
 		var cur = this.__cursor;
 		var Action = null;
-		switch( true )
-		{
-			case e.kMap( "y" ):
-				Action = new YANK( cur );
-				break;
-			case e.kMap( "d" ):
-				Action = new DELETE( cur );
-				break;
-		}
 
-		var prevPos = this.__start;
-		var newPos = cur.PStart;
-
-		var posDiff = newPos - prevPos;
-		if( 0 <= posDiff )
+		if( e.kMap( "y" ) )
 		{
-			this.__selStart = newPos;
-			newPos = newPos + 1;
+			Action = new YANK( cur );
 		}
-		else if( posDiff < 0 )
+		else if( e.kMap( "d" ) )
 		{
-			prevPos += posDiff;
-			newPos = this.__start + 1;
-			this.__selStart = prevPos;
+			Action = new DELETE( cur );
 		}
 
 		if( Action )
 		{
 			cur.suppressEvent();
+
+			// Low-level cursor position adjustment
+			// this swap the cursor direction from LTR to RTL
+			// i.e. treat all delete as "e<----s" flow
+			// to keep the cursor position as the top on UNDO / REDO
+			if( Action.constructor == DELETE && this.__startaP < cur.aPos )
+			{
+				this.__startaP = cur.aPos;
+				cur.X = this.__startP.x;
+				cur.Y = this.__startP.y;
+				cur.P = this.__startP.p;
+			}
+
 			Action.handler( e, this.__startaP );
 			this.__leaveMesg = Action.getMessage();
+
 			Action.dispose();
 			cur.unsuppressEvent();
 
 			this.__selStart = cur.PStart;
+
 			return true;
 		}
+		else
+		{
+			var prevPos = this.__start;
+			var newPos = cur.PStart;
 
-		cur.PStart = prevPos;
-		cur.PEnd = newPos;
+			var posDiff = newPos - prevPos;
+			if( 0 <= posDiff )
+			{
+				this.__selStart = newPos;
+				newPos = newPos + 1;
+			}
+			else if( posDiff < 0 )
+			{
+				prevPos += posDiff;
+				newPos = this.__start + 1;
+				this.__selStart = prevPos;
+			}
+
+			cur.PStart = prevPos;
+			cur.PEnd = newPos;
+		}
 	};
 
 	VISUAL.prototype.getMessage = function()

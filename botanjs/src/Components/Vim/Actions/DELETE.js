@@ -19,6 +19,7 @@
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 		this.__nline = 0;
+		this.__startX = Cursor.aPos;
 	};
 
 	DELETE.prototype.allowMovement = true;
@@ -32,11 +33,27 @@
 	{
 		e.preventDefault();
 
+
 		/** @type {Components.Vim.State.Registers} */
 		var reg = e.target.registers;
 
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
+
+		var Triggered = false;
+		if( sp == undefined && this.__startX != cur.aPos )
+		{
+			Triggered = true;
+
+			if( e.kMap( "l" ) )
+			{
+				cur.moveX( -1 );
+			}
+
+			sp = this.__startX;
+		}
+		else if( sp == undefined ) return;
+
 
 		var c = feeder.content;
 
@@ -77,6 +94,8 @@
 		cur.rec.record( stack );
 
 		feeder.pan();
+
+		return Triggered;
 	};
 
 	DELETE.prototype.getMessage = function()

@@ -26,6 +26,8 @@
 	var U = 85; var V = 86; var W = 87; var X = 88; var Y = 89;
 	var Z = 90;
 
+	var S_BRACKET_L = 219; var S_BRACKET_R = 221;
+
 	var ESC = 27;
 
 	var F1 = 112; var F2 = 113; var F3 = 114; var F4 = 115; var F5 = 116;
@@ -184,6 +186,9 @@
 			case CTRL + R: // Redo
 				ccur.openRunAction( "REDO", e );
 				break;
+			case D: // Del with motion
+				ccur.openAction( "DELETE" );
+				break;
 			case X: // Del
 				break;
 			case SHIFT + X: // Delete before
@@ -276,6 +281,33 @@
 				break
 
 			case SHIFT + _5: // %, Find next item
+				break;
+			case T: // To
+				break;
+			case I: // In between boundary
+				if( !ccur.action )
+				{
+					cursorHandled = false;
+					break;
+				}
+
+				this.__cMovement = true;
+				// Word boundary
+				this.__comp( kCode, function(){
+					debug.Info( "Word boundary" );
+				}, W );
+				this.__comp( kCode, function(){
+					debug.Info( "Bracket boundary [" );
+				}, S_BRACKET_L );
+				this.__comp( kCode, function(){
+					debug.Info( "Bracket boundary ]" );
+				}, S_BRACKET_R );
+				this.__comp( kCode, function(){
+					debug.Info( "Bracket boundary {" );
+				}, SHIFT + S_BRACKET_L );
+				this.__comp( kCode, function(){
+					debug.Info( "Bracket boundary }" );
+				}, SHIFT + S_BRACKET_R );
 				break;
 
 			case G: // Go to top
