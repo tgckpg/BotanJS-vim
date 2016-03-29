@@ -11,6 +11,8 @@ Components.Vim.Cursor.action;
 Components.Vim.Cursor.rec;
 
 /** @type Function */
+Components.Vim.Cursor.moveTo;
+/** @type Function */
 Components.Vim.Cursor.moveX;
 /** @type Function */
 Components.Vim.Cursor.moveY;

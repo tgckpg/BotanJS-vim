@@ -88,6 +88,37 @@
 	// Set by VimArea
 	Cursor.prototype.Vim;
 
+	// Move to an absolute position
+	Cursor.prototype.moveTo = function( aPos )
+	{
+		var content = this.feeder.content;
+		var lastLineNum = this.getLine().lineNum;
+
+		var expLineNum = 0;
+		var lineStart = 0;
+		for( var i = content.indexOf( "\n" ); 0 <= i ; i = content.indexOf( "\n", i ) )
+		{
+			if( aPos <= i )
+			{
+				break;
+			}
+
+			lineStart = i;
+			i ++;
+			expLineNum ++;
+		}
+
+		var jumpY = expLineNum - lastLineNum;
+		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
+
+		if( jumpY ) this.moveY( jumpY );
+		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
+
+		this.moveX( - Number.MAX_VALUE );
+		this.moveX( jumpX );
+
+	};
+
 	// 0 will be treated as default ( 1 )
 	Cursor.prototype.moveX = function( d, penetrate, phantomSpace )
 	{
@@ -120,38 +151,12 @@
 		// Motion includes empty lines before cursor end
 		if( ( phantomSpace && cLen - 1 <= x ) || ( cLen == 1 && c == undefined ) )
 		{
-			if( 0 < d )
-			{
-				x = cLen - 1;
-				if( penetrate )
-				{
-					this.X = 0;
-					this.moveY( 1 );
-					return;
-				}
-			}
-			else
-			{
-				x = 0;
-			}
+			x = 0 < d ? cLen - 1 : 0;
 		}
 		// ( 2 < cLen ) motion excludes empty lines at cursor end
 		else if( ( 2 <= cLen && x == cLen - 1 && c == " " ) || c == undefined )
 		{
-			if( 0 < d )
-			{
-				x = cLen - 2;
-				if( penetrate )
-				{
-					this.X = 0;
-					this.moveY( 1 );
-					return;
-				}
-			}
-			else
-			{
-				x = 0;
-			}
+			x = 0 < d ? cLen - 2 : 0;
 		}
 		else if( c == "\n" )
 		{
@@ -199,7 +204,7 @@
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
-	Cursor.prototype.moveY = function( d, penetrate )
+	Cursor.prototype.moveY = function( d )
 	{
 		var i;
 		var Y = this.Y + d;
@@ -208,7 +213,7 @@
 
 		if( Y < 0 )
 		{
-			feeder.pan( undefined, d );
+			feeder.pan( undefined, Y );
 
 			this.Y = 0;
 			this.moveX();
@@ -222,11 +227,7 @@
 		{
 			var feeder = this.feeder;
 
-			if( penetrate )
-			{
-				feeder.pan( undefined, Y - moreAt );
-			}
-			else if( feeder.linesTotal < Y )
+			if( feeder.linesTotal < Y )
 			{
 				while( !feeder.EOF )
 				{
@@ -244,17 +245,21 @@
 				if( !feeder.EOF )
 					feeder.pan( undefined, lineShift );
 
+				// The line number cursor need to be in
+				Y = thisLine + d;
+
 				// if it turns out to be the same line
+				// OR the cursor can not reside on the needed line
 				// before after panning
 				// we keep scrolling it ( panning )
 				// until the entire line cosumes the screen
-				while( !feeder.EOF && feeder.lastBuffer.lineNum == lastLine )
+				while( !feeder.EOF && (
+					feeder.lastBuffer.lineNum == lastLine
+					||  feeder.lastBuffer.lineNum < Y
+				) )
 				{
 					feeder.pan( undefined, 1 );
 				}
-
-				// The line number cursor need to be in
-				Y = thisLine + d;
 
 				i = this.Y;
 				this.Y = 0;

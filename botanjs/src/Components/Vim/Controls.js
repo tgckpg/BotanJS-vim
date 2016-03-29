@@ -292,18 +292,11 @@
 					break;
 				}
 
-				var d = 1;
-				var at = bracketMatch.close;
-				if( bracketMatch.selected == at )
-				{
-					d = -1;
-					at = bracketMatch.open;
-				}
-
-				while( ccur.aPos != at )
-				{
-					ccur.moveX( d, true );
-				}
+				ccur.moveTo(
+					bracketMatch.selected == bracketMatch.close
+						? bracketMatch.open
+						: bracketMatch.close
+				);
 
 				break;
 			case T: // To
