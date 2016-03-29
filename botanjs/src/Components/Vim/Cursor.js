@@ -88,9 +88,8 @@
 	// Set by VimArea
 	Cursor.prototype.Vim;
 
-	// Can only be 1, -1
-	// 0 will be treated as undefined
-	Cursor.prototype.moveX = function( d, penentrate, phantomSpace )
+	// 0 will be treated as default ( 1 )
+	Cursor.prototype.moveX = function( d, penetrate, phantomSpace )
 	{
 		var x = this.pX;
 
@@ -101,7 +100,7 @@
 
 		var buffs = this.feeder.lineBuffers;
 
-		if( penentrate )
+		if( penetrate )
 		{
 			if( x < 0 && ( 0 < this.feeder.panY || 0 < this.Y ) )
 			{
@@ -118,15 +117,41 @@
 
 		var c = content[ x ];
 
-		// Include empty lines befor cursor end
+		// Motion includes empty lines before cursor end
 		if( ( phantomSpace && cLen - 1 <= x ) || ( cLen == 1 && c == undefined ) )
 		{
-			x = 0 < d ? cLen - 1 : 0;
+			if( 0 < d )
+			{
+				x = cLen - 1;
+				if( penetrate )
+				{
+					this.X = 0;
+					this.moveY( 1 );
+					return;
+				}
+			}
+			else
+			{
+				x = 0;
+			}
 		}
-		// ( 2 < cLen ) Exclude empty lines at cursor end
+		// ( 2 < cLen ) motion excludes empty lines at cursor end
 		else if( ( 2 <= cLen && x == cLen - 1 && c == " " ) || c == undefined )
 		{
-			x = 0 < d ? cLen - 2 : 0;
+			if( 0 < d )
+			{
+				x = cLen - 2;
+				if( penetrate )
+				{
+					this.X = 0;
+					this.moveY( 1 );
+					return;
+				}
+			}
+			else
+			{
+				x = 0;
+			}
 		}
 		else if( c == "\n" )
 		{
@@ -174,7 +199,7 @@
 		this.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
-	Cursor.prototype.moveY = function( d, penentrate )
+	Cursor.prototype.moveY = function( d, penetrate )
 	{
 		var i;
 		var Y = this.Y + d;
@@ -197,7 +222,7 @@
 		{
 			var feeder = this.feeder;
 
-			if( penentrate )
+			if( penetrate )
 			{
 				feeder.pan( undefined, Y - moreAt );
 			}

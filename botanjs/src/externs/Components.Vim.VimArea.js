@@ -3,6 +3,8 @@ Components.Vim.VimArea = function(){};
 
 /** @type {Components.Vim.LineFeeder} */
 Components.Vim.VimArea.contentFeeder;
+/** @type {Components.Vim.Syntax.Analyzer} */
+Components.Vim.VimArea.contentAnalyzer;
 /** @type {Components.Vim.LineFeeder} */
 Components.Vim.VimArea.statusFeeder;
 /** @type {Components.Vim.StatusBar} */

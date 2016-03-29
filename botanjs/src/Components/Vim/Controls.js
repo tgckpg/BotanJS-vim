@@ -281,6 +281,30 @@
 				break
 
 			case SHIFT + _5: // %, Find next item
+				var analyzer = this.__vimArea.contentAnalyzer;
+
+				/** @type {Components.Vim.Syntax.TokenMatch} */
+				var bracketMatch = analyzer.bracketAt( ccur.aPos );
+
+				if( bracketMatch.open == -1 )
+				{
+					beep();
+					break;
+				}
+
+				var d = 1;
+				var at = bracketMatch.close;
+				if( bracketMatch.selected == at )
+				{
+					d = -1;
+					at = bracketMatch.open;
+				}
+
+				while( ccur.aPos != at )
+				{
+					ccur.moveX( d, true );
+				}
+
 				break;
 			case T: // To
 				break;
@@ -290,6 +314,8 @@
 					cursorHandled = false;
 					break;
 				}
+
+				var analyzer = this.__vimArea.contentAnalyzer;
 
 				this.__cMovement = true;
 				// Word boundary
@@ -307,6 +333,7 @@
 				}, SHIFT + S_BRACKET_L );
 				this.__comp( kCode, function(){
 					debug.Info( "Bracket boundary }" );
+					analyzer.bracketAt( ccur.aPos );
 				}, SHIFT + S_BRACKET_R );
 				break;
 
