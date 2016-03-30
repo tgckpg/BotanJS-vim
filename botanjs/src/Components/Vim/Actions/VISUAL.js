@@ -14,17 +14,22 @@
 	/** @type {Components.Vim.Cursor.IAction} */
 	var VISUAL = function( Cursor )
 	{
+		this.__reset( Cursor );
+		this.__msg = Mesg( "VISUAL" );
+		this.__leaveMesg = "";
+
+		Cursor.blink = false;
+		Cursor.pSpace = true;
+	};
+
+	VISUAL.prototype.__reset = function( Cursor )
+	{
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 		this.__startaP = Cursor.aPos;
 		this.__startP = { x: Cursor.X, y: Cursor.Y, p: Cursor.P };
 		this.__start = Cursor.PStart;
 		this.__selStart = Cursor.PStart;
-		this.__msg = Mesg( "VISUAL" );
-		this.__leaveMesg = "";
-
-		Cursor.blink = false;
-		Cursor.pSpace = true;
 	};
 
 	VISUAL.prototype.allowMovement = true;
@@ -84,6 +89,22 @@
 		}
 		else
 		{
+			if( e.range )
+			{
+				cur.suppressEvent();
+
+				var r = e.range;
+
+				if( cur.aPos == this.__startaP )
+				{
+					cur.moveX( r.open - this.__startaP );
+					this.__reset( cur );
+				}
+
+				cur.unsuppressEvent();
+				cur.moveX( r.close - cur.aPos );
+			}
+
 			var prevPos = this.__start;
 			var newPos = cur.PStart;
 

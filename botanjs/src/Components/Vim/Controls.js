@@ -322,7 +322,6 @@
 					);
 
 					e2.__range = WordMatch;
-
 				}, W );
 				this.__comp( e, function(){
 					debug.Info( "Bracket boundary [" );
