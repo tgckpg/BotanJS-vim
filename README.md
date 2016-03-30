@@ -9,6 +9,8 @@ The below commands are currently working. ( will be updated if I remembered, mig
 Cursor movements
 hjkl
 G
+Ctrl + f, Ctrl + b
+%$^
 
 INSERT:
 aA i
@@ -18,7 +20,7 @@ gg
 g8
 
 VISUAL:
-v ( hightlight only )
+v ( viw, vi{bracket} )
 
 Undo / Redo: ( might have bugs, please file issue if bugged. But I think I will finish other features first if it is not very critical )
 u / Ctrl + r
