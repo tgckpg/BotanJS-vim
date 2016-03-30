@@ -277,6 +277,11 @@
 		return pairs;
 	};
 
+	Analyzer.prototype.reset = function()
+	{
+		this.__tokpairs = {};
+	};
+
 	Analyzer.prototype.quoteAt = function( p )
 	{
 		var c = this.__feeder.content;

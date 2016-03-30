@@ -9,3 +9,5 @@ Components.Vim.Syntax.Analyzer.bracketIn;
 Components.Vim.Syntax.Analyzer.wordAt;
 /** @type Function */
 Components.Vim.Syntax.Analyzer.quoteAt;
+/** @type Function */
+Components.Vim.Syntax.Analyzer.reset;

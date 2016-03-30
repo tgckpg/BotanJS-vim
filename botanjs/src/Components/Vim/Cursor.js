@@ -191,10 +191,10 @@
 		this.PEnd = P + 1;
 		this.__p = P;
 
-		this.__fireUpdate();
+		this.__visualUpdate();
 	};
 
-	Cursor.prototype.__fireUpdate = function()
+	Cursor.prototype.__visualUpdate = function()
 	{
 		if( 0 < this.__suppEvt )
 		{
@@ -313,7 +313,7 @@
 		this.action = new (Actions[ name ])( this );
 		this.__pulseMsg = null;
 
-		this.__fireUpdate();
+		this.__visualUpdate();
 	};
 
 	Cursor.prototype.closeAction = function()
@@ -323,7 +323,10 @@
 		this.__pulseMsg = this.action.getMessage();
 		this.action = null;
 
-		this.__fireUpdate();
+		// Reset the analyzed content
+		this.Vim.contentAnalyzer.reset();
+
+		this.__visualUpdate();
 	};
 
 	// Open, Run, then close an action
@@ -335,7 +338,9 @@
 		this.__pulseMsg = action.getMessage();
 		action.dispose();
 
-		this.__fireUpdate();
+		this.Vim.contentAnalyzer.reset();
+
+		this.__visualUpdate();
 	};
 
 	Cursor.prototype.suppressEvent = function() { ++ this.__suppEvt; };
