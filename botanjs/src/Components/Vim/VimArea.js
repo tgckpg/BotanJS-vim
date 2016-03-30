@@ -104,7 +104,7 @@
 		cfeeder.init( content + "\n" );
 
 		// Status can consumes up to full screen, I think
-		sfeeder = new LineFeeder( r, c );
+		var sfeeder = new LineFeeder( r, c );
 		sfeeder.setRender( false );
 
 		// Set the Vim instance

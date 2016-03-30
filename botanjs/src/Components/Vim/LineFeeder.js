@@ -141,17 +141,17 @@
 		// Y cannot be negative
 		if( Y < 0 ) Y = 0;
 
+		// Compensate the last "\n" content placeholder
+		var cont = this.content.slice( 0, -1 );
 		if( 0 < Y )
 		{
-			f = this.content.indexOf( "\n" );
+			f = cont.indexOf( "\n" );
 			for( i = 1; f != -1 && i < Y; i ++ )
 			{
-				var a = this.content.indexOf( "\n", f + 1 );
+				var a = cont.indexOf( "\n", f + 1 );
 				if( a == -1 )
 				{
-					Y = i - 1;
-					// -2 to compensate the last "\n" content placeholder
-					f -= 2;
+					Y = i;
 					break;
 				}
 				f = a;

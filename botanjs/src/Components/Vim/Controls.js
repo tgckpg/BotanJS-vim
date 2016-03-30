@@ -270,14 +270,16 @@
 			case J: this.__cMoveY( 1 ); break; // Down
 
 			case CTRL + F: // Page Down
-				if( cfeeder.firstBuffer.next.placeholder )
+				if( cfeeder.firstBuffer.nextLine.placeholder )
 				{
 					beep();
 					break;
 				}
 
 				var oPan = cfeeder.panY;
-				cfeeder.pan( undefined, vima.rows - 1 );
+				cfeeder.pan( undefined, cfeeder.moreAt );
+				cfeeder.softReset();
+
 				ccur.moveY( -ccur.Y );
 
 				break;
@@ -287,7 +289,9 @@
 					beep();
 					break;
 				}
-				cfeeder.pan( undefined, -vima.rows + 1 );
+				cfeeder.pan( undefined, -cfeeder.moreAt );
+				cfeeder.softReset();
+
 				ccur.moveY( -ccur.Y );
 				if( !cfeeder.EOF ) ccur.moveY( cfeeder.moreAt );
 				break;
