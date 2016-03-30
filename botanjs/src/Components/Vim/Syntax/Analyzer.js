@@ -4,6 +4,9 @@
 	/** @type {System.Debug} */
 	var debug                                   = __import( "System.Debug" );
 
+	/** @type {Components.Vim.Syntax.Word} */
+	var Word = ns[ NS_INVOKE ]( "Word" );
+
 	var TOK_OPEN = 0;
 	var TOK_CLOSED = 1;
 	var TOK_LEVEL = 2;
@@ -245,6 +248,24 @@
 					, close: -1
 				};
 		}
+	};
+
+	Analyzer.prototype.wordAt = function( p )
+	{
+		var c = this.__feeder.content;
+		var Len = c.length;
+		var i = p, j = p;
+
+		var word = new Word( c[ p ] );
+
+		if( 0 < p ) while( word.test( c[ -- i ] ) );
+		if( p < Len ) while( word.test( c[ ++ j ] ) );
+
+		var tMatch = new TokenMatch();
+		tMatch.__open = i + 1;
+		tMatch.__close = j - 1;
+
+		return tMatch;
 	};
 
 	var TokenMatch = function()

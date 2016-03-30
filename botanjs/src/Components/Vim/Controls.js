@@ -313,7 +313,11 @@
 				this.__cMovement = true;
 				// Word boundary
 				this.__comp( kCode, function(){
-					debug.Info( "Word boundary" );
+					var WordMatch = analyzer.wordAt( ccur.aPos );
+
+					debug.Info( "Word: "
+						+ ccur.feeder.content.substring( WordMatch.open, WordMatch.close + 1 )
+					);
 				}, W );
 				this.__comp( kCode, function(){
 					debug.Info( "Bracket boundary [" );
