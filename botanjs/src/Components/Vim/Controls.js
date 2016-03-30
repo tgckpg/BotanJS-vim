@@ -128,7 +128,7 @@
 		this.__ccur = this.__cfeeder.cursor;
 	};
 
-	Controls.prototype.__comp = function( kCode, handler )
+	Controls.prototype.__comp = function( e, handler )
 	{
 		if( handler )
 		{
@@ -141,6 +141,8 @@
 			return true;
 		}
 
+		var kCode = e.keyCode;
+
 		for( var i = 0; i < this.__compReg.length; i ++ )
 		{
 			var compReg = this.__compReg[i];
@@ -150,7 +152,7 @@
 			{
 				if( compReg.i == keys.length )
 				{
-					compReg.handler();
+					compReg.handler( e );
 					this.__compReg = null;
 					this.__cMovement = false;
 				}
@@ -249,7 +251,7 @@
 		{
 			if( !e.ModKeys )
 			{
-				this.__comp( kCode );
+				this.__comp( e );
 				return true;
 			}
 		}
@@ -312,23 +314,26 @@
 
 				this.__cMovement = true;
 				// Word boundary
-				this.__comp( kCode, function(){
+				this.__comp( e, function( e2 ) {
 					var WordMatch = analyzer.wordAt( ccur.aPos );
 
 					debug.Info( "Word: "
 						+ ccur.feeder.content.substring( WordMatch.open, WordMatch.close + 1 )
 					);
+
+					e2.__range = WordMatch;
+
 				}, W );
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					debug.Info( "Bracket boundary [" );
 				}, S_BRACKET_L );
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					debug.Info( "Bracket boundary ]" );
 				}, S_BRACKET_R );
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					debug.Info( "Bracket boundary {" );
 				}, SHIFT + S_BRACKET_L );
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					debug.Info( "Bracket boundary }" );
 					analyzer.bracketAt( ccur.aPos );
 				}, SHIFT + S_BRACKET_R );
@@ -336,11 +341,11 @@
 
 			case G: // Go to top
 				this.__cMovement = true;
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					ccur.moveY( -Number.MAX_VALUE );
 					ccur.moveX( -Number.MAX_VALUE, true );
 				}, G );
-				this.__comp( kCode, function(){
+				this.__comp( e, function(){
 					ccur.openRunAction( "PRINT_HEX", e );
 				}, _8 );
 				break;
@@ -420,6 +425,8 @@
 
 		this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
 		this.__key = e.key;
+
+		this.__range = null;
 	};
 
 	__readOnly( InputEvent.prototype, "target", function() { return this.__target; } );
@@ -427,6 +434,19 @@
 	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
 	__readOnly( InputEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
 	__readOnly( InputEvent.prototype, "Escape", function() { return this.__escape; } );
+
+	__readOnly( InputEvent.prototype, "range", function() {
+
+		/** @type {Components.Vim.Syntax.TokenMatch} */
+		var r = this.__range;
+
+		if( r && r.open == -1 && r.close == -1 )
+		{
+			return null;
+		}
+
+		return r;
+	} );
 
 	InputEvent.prototype.kMap = function( map )
 	{

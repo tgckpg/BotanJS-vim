@@ -262,7 +262,7 @@
 		if( p < Len ) while( word.test( c[ ++ j ] ) );
 
 		var tMatch = new TokenMatch();
-		tMatch.__open = i + 1;
+		tMatch.__open = 0 < i ? i + 1 : 0;
 		tMatch.__close = j - 1;
 
 		return tMatch;

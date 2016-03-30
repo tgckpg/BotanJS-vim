@@ -20,7 +20,7 @@
 		]
 		,
 		[
-			, [ 0x0250, 0x02AF ] // IPA Extensions
+			[ 0x0250, 0x02AF ] // IPA Extensions
 			, [ 0x02B0, 0x02FF ] // Spacing Modifier Letters
 			, [ 0x0300, 0x036F ] // Combining Diacritical Marks
 			, [ 0x0370, 0x03FF ] // Greek and Coptic
@@ -129,7 +129,7 @@
 		]
 		,
 		[ // CJK scripts and symbols
-			, [ 0x2E80, 0x2EFF ] // CJK Radicals Supplement
+			[ 0x2E80, 0x2EFF ] // CJK Radicals Supplement
 			, [ 0x2F00, 0x2FDF ] // Kangxi Radicals
 			, [ 0x2FF0, 0x2FFF ] // Ideographic Description Characters
 			, [ 0x3000, 0x303F ] // CJK Symbols and Punctuation
@@ -177,7 +177,7 @@
 		]
 		,
 		[ // Surrogates
-			, [ 0xD800, 0xDBFF ] // High Surrogates
+			[ 0xD800, 0xDBFF ] // High Surrogates
 			, [ 0xDC00, 0xDFFF ] // Low Surrogates
 			, [ 0xE000, 0xF8FF ] // Private Use Area
 			, [ 0xF900, 0xFAFF ] // CJK Compatibility Ideographs
@@ -197,7 +197,7 @@
 			// Basic Latin
 			[ 0x0021, 0x002F ], [ 0x003A, 0x0040 ], [ 0x005B, 0x0060 ], [ 0x007B, 0x007E ],
 			// C1 Controls and Latin-1 Supplement (Extended ASCII)
-			[ 0x00A1, 0x00AC ], [ 0x00AE, 0x00BF ],
+			[ 0x00A1, 0x00AC ], [ 0x00AE, 0x00BF ]
 		]
 	];
 
