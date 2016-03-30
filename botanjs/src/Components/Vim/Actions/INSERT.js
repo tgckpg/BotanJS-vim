@@ -39,8 +39,8 @@
 
 	INSERT.prototype.dispose = function()
 	{
-		this.__cursor.moveX( -1 );
 		this.__rec( "", true );
+		this.__cursor.moveX( -1 );
 	};
 
 	INSERT.prototype.__rec = function( c, newRec )
@@ -92,12 +92,13 @@
 			if( this.__insertLength <= 0 )
 			{
 				this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
-				this.__insertLength --;
 			}
 
 			feeder.content =
 				feeder.content.substring( 0, f )
 				+ feeder.content.substring( f + 1 );
+
+			this.__insertLength --;
 		}
 		else if( e.kMap( "Del" ) )
 		{
