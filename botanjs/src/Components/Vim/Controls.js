@@ -257,6 +257,8 @@
 		}
 
 		var ccur = this.__ccur;
+		var vima = this.__vimArea;
+		var cfeeder = ccur.feeder;
 
 		var cursorHandled = true;
 		switch( kCode )
@@ -266,6 +268,29 @@
 			case L: this.__cMoveX( 1 ); break; // Right
 			case K: this.__cMoveY( -1 ); break; // Up
 			case J: this.__cMoveY( 1 ); break; // Down
+
+			case CTRL + F: // Page Down
+				if( cfeeder.firstBuffer.next.placeholder )
+				{
+					beep();
+					break;
+				}
+
+				var oPan = cfeeder.panY;
+				cfeeder.pan( undefined, vima.rows - 1 );
+				ccur.moveY( -ccur.Y );
+
+				break;
+			case CTRL + B: // Page Up
+				if( cfeeder.panY == 0 )
+				{
+					beep();
+					break;
+				}
+				cfeeder.pan( undefined, -vima.rows + 1 );
+				ccur.moveY( -ccur.Y );
+				if( !cfeeder.EOF ) ccur.moveY( cfeeder.moreAt );
+				break;
 
 			case SHIFT + H: // First line buffer
 				break;
@@ -313,29 +338,33 @@
 				var analyzer = this.__vimArea.contentAnalyzer;
 
 				this.__cMovement = true;
+
 				// Word boundary
 				this.__comp( e, function( e2 ) {
 					var WordMatch = analyzer.wordAt( ccur.aPos );
-
-					debug.Info( "Word: "
-						+ ccur.feeder.content.substring( WordMatch.open, WordMatch.close + 1 )
-					);
-
 					e2.__range = WordMatch;
 				}, W );
-				this.__comp( e, function(){
-					debug.Info( "Bracket boundary [" );
-				}, S_BRACKET_L );
-				this.__comp( e, function(){
-					debug.Info( "Bracket boundary ]" );
-				}, S_BRACKET_R );
-				this.__comp( e, function(){
-					debug.Info( "Bracket boundary {" );
-				}, SHIFT + S_BRACKET_L );
-				this.__comp( e, function(){
-					debug.Info( "Bracket boundary }" );
-					analyzer.bracketAt( ccur.aPos );
-				}, SHIFT + S_BRACKET_R );
+
+				var bracket = function( e2 ) {
+					var BracketMatch = analyzer.bracketIn( "(", ccur.aPos );
+					e2.__range = BracketMatch;
+				};
+				var curlyBracket = function( e2 ) {
+					var BracketMatch = analyzer.bracketIn( "{", ccur.aPos );
+					e2.__range = BracketMatch;
+				};
+				var squareBracket = function( e2 ) {
+					var BracketMatch = analyzer.bracketIn( "[", ccur.aPos );
+					e2.__range = BracketMatch;
+				};
+
+				// Bracket boundaries
+				this.__comp( e, bracket , SHIFT + _0 );
+				this.__comp( e, bracket, SHIFT + _9 );
+				this.__comp( e, squareBracket, S_BRACKET_L );
+				this.__comp( e, squareBracket, S_BRACKET_R );
+				this.__comp( e, curlyBracket, SHIFT + S_BRACKET_L );
+				this.__comp( e, curlyBracket, SHIFT + S_BRACKET_R );
 				break;
 
 			case G: // Go to top

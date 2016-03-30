@@ -89,7 +89,7 @@
 	Cursor.prototype.Vim;
 
 	// Move to an absolute position
-	Cursor.prototype.moveTo = function( aPos )
+	Cursor.prototype.moveTo = function( aPos, phantomSpace )
 	{
 		var content = this.feeder.content;
 		var lastLineNum = this.getLine().lineNum;
@@ -115,7 +115,7 @@
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
 
 		this.moveX( - Number.MAX_VALUE );
-		this.moveX( jumpX );
+		this.moveX( jumpX, false, phantomSpace );
 
 	};
 

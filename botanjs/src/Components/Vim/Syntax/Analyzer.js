@@ -117,6 +117,24 @@
 	};
 	/* End Private Class }}}*/
 
+	var SetParent = function( BracketPairs, pair )
+	{
+		if( !pair ) throw new Error( "Parent not found" );
+
+		var tMatch = new TokenMatch();
+		tMatch.__level = pair[ TOK_LEVEL ];
+		tMatch.__open = pair[ TOK_OPEN ];
+		tMatch.__close = pair[ TOK_CLOSED ];
+
+		if( -1 < pair[ TOK_PARENT ] )
+		{
+			var rPair = BracketPairs.find( pair[ TOK_PARENT ] );
+			tMatch.__parent = SetParent( BracketPairs, rPair );
+		}
+
+		return tMatch;
+	};
+
 	var Analyzer = function( feeder )
 	{
 		/* @type {Components.Vim.LineFeeder} */
@@ -136,17 +154,17 @@
 		{
 			case "{": tokState = TOK_OPEN;
 			case "}":
-					  BracketPairs = this.GetPairs( TOK_JOIN( "{", "}" ) );
+					  BracketPairs = this.__getPairs( TOK_JOIN( "{", "}" ) );
 				break;
 
 			case "[": tokState = TOK_OPEN;
 			case "]":
-				BracketPairs = this.GetPairs( TOK_JOIN( "[", "]" ) );
+				BracketPairs = this.__getPairs( TOK_JOIN( "[", "]" ) );
 				break;
 
 			case "(": tokState = TOK_OPEN;
 			case ")":
-				BracketPairs = this.GetPairs( TOK_JOIN( "(", ")" ) );
+				BracketPairs = this.__getPairs( TOK_JOIN( "(", ")" ) );
 				break;
 
 			case "/":
@@ -186,39 +204,65 @@
 		{
 			case "/*": tokState = TOK_OPEN;
 			case "*/":
-				BracketPairs = this.GetPairs( TOK_JOIN( "/*", "*/" ) );
+				BracketPairs = this.__getPairs( TOK_JOIN( "/*", "*/" ) );
 				break;
 
 			default:
 				return new TokenMatch();
 		}
 
-		var SetParent = function( pair )
-		{
-			if( !pair ) throw new Error( "Parent not found" );
-
-			var tMatch = new TokenMatch();
-			tMatch.__level = pair[ TOK_LEVEL ];
-			tMatch.__open = pair[ TOK_OPEN ];
-			tMatch.__close = pair[ TOK_CLOSED ];
-
-			if( -1 < pair[ TOK_PARENT ] )
-			{
-				var rPair = BracketPairs.find( pair[ TOK_PARENT ] );
-				tMatch.__parent = SetParent( rPair );
-			}
-
-			return tMatch;
-		};
-
 		var rPair = BracketPairs.find( p, tokState );
-		var tMatch = SetParent( rPair )
+		var tMatch = SetParent( BracketPairs, rPair )
 		tMatch.__selected = p;
 
 		return tMatch;
 	};
 
-	Analyzer.prototype.GetPairs = function( def, reload )
+	Analyzer.prototype.bracketIn = function( b, p )
+	{
+		var bro = "{[(";
+		var brc = "}])";
+
+		var i = bro.indexOf( b );
+		if( i < 0 ) i = brc.indexOf( b );
+		if( i < 0 ) throw new Error( "Unsupported bracket: " + b );
+
+		var tokPairs = this.__getPairs( TOK_JOIN( bro[i], brc[i] ) );
+		var pairs = tokPairs.__pairs;
+
+		var l = pairs.length;
+
+		var highest = null;
+
+		// Find the range of highest level
+		for( var i = 0; i < l; i ++ )
+		{
+			var pair = pairs[ i ];
+
+			if( pair[ TOK_OPEN ] <= p && p <= pair[ TOK_CLOSED ] )
+			{
+				if( ( highest && highest[ TOK_LEVEL ] < pair[ TOK_LEVEL ] ) || !highest )
+				{
+					highest = pair;
+				}
+			}
+
+		}
+
+		var tMatch = SetParent( tokPairs, highest );
+		var oMatch = tMatch;
+
+		do {
+			oMatch.__open ++;
+			oMatch.__close --;
+		} while( oMatch = oMatch.parent )
+
+		if( highest ) return tMatch;
+
+		return new TokenMatch();
+	};
+
+	Analyzer.prototype.__getPairs = function( def, reload )
 	{
 		if( !reload && this.__tokpairs[ def ] )
 		{

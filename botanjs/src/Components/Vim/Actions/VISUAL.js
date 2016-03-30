@@ -27,7 +27,6 @@
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 		this.__startaP = Cursor.aPos;
-		this.__startP = { x: Cursor.X, y: Cursor.Y, p: Cursor.P };
 		this.__start = Cursor.PStart;
 		this.__selStart = Cursor.PStart;
 	};
@@ -71,10 +70,9 @@
 			// to keep the cursor position as the top on UNDO / REDO
 			if( Action.constructor == DELETE && this.__startaP < cur.aPos )
 			{
-				this.__startaP = cur.aPos;
-				cur.X = this.__startP.x;
-				cur.Y = this.__startP.y;
-				cur.P = this.__startP.p;
+				var o = cur.aPos;
+				cur.moveTo( this.__startaP, true );
+				this.__startaP = o;
 			}
 
 			Action.handler( e, this.__startaP );
@@ -97,12 +95,12 @@
 
 				if( cur.aPos == this.__startaP )
 				{
-					cur.moveX( r.open - this.__startaP );
+					cur.moveTo( r.open, true );
 					this.__reset( cur );
 				}
 
 				cur.unsuppressEvent();
-				cur.moveX( r.close - cur.aPos );
+				cur.moveTo( r.close, true );
 			}
 
 			var prevPos = this.__start;

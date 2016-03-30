@@ -149,7 +149,9 @@
 				var a = this.content.indexOf( "\n", f + 1 );
 				if( a == -1 )
 				{
-					Y = i;
+					Y = i - 1;
+					// -2 to compensate the last "\n" content placeholder
+					f -= 2;
 					break;
 				}
 				f = a;

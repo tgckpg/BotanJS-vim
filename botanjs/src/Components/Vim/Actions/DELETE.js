@@ -41,19 +41,22 @@
 		var feeder = cur.feeder;
 
 		var Triggered = false;
-		if( sp == undefined && this.__startX != cur.aPos )
+
+		if( sp == undefined )
 		{
-			Triggered = true;
-
-			if( e.kMap( "l" ) )
+			if( this.__startX != cur.aPos )
 			{
-				cur.moveX( -1 );
+				Triggered = true;
+
+				if( e.kMap( "l" ) )
+				{
+					cur.moveX( -1 );
+				}
+
+				sp = this.__startX;
 			}
-
-			sp = this.__startX;
+			else return;
 		}
-		else if( sp == undefined ) return;
-
 
 		var c = feeder.content;
 
