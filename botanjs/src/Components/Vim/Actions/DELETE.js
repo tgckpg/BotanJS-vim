@@ -164,12 +164,6 @@
 		var stator = new Stator( cur, s );
 		var stack = new Stack();
 
-		c = c[ e + 1 ];
-		if( c == "\n" || c == undefined )
-		{
-			cur.moveX( -1 );
-		}
-
 		var f = stator.save( 0, removed );
 		stack.store( function() {
 			f();

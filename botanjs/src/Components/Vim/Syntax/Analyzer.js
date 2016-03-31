@@ -249,15 +249,18 @@
 
 		}
 
-		var tMatch = SetParent( tokPairs, highest );
-		var oMatch = tMatch;
+		if( highest )
+		{
+			var tMatch = SetParent( tokPairs, highest );
+			var oMatch = tMatch;
 
-		do {
-			oMatch.__open ++;
-			oMatch.__close --;
-		} while( oMatch = oMatch.parent )
+			do {
+				oMatch.__open ++;
+				oMatch.__close --;
+			} while( oMatch = oMatch.parent )
 
-		if( highest ) return tMatch;
+			return tMatch;
+		}
 
 		return new TokenMatch();
 	};

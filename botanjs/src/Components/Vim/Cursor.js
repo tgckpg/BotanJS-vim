@@ -124,6 +124,8 @@
 		jumpX += Math.ceil( jumpX / pline.cols ) - 1;
 
 		if( jumpY ) this.moveY( jumpY );
+
+		// This needed because first line does not contain first "\n" character
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
 
 		this.moveX( - Number.MAX_VALUE );
@@ -135,13 +137,14 @@
 	Cursor.prototype.moveX = function( d, penetrate, phantomSpace )
 	{
 		var x = this.pX;
+		var updatePx = Boolean( d );
+
 		if( 0 < this.__off )
 		{
 			d += this.__off;
 			this.__off = 0;
 		}
 
-		var updatePx = Boolean( d );
 		if( updatePx ) x = this.X + d;
 
 		if( !d ) d = 1;
@@ -368,6 +371,9 @@
 	Cursor.prototype.openAction = function( name )
 	{
 		if( this.action ) this.action.dispose();
+
+		debug.Info( "openAction: " + name );
+
 		this.action = new (Actions[ name ])( this );
 		this.__pulseMsg = null;
 
@@ -380,6 +386,8 @@
 		this.action.dispose();
 		this.__pulseMsg = this.action.getMessage();
 		this.action = null;
+
+		debug.Info( "closeAction" );
 
 		// Reset the analyzed content
 		this.Vim.contentAnalyzer.reset();

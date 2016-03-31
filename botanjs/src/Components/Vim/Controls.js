@@ -179,7 +179,7 @@
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
 			case A: // Append
-				this.__cMoveX( 1, true, true );
+				ccur.moveX( 1, true, true );
 			case I: // Insert
 				ccur.openAction( "INSERT" );
 				break;

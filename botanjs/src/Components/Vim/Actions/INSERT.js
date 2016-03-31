@@ -33,12 +33,19 @@
 
 		// Initialize this stack
 		this.__rec( "", true );
+
+		var l = this.__cursor.feeder.firstBuffer.cols;
+		var msg = Mesg( "INSERT" );
+
+		for( var i = msg.length; i < l; i ++ ) msg += " ";
+		this.__msg = msg;
 	};
 
 	INSERT.prototype.allowMovement = false;
 
 	INSERT.prototype.dispose = function()
 	{
+		this.__msg = "";
 		this.__rec( "", true );
 		this.__cursor.moveX( -1 );
 	};
@@ -158,11 +165,7 @@
 
 	INSERT.prototype.getMessage = function()
 	{
-		var l = this.__cursor.feeder.firstBuffer.cols;
-		var msg = Mesg( "INSERT" );
-
-		for( var i = msg.length; i < l; i ++ ) msg += " ";
-		return msg;
+		return this.__msg;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "INSERT", INSERT );
