@@ -10,6 +10,7 @@
 	var Stack                                  = __import( "Components.Vim.State.Stack" );
 
 	var Mesg = __import( "Components.Vim.Message" );
+	var beep = __import( "Components.Vim.Beep" );
 
 	var occurence = __import( "System.utils.Perf.CountSubstr" );
 
@@ -21,13 +22,15 @@
 		this.__nline = 0;
 		this.__startX = Cursor.aPos;
 		this.__panY = this.__cursor.feeder.panY;
+
+		Cursor.suppressEvent();
 	};
 
 	DELETE.prototype.allowMovement = true;
 
 	DELETE.prototype.dispose = function()
 	{
-
+		this.__cursor.unsuppressEvent();
 	};
 
 	DELETE.prototype.handler = function( e, sp )
@@ -43,14 +46,13 @@
 		var feeder = cur.feeder;
 
 		var Triggered = false;
+		var newLine = false;
 
 		if( sp == undefined )
 		{
 			Triggered = true;
 
 			sp = this.__startX;
-
-			cur.suppressEvent();
 
 			var currAp = cur.aPos;
 			if( this.__startX != currAp )
@@ -73,6 +75,7 @@
 				// Remove the current and the following line
 				else if( e.kMap( "j" ) )
 				{
+					newLine = true;
 					cur.lineEnd( true );
 					sp = cur.aPos;
 					cur.moveY( -1 );
@@ -82,6 +85,7 @@
 				// Remove the current and the preceding line
 				else if( e.kMap( "k" ) )
 				{
+					newLine = true;
 					cur.moveY( 1 );
 					cur.lineEnd( true );
 					sp = cur.aPos;
@@ -102,6 +106,7 @@
 			{
 				if( e.kMap( "d" ) )
 				{
+					newLine = true;
 					cur.lineEnd( true );
 					sp = cur.aPos;
 					cur.lineStart();
@@ -124,12 +129,10 @@
 				}
 				else
 				{
-					cur.unsuppressEvent();
-					return false;
+					beep();
+					return true;
 				}
 			}
-
-			cur.unsuppressEvent();
 		}
 
 		var c = feeder.content;
@@ -144,7 +147,7 @@
 		}
 
 		var removed = c.substring( s, e + 1 );
-		reg.change( removed );
+		reg.change( removed, newLine );
 
 		this.__nline = occurence( removed, "\n" );
 
@@ -156,7 +159,6 @@
 				? this.__panY - feeder.panY
 				: undefined
 		);
-
 		cur.moveTo( s );
 
 		var stator = new Stator( cur, s );
@@ -165,9 +167,7 @@
 		c = c[ e + 1 ];
 		if( c == "\n" || c == undefined )
 		{
-			cur.suppressEvent();
 			cur.moveX( -1 );
-			cur.unsuppressEvent();
 		}
 
 		var f = stator.save( 0, removed );
@@ -186,7 +186,7 @@
 	{
 		if( this.__nline )
 		{
-			return Mesg( "LINE_FEWER", this.__nline );
+			return Mesg( "LINES_FEWER", this.__nline );
 		}
 
 		return "";

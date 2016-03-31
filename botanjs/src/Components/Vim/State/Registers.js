@@ -15,25 +15,41 @@
 */
 	var ns = __namespace( "Components.Vim.State" );
 
+	var Register = function( str, n )
+	{
+		this.__str = str + "";
+		this.newLine = Boolean( n );
+	};
+
+	Register.prototype.newLine = false;
+
+	Register.prototype.toString = function() { return this.__str; };
+	Register.prototype.indexOf = function( a, b ) { return this.__str.indexOf( a, b ); };
+
+	__readOnly( Register.prototype, "length", function() { return this.__str.length; } );
+
+
 	var Registers = function()
 	{
 		this.__registers = {};
 	};
 
-	Registers.prototype.unnamed = function( str )
+	Registers.prototype.__unnamed = function( reg )
 	{
-		this.__registers[ "\"" ] = str;
+		this.__registers[ "\"" ] = reg;
 	};
 
-	Registers.prototype.yank = function( str )
+	Registers.prototype.yank = function( str, newLine )
 	{
-		this.unnamed( str );
-		this.__registers[ 0 ] = str;
+		var reg = new Register( str, newLine );
+		this.__unnamed( reg );
+		this.__registers[ 0 ] = reg;
 	};
 
-	Registers.prototype.change = function( str )
+	Registers.prototype.change = function( str, newLine )
 	{
-		this.unnamed( str );
+		var reg = new Register( str, newLine );
+		this.__unnamed( reg );
 		var r = this.__registers;
 		for( var i = 9; 1 < i; i -- )
 		{
@@ -43,7 +59,7 @@
 			}
 		}
 
-		r[ 1 ] = str;
+		r[ 1 ] = reg;
 	};
 
 	Registers.prototype.get = function( r )
@@ -55,4 +71,5 @@
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Registers", Registers );
+
 })();

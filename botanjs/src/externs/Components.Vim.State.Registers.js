@@ -5,5 +5,9 @@ Components.Vim.State.Registers = function(){};
 Components.Vim.State.Registers.change;
 /** @type Function */
 Components.Vim.State.Registers.yank;
-/** @type Function */
-Components.Vim.State.Registers.unnamed;
+
+/** @constructor */
+Components.Vim.State.Register = function(){};
+
+/** @type Boolean */
+Components.Vim.State.Register.newLine;

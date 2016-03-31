@@ -189,8 +189,12 @@
 			case CTRL + R: // Redo
 				ccur.openRunAction( "REDO", e );
 				break;
+
 			case D: // Del with motion
 				ccur.openAction( "DELETE" );
+				break;
+			case Y: // Yank with motion
+				ccur.openAction( "YANK" );
 				break;
 
 			case P: // Put

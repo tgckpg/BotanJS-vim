@@ -18,8 +18,9 @@
 		, "UNDO_LIMIT": "Already at oldest change"
 		, "REDO_LIMIT": "Already at newest change"
 
-		, "LINE_FEWER": "%1 fewer lines"
-		, "LINE_MORE": "%1 more lines"
+		, "LINES_FEWER": "%1 fewer line(s)"
+		, "LINES_MORE": "%1 more line(s)"
+		, "LINES_YANKED": "%1 line(s) yanked"
 	};
 
 	var errors = {

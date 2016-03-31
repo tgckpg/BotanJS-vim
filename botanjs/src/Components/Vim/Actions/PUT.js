@@ -16,14 +16,15 @@
 	{
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
-		this.__stator = new Stator( Cursor );
 		this.__msg = "";
+		Cursor.suppressEvent();
 	};
 
 	PUT.prototype.allowMovement = false;
 
 	PUT.prototype.dispose = function()
 	{
+		this.__cursor.unsuppressEvent();
 	};
 
 	PUT.prototype.handler = function( e )
@@ -42,38 +43,55 @@
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
 
+		var newLine = cput.newLine;
+		if( newLine )
+		{
+			cur.moveY( 1 );
+			cur.lineStart();
+		}
+
+		var stator = new Stator( cur );
 		var aP = cur.aPos;
 
 		feeder.content = feeder.content.substring( 0, aP )
 			+ cput
 			+ feeder.content.substring( aP );
 
-		cur.suppressEvent();
 		feeder.pan();
 
 		cur.moveTo( 0 < nLines ? aP : aP + clen, true );
 
 		var stack = new Stack();
 
-		stack.store( this.__stator.save( clen, "" ) );
+		if( newLine )
+		{
+			var f = stator.save( clen, "" );
+			stack.store( function()
+			{
+				f();
+				cur.moveY( -1 );
+			} );
+		}
+		else
+		{
+			stack.store( stator.save( clen, "" ) );
+		}
 		cur.rec.record( stack );
 
 		this.__put = cput;
 
 		if( nLines )
 		{
-			this.__msg = Mesg( "LINE_MORE", nLines );
+			this.__msg = Mesg( "LINES_MORE", nLines );
 		}
 
 		cur.moveX( -1 );
-		cur.unsuppressEvent();
 
 		return true;
 	};
 
 	PUT.prototype.getMessage = function()
 	{
-		console.log( this.__msg );
 		return this.__msg;
 	};
 
