@@ -387,7 +387,7 @@
 		this.__pulseMsg = this.action.getMessage();
 		this.action = null;
 
-		debug.Info( "closeAction" );
+		debug.Info( "closeAction: " + this.__pulseMsg );
 
 		// Reset the analyzed content
 		this.Vim.contentAnalyzer.reset();

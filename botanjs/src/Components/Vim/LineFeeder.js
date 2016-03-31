@@ -226,9 +226,16 @@
 	__readOnly( Feeder.prototype, "docPos", function() {
 		var pos = "ALL";
 
-		if( 0 < this.panY &&  this.EOF )
+		if( 0 < this.panY )
 		{
-			pos = "BOTTOM";
+			if( this.EOF )
+			{
+				pos = "BOTTOM";
+			}
+			else
+			{
+				pos = Math.floor( ( this.panY / ( this.linesTotal - ( this.__rows - 1 ) ) ) * 100 ) + "%";
+			}
 		}
 		else
 		{

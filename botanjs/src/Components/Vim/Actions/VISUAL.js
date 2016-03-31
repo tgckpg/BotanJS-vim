@@ -16,7 +16,6 @@
 	{
 		this.__reset( Cursor );
 		this.__msg = Mesg( "VISUAL" );
-		this.__leaveMesg = "";
 
 		Cursor.blink = false;
 		Cursor.pSpace = true;
@@ -35,7 +34,6 @@
 
 	VISUAL.prototype.dispose = function()
 	{
-		this.__msg = this.__leaveMesg;
 		var c = this.__cursor;
 
 		c.blink = true;
@@ -45,10 +43,12 @@
 
 		// This fix the highlighting position of missing phantomSpace
 		// for maximum filled line
-		if( c.feeder.wrap )
+		if( c.feeder.wrap && 0 < c.X )
 		{
+			c.suppressEvent();
 			c.moveX( -1 );
 			c.moveX( 1 );
+			c.unsuppressEvent();
 		}
 	};
 
@@ -92,7 +92,7 @@
 				cur.moveTo( this.__startaP );
 			}
 
-			this.__leaveMesg = Action.getMessage();
+			this.__msg = Action.getMessage();
 
 			Action.dispose();
 			cur.unsuppressEvent();
