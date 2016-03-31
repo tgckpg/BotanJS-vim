@@ -151,9 +151,9 @@
 		feeder.content = c.substring( 0, s ) + c.substring( e + 1 );
 
 		// Try to keep the original panning if possible
-		cur.feeder.pan( undefined
-			, this.__panY < cur.feeder.panY
-				? this.__panY - cur.feeder.panY
+		feeder.pan( undefined
+			, this.__panY < feeder.panY
+				? this.__panY - feeder.panY
 				: undefined
 		);
 

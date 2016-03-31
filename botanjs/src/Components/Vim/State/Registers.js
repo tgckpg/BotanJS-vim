@@ -46,5 +46,13 @@
 		r[ 1 ] = str;
 	};
 
+	Registers.prototype.get = function( r )
+	{
+		// 0 is one of the registers
+		if( !r && r !== 0  ) r = "\"";
+
+		return this.__registers[ r ];
+	};
+
 	ns[ NS_EXPORT ]( EX_CLASS, "Registers", Registers );
 })();

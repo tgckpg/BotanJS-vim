@@ -76,6 +76,12 @@
 			}
 
 			Action.handler( e, this.__startaP );
+
+			if( Action.constructor != DELETE )
+			{
+				cur.moveTo( this.__startaP );
+			}
+
 			this.__leaveMesg = Action.getMessage();
 
 			Action.dispose();

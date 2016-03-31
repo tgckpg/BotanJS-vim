@@ -35,6 +35,7 @@
 	var F11 = 122; var F12 = 123;
 
 	var COMMA = 188; var FULLSTOP = 190;
+	var SLASH = 191; var BACK_SLASH = 220;
 
 	var __maps = {};
 	var Map = function( str )
@@ -128,12 +129,12 @@
 		this.__ccur = this.__cfeeder.cursor;
 	};
 
-	Controls.prototype.__comp = function( e, handler )
+	Controls.prototype.__composite = function( e, handler )
 	{
 		if( handler )
 		{
-			if( !this.__compReg ) this.__compReg = [];
-			this.__compReg.push({
+			if( !this.__compositeReg ) this.__compositeReg = [];
+			this.__compositeReg.push({
 				keys: Array.prototype.slice.call( arguments, 2 )
 				, handler: handler
 				, i: 0
@@ -143,9 +144,9 @@
 
 		var kCode = e.keyCode;
 
-		for( var i = 0; i < this.__compReg.length; i ++ )
+		for( var i = 0; i < this.__compositeReg.length; i ++ )
 		{
-			var compReg = this.__compReg[i];
+			var compReg = this.__compositeReg[i];
 			var keys = compReg.keys;
 
 			if( keys[ compReg.i ++ ] == kCode )
@@ -153,7 +154,7 @@
 				if( compReg.i == keys.length )
 				{
 					compReg.handler( e );
-					this.__compReg = null;
+					this.__compositeReg = null;
 					this.__cMovement = false;
 				}
 
@@ -161,8 +162,8 @@
 			}
 		}
 
-		if( this.__compReg ) beep();
-		this.__compReg = null;
+		if( this.__compositeReg ) beep();
+		this.__compositeReg = null;
 		this.__cMovement = false;
 		return false;
 	};
@@ -191,6 +192,15 @@
 			case D: // Del with motion
 				ccur.openAction( "DELETE" );
 				break;
+
+			case P: // Put
+				ccur.suppressEvent();
+				ccur.moveX( 1, false, true );
+				ccur.unsuppressEvent();
+			case SHIFT + P: // Put before
+				ccur.openRunAction( "PUT", e );
+				break;
+
 			case X: // Del
 				break;
 			case SHIFT + X: // Delete before
@@ -247,11 +257,11 @@
 	{
 		var kCode = e.keyCode;
 
-		if( this.__cMovement && this.__comp )
+		if( this.__cMovement && this.__composite )
 		{
 			if( !e.ModKeys )
 			{
-				this.__comp( e );
+				this.__composite( e );
 				return true;
 			}
 		}
@@ -344,7 +354,7 @@
 				this.__cMovement = true;
 
 				// Word boundary
-				this.__comp( e, function( e2 ) {
+				this.__composite( e, function( e2 ) {
 					var WordMatch = analyzer.wordAt( ccur.aPos );
 					e2.__range = WordMatch;
 				}, W );
@@ -363,25 +373,28 @@
 				};
 
 				// Bracket boundaries
-				this.__comp( e, bracket , SHIFT + _0 );
-				this.__comp( e, bracket, SHIFT + _9 );
-				this.__comp( e, squareBracket, S_BRACKET_L );
-				this.__comp( e, squareBracket, S_BRACKET_R );
-				this.__comp( e, curlyBracket, SHIFT + S_BRACKET_L );
-				this.__comp( e, curlyBracket, SHIFT + S_BRACKET_R );
+				this.__composite( e, bracket , SHIFT + _0 );
+				this.__composite( e, bracket, SHIFT + _9 );
+				this.__composite( e, squareBracket, S_BRACKET_L );
+				this.__composite( e, squareBracket, S_BRACKET_R );
+				this.__composite( e, curlyBracket, SHIFT + S_BRACKET_L );
+				this.__composite( e, curlyBracket, SHIFT + S_BRACKET_R );
 				break;
 
 			case G: // Go to top
 				this.__cMovement = true;
-				this.__comp( e, function(){
+				this.__composite( e, function(){
 					ccur.moveY( -Number.MAX_VALUE );
 					ccur.moveX( -Number.MAX_VALUE, true );
 				}, G );
-				this.__comp( e, function(){
+				this.__composite( e, function(){
 					ccur.openRunAction( "PRINT_HEX", e );
 				}, _8 );
 				break;
 
+			case SLASH: // "/" Seach movement
+				this.__cMovement = true;
+				break;
 			default:
 				cursorHandled = false;
 		}
@@ -402,9 +415,9 @@
 		) return;
 
 		// Clear composite command
-		if( e.Escape && this.__compReg )
+		if( e.Escape && this.__compositeReg )
 		{
-			this.__compReg = null;
+			this.__compositeReg = null;
 			this.__cMovement = false;
 			beep();
 			return;

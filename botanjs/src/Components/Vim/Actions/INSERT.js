@@ -29,7 +29,7 @@
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 
-		this.__Stator = new Stator( Cursor );
+		this.__stator = new Stator( Cursor );
 
 		// Initialize this stack
 		this.__rec( "", true );
@@ -55,7 +55,7 @@
 				) return;
 
 				this.__stack.store(
-					this.__Stator.save( this.__insertLength, this.__contentUndo )
+					this.__stator.save( this.__insertLength, this.__contentUndo )
 				);
 
 				this.__cursor.rec.record( this.__stack );

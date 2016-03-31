@@ -19,6 +19,7 @@
 		, "REDO_LIMIT": "Already at newest change"
 
 		, "LINE_FEWER": "%1 fewer lines"
+		, "LINE_MORE": "%1 more lines"
 	};
 
 	var errors = {
