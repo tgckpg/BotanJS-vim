@@ -397,6 +397,7 @@
 				break;
 
 			case SLASH: // "/" Seach movement
+			case SLASH: // "/" Seach movement
 				this.__cMovement = true;
 				break;
 			default:
@@ -443,7 +444,15 @@
 			else
 			{
 				if( ccur.action.allowMovement )
+				{
+					var SubCommand = !this.__compositeReg;
 					this.__cursorCommand( e, kCode );
+					if( SubCommand && this.__compositeReg )
+					{
+						e.preventDefault();
+						return;
+					}
+				}
 
 				if( ccur.action.handler( e ) )
 				{

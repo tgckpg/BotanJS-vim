@@ -83,6 +83,9 @@
 		this.pSpace = false;
 
 		this.__suppEvt = 0;
+
+		// Offset compensation for max filled wrapped line
+		this.__off = 0;
 	};
 
 	// Set by VimArea
@@ -118,6 +121,8 @@
 		var jumpY = expLineNum - lastLineNum;
 		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 
+		jumpX += Math.ceil( jumpX / pline.cols ) - 1;
+
 		if( jumpY ) this.moveY( jumpY );
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
 
@@ -130,13 +135,19 @@
 	Cursor.prototype.moveX = function( d, penetrate, phantomSpace )
 	{
 		var x = this.pX;
+		if( 0 < this.__off )
+		{
+			d += this.__off;
+			this.__off = 0;
+		}
 
 		var updatePx = Boolean( d );
 		if( updatePx ) x = this.X + d;
 
 		if( !d ) d = 1;
 
-		var buffs = this.feeder.lineBuffers;
+		var feeder = this.feeder;
+		var buffs = feeder.lineBuffers;
 
 		if( penetrate )
 		{
@@ -153,21 +164,59 @@
 		var content = line.visualLines.join( "\n" );
 		var cLen = content.length;
 
+		var lineEnd = 0;
+		var hasPhantomSpace = true;
+
+		// Empty lines has length of 1
+		// If length larger than a, need to compensate the lineEnd
+		// for phantomSpace
+		if( 1 < cLen )
+		{
+			// Begin check if whether this line contains phantomSpace
+			var lineNum = line.lineNum - 1;
+			var str = feeder.content;
+			for( var i = str.indexOf( "\n" ), j = 0; 0 <= i; i = str.indexOf( "\n", i ), j ++ )
+			{
+				if( lineNum == j ) break;
+				i ++;
+			}
+
+			if( j == 0 && i == -1 ) i = 0;
+
+			var end = str.indexOf( "\n", i + 1 );
+			end = end == -1 ? str.length : end;
+
+			// Actual LineLength
+			var hasPhantomSpace = 0 < ( end - i - 1 ) % line.cols;
+
+			if( hasPhantomSpace )
+			{
+				lineEnd = phantomSpace ? cLen - 1 : cLen - 2;
+			}
+			else
+			{
+				lineEnd = phantomSpace ? cLen : cLen - 1;
+			}
+		}
+
 		var c = content[ x ];
 
-		// Motion includes empty lines before cursor end
-		if( ( phantomSpace && cLen - 1 <= x ) || ( cLen == 1 && c == undefined ) )
+		// Whether x is at line boundary
+		var boundary = c == undefined || ( cLen == x + 1 && c == " " );
+
+		if( boundary )
 		{
-			x = 0 < d ? cLen - 1 : 0;
-		}
-		// ( 2 < cLen ) motion excludes empty lines at cursor end
-		else if( ( 2 <= cLen && x == cLen - 1 && c == " " ) || c == undefined )
-		{
-			x = 0 < d ? cLen - 2 : 0;
+			x = 0 < d ? lineEnd : 0;
 		}
 		else if( c == "\n" )
 		{
 			x += d;
+		}
+
+		// Wordwrap phantomSpace movement compensation on max filled lines
+		if( feeder.wrap && boundary && !hasPhantomSpace && phantomSpace )
+		{
+			this.__off = 1;
 		}
 
 		this.X = x;
@@ -177,6 +226,7 @@
 			this.pX = x;
 			this.updatePosition();
 		}
+
 	};
 
 	Cursor.prototype.lineStart = function()
@@ -193,10 +243,11 @@
 
 	Cursor.prototype.updatePosition = function()
 	{
-		var P = this.X + LineOffset( this.feeder.lineBuffers, this.Y );
+		var feeder = this.feeder;
+		var P = this.X + LineOffset( feeder.lineBuffers, this.Y ) + this.__off;
+
 		this.PStart = P;
 		this.PEnd = P + 1;
-		this.__p = P;
 
 		this.__visualUpdate();
 	};

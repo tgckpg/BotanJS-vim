@@ -3,6 +3,8 @@
 
 	var debug = __import( "System.Debug" );
 
+	var occurence = __import( "System.utils.Perf.CountSubstr" );
+
 	var LineBuffer = function( cols, nextLineBuffer )
 	{
 		this.prev = null;
@@ -60,6 +62,12 @@
 
 				line += c;
 			}
+
+			if( !br && i == this.cols && content[i] == "\n" )
+			{
+				i ++;
+				br = true;
+			}
 		}
 		else
 		{
@@ -97,7 +105,8 @@
 
 	LineBuffer.prototype.toString = function()
 	{
-		if( this.content.length < this.cols )
+		var c = this.cols - occurence( this.content, "\t" ) * ( this.tabWidth - 1 );
+		if( this.content.length < c )
 		{
 			return this.content + " ";
 		}

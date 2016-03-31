@@ -36,10 +36,20 @@
 	VISUAL.prototype.dispose = function()
 	{
 		this.__msg = this.__leaveMesg;
-		this.__cursor.blink = true;
-		this.__cursor.pSpace = false;
-		this.__cursor.PStart = this.__selStart;
-		this.__cursor.PEnd = this.__selStart + 1;
+		var c = this.__cursor;
+
+		c.blink = true;
+		c.pSpace = false;
+		c.PStart = this.__selStart;
+		c.PEnd = this.__selStart + 1;
+
+		// This fix the highlighting position of missing phantomSpace
+		// for maximum filled line
+		if( c.feeder.wrap )
+		{
+			c.moveX( -1 );
+			c.moveX( 1 );
+		}
 	};
 
 	VISUAL.prototype.handler = function( e, done )

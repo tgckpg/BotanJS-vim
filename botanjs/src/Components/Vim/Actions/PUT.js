@@ -44,9 +44,13 @@
 		var feeder = cur.feeder;
 
 		var newLine = cput.newLine;
+
+		// Compensation
+		var c = e.kMap( "P" ) ? 0 : -1;
+
 		if( newLine )
 		{
-			cur.moveY( 1 );
+			cur.moveY( -c );
 			cur.lineStart();
 		}
 
@@ -69,7 +73,7 @@
 			stack.store( function()
 			{
 				f();
-				cur.moveY( -1 );
+				cur.moveY( c );
 			} );
 		}
 		else
