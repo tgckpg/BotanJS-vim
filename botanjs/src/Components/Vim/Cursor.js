@@ -92,7 +92,14 @@
 	Cursor.prototype.moveTo = function( aPos, phantomSpace )
 	{
 		var content = this.feeder.content;
-		var lastLineNum = this.getLine().lineNum;
+		var pline = this.getLine();
+		var lastLineNum = pline.lineNum;
+
+		if( pline.placeholder )
+		{
+			lastLineNum = 0;
+			this.Y = 0;
+		}
 
 		var expLineNum = 0;
 		var lineStart = 0;
