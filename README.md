@@ -11,16 +11,23 @@ hjkl
 G
 Ctrl + f, Ctrl + b
 %$^
+nN
+/{pattern}
 
 INSERT:
 aA i
+oO
 
 commands that starts with g:
 gg
 g8
 
 VISUAL:
-v ( viw, vi{bracket} )
+v{motion} ( viw, vi{bracket} )
+v{motion}y // YANK
+
+YANK / DELETE:
+iw, i{bracket}
 
 Undo / Redo: ( might have bugs, please file issue if bugged. But I think I will finish other features first if it is not very critical )
 u / Ctrl + r
@@ -40,9 +47,8 @@ This is based on a framework I wrote called BotanJS. Which is a frontend framewo
 
 If you are also interested in [BotanJS](https://github.com/tgckpg/BotanJS). Please head to the project page [here](https://github.com/tgckpg/BotanJS). *Warning*, it might NOT be easy to understand.
 
-### I made this
-You made this? I made this.
-Because I LOVE Vim, and [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for me. I know peoples are busy so fuck me I am going to make one myself, alright?
+### Why make another one?
+Because [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for me. I know peoples are busy so fuck me I am going to make one myself, alright?
 
 ### Use wasavi if you can
 #### [wasavi! wasavi! wasavi!](https://github.com/akahuku/wasavi)
@@ -52,3 +58,6 @@ I tried porting it into the browser tho. But I am too stupid to do that. But sti
 
 ### How can I contribute?
 First, you need to understand the framework behind it. Then file a merge request. Sounds easy right?... prepare to DIEEE!
+
+### You made this? I made this.
+Licensed under GNU Pubic License
