@@ -8,27 +8,37 @@
 	/** @type {System.utils.Perf} */
 	var Perf                         = __import( "System.utils.Perf" );
 
-	var Mesg = __import( "Components.Vim.Message" );
+	/**j@type {Components.Vim.State.History} */
+	var History                                 = __import( "Components.Vim.State.History" );
+	var Mesg                                    = __import( "Components.Vim.Message" );
+	var beep                                    = __import( "Components.Vim.Beep" );
+
+	// This is for security & privacy concerns?
+	var ZMap = {
+		"/": Perf.uuid
+		, ":" : Perf.uuid
+	};
 
 	/** @type {Components.Vim.Cursor.IAction} */
-	var Search = function( Cursor )
+	var Command = function( Cursor, Mode )
 	{
 		var _self = this;
+		if( !ZMap[ Mode ] ) throw new Error( "Unsupport mode: " + Mode );
 
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 
 		this.__statusBar = Cursor.Vim.statusBar;
 
+		this.__mode = Mode;
+		this.__hist = new History( ZMap[ Mode ] );
+
 		this.__command = [];
-		this.__blinkId = "ExSearchBlinkCycle" + Perf.uuid;
+		this.__currentCommand = null;
+		this.__blinkId = "ExCommandBlinkCycle" + Perf.uuid;
 		this.__curPos = 0;
 
-		this.__disp = function()
-		{
-		};
-
-        var feeder = Cursor.feeder;
+		var feeder = Cursor.feeder;
 
 		var __blink = false;
 		var __holdBlink = false;
@@ -77,7 +87,7 @@
 		this.__statusBar.override = this.__doBlink;
 	};
 
-	Search.prototype.dispose = function()
+	Command.prototype.dispose = function()
 	{
 		this.__statusBar.override = null;
 
@@ -86,7 +96,7 @@
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
-	Search.prototype.handler = function( e )
+	Command.prototype.handler = function( e )
 	{
 		e.preventDefault();
 
@@ -95,6 +105,8 @@
 		this.__blink();
 
 		var InputKey = null;
+
+		var histNav = false;
 
 		if( e.kMap( "Tab" ) )
 		{
@@ -106,8 +118,15 @@
 		}
 		else if( e.kMap( "BS" ) )
 		{
+			if( this.__curPos == 1 && 1 < this.__command.length )
+				return false;
+
 			this.__command.splice( --this.__curPos, 1 );
-			if( this.__command.length == 0 ) return true;
+			if( this.__command.length == 0 )
+			{
+				e.cancel();
+				return true;
+			}
 		}
 		else if( e.kMap( "Del" ) )
 		{
@@ -115,22 +134,55 @@
 		}
 		else if( e.kMap( "Enter" ) )
 		{
+			this.__process();
 			return true;
-		}
-		else if( e.kMap( "Up" ) ) // History navigations
-		{
-		}
-		else if( e.kMap( "Down" ) )
-		{
 		}
 		else if( e.kMap( "Left" ) )
 		{
-			if( 0 < this.__curPos ) this.__curPos --;
+			if( 1 < this.__curPos ) this.__curPos --;
 		}
 		else if( e.kMap( "Right" ) )
 		{
 			if( this.__curPos < this.__command.length )
 				this.__curPos ++;
+		}
+
+		// History stepping
+		else if( histNav = e.kMap( "Up" ) ) // History navigations
+		{
+			if( !this.__currentCommand )
+			{
+				this.__currentCommand = this.__command;
+			}
+
+			var n = this.__hist.prev( this.__currentCommand );
+
+			if( n )
+			{
+				this.__command = n;
+				this.__curPos = n.length;
+			}
+			else
+			{
+				beep();
+			}
+		}
+		else if( histNav = e.kMap( "Down" ) )
+		{
+			var n = this.__hist.next( this.__currentCommand );
+
+			if( n )
+			{
+				this.__command = n;
+				this.__curPos = n.length;
+			}
+			else if( this.__currentCommand )
+			{
+				this.__command = this.__currentCommand;
+				this.__currentCommand = null;
+			}
+
+			else beep();
 		}
 		else
 		{
@@ -142,9 +194,22 @@
 			this.__command.splice( this.__curPos ++, 0, InputKey );
 		}
 
+		if( !histNav )
+		{
+			this.__hist.reset();
+			if( this.__currentCommand ) this.__currentCommand = this.__command;
+		}
+
+		e.cancel();
+
 		var feeder = this.__cursor.feeder;
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
-	}
+	};
 
-	ns[ NS_EXPORT ]( EX_CLASS, "Search", Search );
+	Command.prototype.__process = function()
+	{
+		this.__hist.push( this.__command );
+	};
+
+	ns[ NS_EXPORT ]( EX_CLASS, "Command", Command );
 })();

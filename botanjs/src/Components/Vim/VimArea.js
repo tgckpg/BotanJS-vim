@@ -2,18 +2,18 @@
 	var ns = __namespace( "Components.Vim" );
 
 	/** @type {Dandelion.IDOMElement} */
-	var IDOMElement                             = __import( "Dandelion.IDOMElement" );
+	var IDOMElement							 = __import( "Dandelion.IDOMElement" );
 	/** @type {System.utils.DataKey} */
-	var DataKey                                 = __import( "System.utils.DataKey" );
+	var DataKey								 = __import( "System.utils.DataKey" );
 	/** @type {System.Cycle} */
-	var Cycle                                   = __import( "System.Cycle" );
+	var Cycle								   = __import( "System.Cycle" );
 	/** @type {System.Debug} */
-	var debug                                   = __import( "System.Debug" );
+	var debug								   = __import( "System.Debug" );
 
 	/** @type {Components.Vim.State.Registers} */
-	var Registers                                 = __import( "Components.Vim.State.Registers" );
+	var Registers								 = __import( "Components.Vim.State.Registers" );
 	/** @type {Components.Vim.Syntax.Analyzer} */
-	var SyntaxAnalyzer                            = __import( "Components.Vim.Syntax.Analyzer" );
+	var SyntaxAnalyzer							= __import( "Components.Vim.Syntax.Analyzer" );
 
 	/** @type {Components.Vim.LineFeeder} */
 	var LineFeeder = ns[ NS_INVOKE ]( "LineFeeder" );
@@ -96,7 +96,7 @@
 
 		// Content feeder
 		var cfeeder = new LineFeeder( cRange, c );
-        var contentAnalyzer = new SyntaxAnalyzer( cfeeder );
+		var contentAnalyzer = new SyntaxAnalyzer( cfeeder );
 
 		// Feed the contents to content feeder
 		// This "\n" fixes the last line "\n" not displaying
@@ -136,7 +136,7 @@
 		Update();
 
 		this.contentFeeder = cfeeder;
-        this.contentAnalyzer = contentAnalyzer;
+		this.contentAnalyzer = contentAnalyzer;
 		this.statusFeeder = sfeeder;
 		this.statusBar = statusBar;
 		this.registers = new Registers();

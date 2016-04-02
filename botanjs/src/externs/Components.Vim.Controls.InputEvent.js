@@ -11,7 +11,11 @@ Components.Vim.Controls.InputEvent.key;
 Components.Vim.Controls.InputEvent.ModKeys;
 /** @type Boolean */
 Components.Vim.Controls.InputEvent.Escape;
+/** @type Boolean */
+Components.Vim.Controls.InputEvent.canceled;
 /** @type Number */
 Components.Vim.Controls.InputEvent.keyCode;
 /** @type Function */
 Components.Vim.Controls.InputEvent.kMap;
+/** @type Function */
+Components.Vim.Controls.InputEvent.cancel;

@@ -4,8 +4,8 @@
 	/** @type {System.Debug} */
 	var debug = __import( "System.Debug" );
 
-	/** @type {Components.Vim.Ex.Search} */
-	var ExSearch = __import( "Components.Vim.Ex.Search" );
+	/** @type {Components.Vim.Ex.Command} */
+	var ExCommand = __import( "Components.Vim.Ex.Command" );
 
 	var beep = ns[ NS_INVOKE ]( "Beep" );
 
@@ -441,10 +441,10 @@
 				}, _8 );
 				break;
 
-			case SLASH: // "/" Seach movement
+			case SLASH: // "/" Search movement
 				this.__cMovement = true;
 
-				this.__divedCCmd = new ExSearch( ccur );
+				this.__divedCCmd = new ExCommand( ccur, "/" );
 				this.__divedCCmd.handler( e );
 				break;
 			default:
@@ -499,7 +499,8 @@
 				this.__cMovement = false;
 				this.__divedCCmd = null;
 			}
-			else return;
+
+			if( e.canceled ) return;
 		}
 
 		var cfeeder = this.__cfeeder;
@@ -545,6 +546,7 @@
 	var InputEvent = function( sender, e )
 	{
 		this.__target = sender;
+		this.__canceled = false;
 
 		if( typeof( e ) == "string" )
 		{
@@ -572,11 +574,14 @@
 		this.__range = null;
 	};
 
+	InputEvent.prototype.cancel = function() { this.__canceled = true; };
+
 	__readOnly( InputEvent.prototype, "target", function() { return this.__target; } );
 	__readOnly( InputEvent.prototype, "key", function() { return this.__key; } );
 	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
 	__readOnly( InputEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
 	__readOnly( InputEvent.prototype, "Escape", function() { return this.__escape; } );
+	__readOnly( InputEvent.prototype, "canceled", function() { return this.__canceled; } );
 
 	__readOnly( InputEvent.prototype, "range", function() {
 
