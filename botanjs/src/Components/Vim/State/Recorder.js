@@ -7,6 +7,7 @@
 		this.__stacks = [];
 		this.__i = 0;
 		this.__j = 0;
+		this.__saved = 0;
 	};
 
 	Recorder.prototype.undo = function()
@@ -31,6 +32,11 @@
 		return null;
 	};
 
+	Recorder.prototype.save = function()
+	{
+		this.__saved = this.__i;
+	};
+
 	Recorder.prototype.record = function( StateObj )
 	{
 		this.__steps[ this.__i ++ ] = StateObj;
@@ -40,6 +46,10 @@
 
 		StateObj.id = this.__j;
 	};
+
+	__readOnly( Recorder.prototype, "changed", function() {
+		return this.__saved != this.__i;
+	} );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Recorder", Recorder );
 })();

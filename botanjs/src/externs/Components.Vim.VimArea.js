@@ -10,9 +10,13 @@ Components.Vim.VimArea.statusFeeder;
 /** @type {Components.Vim.StatusBar} */
 Components.Vim.VimArea.statusBar;
 
-/** @type {Number} */
+/** @type Number */
+Components.Vim.VimArea.index;
+/** @type Number */
 Components.Vim.VimArea.rows;
-/** @type {Number} */
+/** @type Number */
 Components.Vim.VimArea.cols;
-/** @type {Array} */
+/** @type Array */
 Components.Vim.VimArea.Instances;
+/** @type Function */
+Components.Vim.VimArea.dispose;

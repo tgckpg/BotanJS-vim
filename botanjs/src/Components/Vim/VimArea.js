@@ -2,18 +2,20 @@
 	var ns = __namespace( "Components.Vim" );
 
 	/** @type {Dandelion.IDOMElement} */
-	var IDOMElement							 = __import( "Dandelion.IDOMElement" );
+	var IDOMElement                               = __import( "Dandelion.IDOMElement" );
 	/** @type {System.utils.DataKey} */
-	var DataKey								 = __import( "System.utils.DataKey" );
+	var DataKey                                   = __import( "System.utils.DataKey" );
+	/** @type {System.utils.EventKey} */
+	var EventKey                                  = __import( "System.utils.EventKey" );
 	/** @type {System.Cycle} */
-	var Cycle								   = __import( "System.Cycle" );
+	var Cycle                                     = __import( "System.Cycle" );
 	/** @type {System.Debug} */
-	var debug								   = __import( "System.Debug" );
+	var debug                                     = __import( "System.Debug" );
 
 	/** @type {Components.Vim.State.Registers} */
-	var Registers								 = __import( "Components.Vim.State.Registers" );
+	var Registers                                 = __import( "Components.Vim.State.Registers" );
 	/** @type {Components.Vim.Syntax.Analyzer} */
-	var SyntaxAnalyzer							= __import( "Components.Vim.Syntax.Analyzer" );
+	var SyntaxAnalyzer                            = __import( "Components.Vim.Syntax.Analyzer" );
 
 	/** @type {Components.Vim.LineFeeder} */
 	var LineFeeder = ns[ NS_INVOKE ]( "LineFeeder" );
@@ -25,6 +27,7 @@
 	var mesg = ns[ NS_INVOKE ]( "Message" );
 
 	var Insts = [];
+	var InstIndex = 0;
 
 	var KeyHandler = function( sender, handler )
 	{
@@ -61,14 +64,21 @@
 
 		var _self = this;
 
-		stage.addEventListener( "Focus", function() { _self.__active = true; } );
-		stage.addEventListener( "Blur", function() { _self.__active = false; } );
+		this.__stagedEvents = [
+			new EventKey( "Focus", function() { _self.__active = true; }  )
+			, new EventKey( "Blur", function() { _self.__active = false; } )
+		];
+
+		this.__removeText
 
 		// Init
 		this.VisualizeVimFrame( element.value );
 
+		// Set buffer index
+		this.__instIndex = InstIndex ++;
+
 		// Push this instance
-		Insts.push( this );
+		Insts[ this.__instIndex ] = this;
 	};
 
 	VimArea.prototype.select = function( sel )
@@ -86,6 +96,7 @@
 	VimArea.prototype.VisualizeVimFrame = function( content )
 	{
 		var _self = this;
+		this.content = content;
 
 		var element = this.stage.element;
 		var r = this.rows;
@@ -135,6 +146,8 @@
 		cfeeder.dispatcher.addEventListener( "VisualUpdate", Update );
 		Update();
 
+		this.__visualUpdate = Update;
+
 		this.contentFeeder = cfeeder;
 		this.contentAnalyzer = contentAnalyzer;
 		this.statusFeeder = sfeeder;
@@ -154,18 +167,48 @@
 		}, 600 );
 
 		var controls = new VimControls( this );
-		this.stage.addEventListener(
-			"KeyDown"
-			, KeyHandler( this, controls.handler.bind( controls ) )
+
+		this.__stagedEvents.push(
+			new EventKey( "KeyDown", KeyHandler( this, controls.handler.bind( controls ) ) )
 		);
+
+		this.stage.addEventListeners( this.__stagedEvents );
 	};
 
-	__readOnly( VimArea, "Instances", function() {
-		return Insts.slice();
+	VimArea.prototype.dispose = function()
+	{
+		var stage = this.stage;
+		var evts = this.__stagedEvents;
+		var feeder = this.contentFeeder;
+
+		var id = stage.element.id;
+
+		debug.Info( "Destroy instance: " + id );
+
+		feeder.dispatcher.removeEventListener( "VisualUpdate", this.__visualUpdate );
+
+		stage.removeAttribute( "data-vimarea" );
+
+		Cycle.permaRemove( "VimCursorBlinkCycle" + id );
+		for( var i in evts )
+		{
+			stage.removeEventListener( evts[ i ] );
+		}
+
+		stage.element.value = this.content;
+
+		delete Insts[ this.__instIndex ];
+	};
+
+	__readOnly( VimArea.prototype, "index", function()
+	{
+		return this.__instIndex + 1;
 	} );
 
-	__readOnly( VimArea.prototype, "content", function() {
-		return this.contentFeeder.content.slice( 0, -1 );
+	__readOnly( VimArea, "Instances", function() {
+		var clone = [];
+		for( var i in Insts ) clone.push( Insts[ i ] );
+		return clone;
 	} );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "VimArea", VimArea );

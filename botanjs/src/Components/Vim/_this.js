@@ -1,3 +1,4 @@
+VIMRE_VERSION = "1.0.0b";
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
@@ -7,8 +8,9 @@
 		, "MORE": "-- MORE --"
 		, "VISUAL": "-- VISUAL  --"
 		, "VISLINE": "-- VISUAL LINE --"
+		, "REGISTERS": "--- Registers ---"
 		, "WRITE": "\"%1\" %2L, %3C written"
-		, "CONTINUE": "Press ENTER or type command to continue"
+		, "WAIT_FOR_INPUT": "Press ENTER or type command to continue"
 		, "SEARCH_HIT_BOTTOM": "Seach hit BOTTOM, contining at TOP"
 		, "TOP": "Top"
 		, "BOTTOM": "Bot"
@@ -29,6 +31,7 @@
 
 	var errors = {
 		"E35": "No previous regular expression"
+		, "E37": "No write since last change (add ! to override)"
 		, "E481": "No range allowed"
 		, "E492": "Not an editor command: %1"
 		, "E486": "Pattern not found: %1"

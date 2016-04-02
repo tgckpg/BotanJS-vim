@@ -66,7 +66,6 @@
 			case "buffers":
 			case "ls":
 				out[ CMD_TYPE ] = "BUFFERS";
-
 				break;
 			case "w":
 			case "write":
