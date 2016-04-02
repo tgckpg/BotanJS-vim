@@ -1,8 +1,6 @@
 (function(){
 	var ns = __namespace( "Components.Vim.Actions" );
 
-	/** @type {Components.Vim.State.Stack} */
-	var Stack                                 = __import( "Components.Vim.State.Stack" );
 	/** @type {System.Debug} */
 	var debug                                 = __import( "System.Debug" );
 

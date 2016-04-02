@@ -441,6 +441,11 @@
 				}, _8 );
 				break;
 
+			case SHIFT + N: // Next Search
+			case N: // Next Search
+				ccur.openRunAction( "FIND", e );
+				break;
+
 			case SLASH: // "/" Search movement
 				this.__cMovement = true;
 

@@ -21,6 +21,9 @@
 		, "LINES_FEWER": "%1 fewer line(s)"
 		, "LINES_MORE": "%1 more line(s)"
 		, "LINES_YANKED": "%1 line(s) yanked"
+
+		, "SEARCH_HIT_BOTTOM": "search hit BOTTOM, continuing at TOP"
+		, "SEARCH_HIT_TOP": "search hit TOP, continuing at BOTTOM"
 	};
 
 	var errors = {

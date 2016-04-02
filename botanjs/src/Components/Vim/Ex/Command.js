@@ -8,7 +8,7 @@
 	/** @type {System.utils.Perf} */
 	var Perf                         = __import( "System.utils.Perf" );
 
-	/**j@type {Components.Vim.State.History} */
+	/** @type {Components.Vim.State.History} */
 	var History                                 = __import( "Components.Vim.State.History" );
 	var Mesg                                    = __import( "Components.Vim.Message" );
 	var beep                                    = __import( "Components.Vim.Beep" );
@@ -134,7 +134,7 @@
 		}
 		else if( e.kMap( "Enter" ) )
 		{
-			this.__process();
+			this.__process( e );
 			return true;
 		}
 		else if( e.kMap( "Left" ) )
@@ -206,9 +206,22 @@
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
-	Command.prototype.__process = function()
+	Command.prototype.__process = function( e )
 	{
 		this.__hist.push( this.__command );
+
+		var action = "";
+		switch( this.__mode )
+		{
+			case "/":
+				action = "FIND";
+				break;
+		}
+
+		var cur = this.__cursor;
+		cur.suppressEvent();
+		this.__cursor.openRunAction( action, e, this.__command.slice() );
+		cur.unsuppressEvent();
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Command", Command );
