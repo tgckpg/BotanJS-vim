@@ -3,6 +3,10 @@
 
 	/** @type {System.Debug} */
 	var debug = __import( "System.Debug" );
+
+	/** @type {Components.Vim.Ex.Search} */
+	var ExSearch = __import( "Components.Vim.Ex.Search" );
+
 	var beep = ns[ NS_INVOKE ]( "Beep" );
 
 	var SHIFT = 1 << 9;
@@ -14,7 +18,11 @@
 	var KEY_ALT = 18;
 
 	var BACKSPACE = 8;
+	var TAB = 9;
+	var ENTER = 13;
 	var DELETE = 46;
+
+	var UP = 38; var DOWN = 40; var LEFT = 37; var RIGHT = 39;
 
 	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
 	var _5 = 53; var _6 = 54; var _7 = 55; var _8 = 56; var _9 = 57;
@@ -70,6 +78,13 @@
 		{
 			case "BS": kCode = Mod + BACKSPACE; break;
 			case "Del": kCode = Mod + DELETE; break;
+			case "Enter": kCode = Mod + ENTER; break;
+			case "Tab": kCode = Mod + TAB; break;
+
+			case "Up": kCode = Mod + UP; break;
+			case "Down": kCode = Mod + DOWN; break;
+			case "Left": kCode = Mod + LEFT; break;
+			case "Right": kCode = Mod + RIGHT; break;
 
 			case "A": Mod = SHIFT; case "a": kCode = Mod + A; break;
 			case "B": Mod = SHIFT; case "b": kCode = Mod + B; break;
@@ -127,6 +142,10 @@
 		this.__sfeeder = vimArea.statusFeeder;
 
 		this.__ccur = this.__cfeeder.cursor;
+
+		// Dived composite command handler
+		// Has full control of the key input, except Esc
+		this.__divedCCmd = null;
 	};
 
 	Controls.prototype.__composite = function( e, handler )
@@ -183,6 +202,19 @@
 			case I: // Insert
 				ccur.openAction( "INSERT" );
 				break;
+
+			case SHIFT + O: // new line before insert
+				ccur.lineStart();
+				ccur.openAction( "INSERT" );
+				ccur.action.handler( new InputEvent( e.sender, "Enter" ) );
+				ccur.moveY( -1 );
+				break;
+			case O: // new line insert
+				ccur.lineEnd( true );
+				ccur.openAction( "INSERT" );
+				ccur.action.handler( new InputEvent( e.sender, "Enter" ) );
+				break;
+
 			case U: // Undo
 				ccur.openRunAction( "UNDO", e );
 				break;
@@ -205,9 +237,15 @@
 				ccur.openRunAction( "PUT", e );
 				break;
 
-			case X: // Del
-				break;
 			case SHIFT + X: // Delete before
+				if( !this.__cMoveX( -1 ) ) break;
+			case X: // Del
+				if( ccur.getLine().content == "" )
+				{
+					beep();
+					break;
+				}
+				ccur.openRunAction( "DELETE", e, ccur.aPos );
 				break;
 			case SHIFT + U: // Undo previous changes in oneline
 				break;
@@ -240,7 +278,12 @@
 
 		var x = ccur.X;
 		ccur.moveX( a, b, c || ccur.pSpace );
-		if( ccur.X == x ) beep();
+		if( ccur.X == x )
+		{
+			beep();
+			return false;
+		}
+		return true;
 	};
 
 	Controls.prototype.__cMoveY = function( a )
@@ -252,16 +295,18 @@
 		ccur.moveY( a );
 		if( y == ( ccur.Y + cfeeder.panY ) )
 		{
-			if( 0 < a && !cfeeder.EOF ) return;
+			if( 0 < a && !cfeeder.EOF ) return true;
 			beep();
 		}
+
+		return false;
 	};
 
 	Controls.prototype.__cursorCommand = function( e )
 	{
 		var kCode = e.keyCode;
 
-		if( this.__cMovement && this.__composite )
+		if( this.__cMovement )
 		{
 			if( !e.ModKeys )
 			{
@@ -397,8 +442,10 @@
 				break;
 
 			case SLASH: // "/" Seach movement
-			case SLASH: // "/" Seach movement
 				this.__cMovement = true;
+
+				this.__divedCCmd = new ExSearch( ccur );
+				this.__divedCCmd.handler( e );
 				break;
 			default:
 				cursorHandled = false;
@@ -420,12 +467,39 @@
 		) return;
 
 		// Clear composite command
-		if( e.Escape && this.__compositeReg )
+		if( e.Escape )
 		{
-			this.__compositeReg = null;
+			var b = false;
 			this.__cMovement = false;
-			beep();
-			return;
+
+			if( this.__compositeReg )
+			{
+				b = true;
+				this.__compositeReg = null;
+			}
+			else if( this.__divedCCmd )
+			{
+				b = true;
+				this.__divedCCmd.dispose();
+				this.__divedCCmd = null;
+			}
+
+			if( b )
+			{
+				beep();
+				return;
+			}
+		}
+
+		if( this.__divedCCmd )
+		{
+			if( this.__divedCCmd.handler( e ) )
+			{
+				this.__divedCCmd.dispose();
+				this.__cMovement = false;
+				this.__divedCCmd = null;
+			}
+			else return;
 		}
 
 		var cfeeder = this.__cfeeder;
@@ -470,19 +544,30 @@
 
 	var InputEvent = function( sender, e )
 	{
-		this.__e = e;
 		this.__target = sender;
 
-		var c = this.__e.keyCode;
+		if( typeof( e ) == "string" )
+		{
+			this.__key = e;
+			this.__modKeys = 0;
+			this.__kCode = Map( e );
+			this.__escape = this.__kCode == ESC;
+		}
+		else
+		{
+			this.__e = e;
 
-		this.__escape = c == ESC || ( e.ctrlKey && c == C );
-		this.__kCode = c
-			+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
-			+ ( e.ctrlKey ? CTRL : 0 )
-			+ ( e.altKey ? ALT : 0 );
+			var c = this.__e.keyCode;
 
-		this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
-		this.__key = e.key;
+			this.__escape = c == ESC || ( e.ctrlKey && c == C );
+			this.__kCode = c
+				+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
+				+ ( e.ctrlKey ? CTRL : 0 )
+				+ ( e.altKey ? ALT : 0 );
+
+			this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
+			this.__key = e.key;
+		}
 
 		this.__range = null;
 	};

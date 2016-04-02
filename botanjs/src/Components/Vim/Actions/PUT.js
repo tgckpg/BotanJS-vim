@@ -1,8 +1,6 @@
 (function(){
 	var ns = __namespace( "Components.Vim.Actions" );
 
-	var Mesg = __import( "Components.Vim.Message" );
-
 	/** @type {Components.Vim.State.Stator} */
 	var Stator                                 = __import( "Components.Vim.State.Stator" );
 	/** @type {Components.Vim.State.Stack} */

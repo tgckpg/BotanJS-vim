@@ -123,9 +123,10 @@
 		{
 			sfeeder.init( statusBar.statusText );
 
+			var sLine = sfeeder.linesOccupied;
 			element.value =
-				cfeeder.render( 0, r - sfeeder.linesOccupied )
-				+ "\n" + sfeeder.render();
+				cfeeder.render( 0, r - sLine )
+				+ "\n" + sfeeder.render( 0, sLine < r ? sLine : r );
 
 			_self.__blink = false;
 			_self.select( cfeeder.cursor.position );

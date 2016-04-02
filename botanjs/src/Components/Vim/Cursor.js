@@ -396,11 +396,11 @@
 	};
 
 	// Open, Run, then close an action
-	Cursor.prototype.openRunAction = function( name, e )
+	Cursor.prototype.openRunAction = function( name, e, arg1 )
 	{
 		/** @type {Components.Vim.IAction} */
 		var action = new (Actions[ name ])( this );
-		action.handler( e );
+		action.handler( e, arg1 );
 		this.__pulseMsg = action.getMessage();
 		action.dispose();
 
@@ -496,6 +496,8 @@
 		p += this.aX;
 		return p;
 	} );
+
+	__readOnly( Cursor.prototype, "face", function() { return "\u2588"; } );
 
 	__readOnly( Cursor.prototype, "message", function()
 	{

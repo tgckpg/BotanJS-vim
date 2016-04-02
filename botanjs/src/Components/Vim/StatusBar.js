@@ -10,6 +10,7 @@
 	{
 		this.cols = cols;
 		this.statStamp = {};
+		this.override = null;
 	};
 
 	StatusBar.prototype.stamp = function( pos, func )
@@ -17,8 +18,12 @@
 		this.statStamp[ pos ] = func;
 	};
 
+	StatusBar.prototype.override;
+
 	__readOnly( StatusBar.prototype, "statusText", function()
 	{
+		if( this.override ) return this.override();
+
 		var display = "";
 		var l = this.cols;
 
