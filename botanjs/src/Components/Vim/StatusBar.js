@@ -36,6 +36,8 @@
 				text = text();
 				if( text == undefined || text === "" ) continue;
 
+				if( i == 0 && l <= text.length ) return text;
+
 				display += text.substr( 0, avail );
 				i = display.length;
 			}

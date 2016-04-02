@@ -6,12 +6,12 @@
 
 	var Mesg = __import( "Components.Vim.Message" );
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var YANK = ns[ NS_INVOKE ]( "YANK" );
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var DELETE = ns[ NS_INVOKE ]( "DELETE" );
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var VISUAL = function( Cursor )
 	{
 		this.__reset( Cursor );

@@ -27,6 +27,8 @@
 	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
 	var _5 = 53; var _6 = 54; var _7 = 55; var _8 = 56; var _9 = 57;
 
+	var SEMI_COLON = 59;
+
 	var A = 65; var B = 66; var C = 67; var D = 68; var E = 69;
 	var F = 70; var G = 71; var H = 72; var I = 73; var J = 74;
 	var K = 75; var L = 76; var M = 77; var N = 78; var O = 79;
@@ -203,6 +205,14 @@
 				ccur.openAction( "INSERT" );
 				break;
 
+			case S: // Delete Char and start insert
+				if( ccur.getLine().content != "" )
+				{
+					ccur.openRunAction( "DELETE", e, ccur.aPos );
+				}
+				ccur.openAction( "INSERT" );
+				break;
+
 			case SHIFT + O: // new line before insert
 				ccur.lineStart();
 				ccur.openAction( "INSERT" );
@@ -261,6 +271,11 @@
 				break;
 			case SHIFT + V: // Visual line
 				ccur.openAction( "VISUAL_LINE" );
+				break;
+
+			case SHIFT + SEMI_COLON: // ":" Command line
+				this.__divedCCmd = new ExCommand( ccur, ":" );
+				this.__divedCCmd.handler( e );
 				break;
 
 			case F1: // F1, help
@@ -563,6 +578,12 @@
 		else
 		{
 			this.__e = e;
+
+			// KeyCode HotFix
+			if( e.key == ";" || e.key == ":" )
+			{
+				SEMI_COLON = e.keyCode;
+			}
 
 			var c = this.__e.keyCode;
 

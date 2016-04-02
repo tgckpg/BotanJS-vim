@@ -3,7 +3,7 @@
 
 	var Mesg = __import( "Components.Vim.Message" );
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var UNDO = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */

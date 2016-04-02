@@ -24,10 +24,20 @@
 
 		, "SEARCH_HIT_BOTTOM": "search hit BOTTOM, continuing at TOP"
 		, "SEARCH_HIT_TOP": "search hit TOP, continuing at BOTTOM"
+		, "REPLACE": "%1 substitution(s) on %2 line(s)"
 	};
 
 	var errors = {
-		"E486": "E486: Pattern not found: %1"
+		"E35": "No previous regular expression"
+		, "E481": "No range allowed"
+		, "E492": "Not an editor command: %1"
+		, "E486": "Pattern not found: %1"
+
+		// EXtended Errors
+		, "EX1": "Pattern Error( %1 )"
+
+		, "TODO": "%1 is not implemented yet"
+		, "MISSING_FEATURE": "Sorry, I thought this command wasn't useful enough to implement. Please file a feature request titled \"Implement %1\" in github if you think this is important."
 	};
 
 	var GetString = function( arr, key, restArgs )
@@ -50,7 +60,7 @@
 	var Error = function( key )
 	{
 		var restArgs = Array.prototype.slice.call( arguments, 1 );
-		return GetString( errors, key, restArgs );
+		return key + ": " + GetString( errors, key, restArgs );
 	};
 
 	var bAudio = new Audio(

@@ -67,46 +67,46 @@
 			:  function( line ) { return !line.placeholder; }
 			;
 
-		this.__render = function( line, steps )
-		{
-			var display = ( line == undefined ? "" : line ) + "";
-
-			var atSpace = false;
-
-			for( var i = 0;
-				line && i < steps && ( line = line.next ) && placeholdCond( line );
-				i ++ )
+			this.__render = function( line, steps )
 			{
-				if( atSpace || ( line.br && steps < ( i + line.visualLines.length ) ) )
+				var display = ( line == undefined ? "" : line ) + "";
+
+				var atSpace = false;
+
+				for( var i = 0;
+						line && i < steps && ( line = line.next ) && placeholdCond( line );
+						i ++ )
 				{
-					if( !atSpace ) _self.__clseLine = line;
-					atSpace = true;
-					display += "\n@";
-					continue;
+					if( atSpace || ( line.br && steps < ( i + line.visualLines.length ) ) )
+					{
+						if( !atSpace ) _self.__clseLine = line;
+						atSpace = true;
+						display += "\n@";
+						continue;
+					}
+
+					display += "\n" + line;
 				}
 
-				display += "\n" + line;
-			}
+				return display;
+			};
 
-			return display;
-		};
-
-		this.__softRender = function()
-		{
-			var line = _self.lineBuffers[ _self.__rStart ];
-			var steps = _self.__rLength + 1;
-
-			for( var i = 0;
-				line && i < steps && ( line = line.next ) && placeholdCond( line );
-				i ++ )
+			this.__softRender = function()
 			{
-				if( line.br && steps < ( i + line.visualLines.length ) )
+				var line = _self.lineBuffers[ _self.__rStart ];
+				var steps = _self.__rLength + 1;
+
+				for( var i = 0;
+						line && i < steps && ( line = line.next ) && placeholdCond( line );
+						i ++ )
 				{
-					_self.__clseLine = line;
-					break;
+					if( line.br && steps < ( i + line.visualLines.length ) )
+					{
+						_self.__clseLine = line;
+						break;
+					}
 				}
-			}
-		};
+			};
 	}
 
 	Feeder.prototype.render = function( start, length )

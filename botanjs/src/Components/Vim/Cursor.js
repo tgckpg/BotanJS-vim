@@ -42,6 +42,13 @@
 		var l = c.Y + d;
 		var i = c.Y;
 
+		if( !line )
+		{
+			line = c.feeder.firstBuffer;
+			i = 0;
+			l = d;
+		}
+
 		// First line ( visual ) does not count
 		if( line != c.feeder.firstBuffer ) i --;
 
@@ -396,11 +403,12 @@
 	};
 
 	// Open, Run, then close an action
-	Cursor.prototype.openRunAction = function( name, e, arg1 )
+	Cursor.prototype.openRunAction = function( name, e, arg1, arg2, arg3, arg4, arg5 )
 	{
+		debug.Info( "OpenRunAction: " + name );
 		/** @type {Components.Vim.IAction} */
 		var action = new (Actions[ name ])( this );
-		action.handler( e, arg1 );
+		action.handler( e, arg1, arg2, arg3, arg4, arg5 );
 		this.__pulseMsg = action.getMessage();
 		action.dispose();
 

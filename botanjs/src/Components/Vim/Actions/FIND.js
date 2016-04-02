@@ -4,10 +4,11 @@
 	/** @type {System.Debug} */
 	var debug                                 = __import( "System.Debug" );
 
+	var VimError = __import( "Components.Vim.Error" );
 	var Mesg = __import( "Components.Vim.Message" );
 
 	// Private static
-	var PATTERN = "";
+	var PATTERN = [];
 
 	var ParsePattern = function( pattern )
 	{
@@ -23,28 +24,27 @@
 					break;
 				case "\\":
 					var tok = pattern[ ++ i ];
-					debug.Error( "Unknown escaped token: " + tok );
-					++ i;
+					if( "nrts.[]()^".indexOf( tok ) != -1 )
+					{
+						parsed += "\\" + tok;
+					}
+					else
+					{
+						throw new Error( "Missing token impl: \"" + tok + "\"" );
+					}
+					break;
 				default:
 					parsed += pattern[ i ];
 			}
 		}
 
-		var RegEx = null;
-
-		try
-		{
-			var RegEx = new RegExp( parsed, "gm" );
-		}
-		catch( ex )
-		{
-			debug.Error( ex );
-		}
+		// The root bracket as back ref 0
+		var RegEx = new RegExp( "(" +  parsed + ")", "g" );
 
 		return RegEx;
 	};
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var FIND = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */
@@ -62,9 +62,37 @@
 	{
 		e.preventDefault();
 
-		if( p ) PATTERN = p;
+		if( p )
+		{
+			if( p.length < 2 )
+			{
+				if( PATTERN.length < 1 )
+				{
+					this.__msg = VimError( "E35" );
+					return true;
+				}
+				else p = PATTERN;
+			}
 
-		var search = ParsePattern( PATTERN );
+			PATTERN = p;
+		}
+
+		if( PATTERN.length < 1 )
+		{
+			this.__msg = VimError( "E35" );
+			return true;
+		}
+
+		var search;
+		try
+		{
+			search = ParsePattern( PATTERN );
+		}
+		catch( ex )
+		{
+			this.__msg = VimError( "EX1", ex.message );
+			return true;
+		}
 
 		var content = this.__cursor.feeder.content;
 
@@ -111,6 +139,7 @@
 
 		if( Hit == undefined )
 		{
+			this.__msg = VimError( "E486", PATTERN.slice( 1 ).join( "" ) );
 		}
 		else
 		{
@@ -122,6 +151,8 @@
 	{
 		return this.__msg;
 	};
+
+	__static_method( FIND, "Pattern", ParsePattern );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "FIND", FIND );
 })();

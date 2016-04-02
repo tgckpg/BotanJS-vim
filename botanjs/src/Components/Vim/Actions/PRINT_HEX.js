@@ -4,7 +4,7 @@
 	/** @type {System.Debug} */
 	var debug                                 = __import( "System.Debug" );
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var PRINT_HEX = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */

@@ -125,7 +125,7 @@
 
 			var sLine = sfeeder.linesOccupied;
 			element.value =
-				cfeeder.render( 0, r - sLine )
+				cfeeder.render( sLine - 1, r - sLine )
 				+ "\n" + sfeeder.render( 0, sLine < r ? sLine : r );
 
 			_self.__blink = false;

@@ -19,7 +19,7 @@
 		, ":" : Perf.uuid
 	};
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var Command = function( Cursor, Mode )
 	{
 		var _self = this;
@@ -216,9 +216,13 @@
 			case "/":
 				action = "FIND";
 				break;
+			case ":":
+				action = "EDITOR_COMMAND";
+				break;
 		}
 
 		var cur = this.__cursor;
+
 		cur.suppressEvent();
 		this.__cursor.openRunAction( action, e, this.__command.slice() );
 		cur.unsuppressEvent();

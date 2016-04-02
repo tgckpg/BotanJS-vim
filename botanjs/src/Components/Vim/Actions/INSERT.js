@@ -23,7 +23,7 @@
 		}
 	};
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var INSERT = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */

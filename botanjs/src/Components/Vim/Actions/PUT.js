@@ -9,7 +9,7 @@
 	var Mesg = __import( "Components.Vim.Message" );
 	var occurence = __import( "System.utils.Perf.CountSubstr" );
 
-	/** @type {Components.Vim.Cursor.IAction} */
+	/** @type {Components.Vim.IAction} */
 	var PUT = function( Cursor )
 	{
 		/** @type {Components.Vim.Cursor} */
