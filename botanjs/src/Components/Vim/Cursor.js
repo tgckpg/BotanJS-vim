@@ -137,7 +137,6 @@
 
 		this.moveX( - Number.MAX_VALUE );
 		this.moveX( jumpX, false, phantomSpace );
-
 	};
 
 	// 0 will be treated as default ( 1 )

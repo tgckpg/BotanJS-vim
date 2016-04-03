@@ -47,6 +47,8 @@
 	var COMMA = 188; var FULLSTOP = 190;
 	var SLASH = 191; var BACK_SLASH = 220;
 
+	var ANY_KEY = -1;
+
 	var __maps = {};
 	var Map = function( str )
 	{
@@ -169,8 +171,9 @@
 		{
 			var compReg = this.__compositeReg[i];
 			var keys = compReg.keys;
+			var key = keys[ compReg.i ++ ];
 
-			if( keys[ compReg.i ++ ] == kCode )
+			if( key == ANY_KEY || key == kCode )
 			{
 				if( compReg.i == keys.length )
 				{
@@ -405,8 +408,38 @@
 				);
 
 				break;
+
+
+			case SHIFT + T: // To
 			case T: // To
+				this.__cMovement = true;
+
+				this.__composite( e, function( e2 ) {
+					var oX = ccur.X;
+					ccur.openRunAction( "TO", e, e2 );
+
+					if( ccur.X < oX )
+					{
+						ccur.moveX( 1 );
+					}
+					else if( oX < ccur.X )
+					{
+						ccur.moveX( -1 );
+					}
+				}, ANY_KEY );
+
 				break;
+			case SHIFT + F: // To
+			case F: // To
+				this.__cMovement = true;
+
+				this.__composite( e, function( e2 ) {
+					ccur.openRunAction( "TO", e, e2 );
+				}, ANY_KEY );
+
+				break;
+
+
 			case I: // In between boundary
 				if( !ccur.action )
 				{
