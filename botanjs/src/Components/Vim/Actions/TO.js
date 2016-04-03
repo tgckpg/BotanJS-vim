@@ -28,8 +28,8 @@
 		var f = cur.feeder;
 		var n = cur.getLine().lineNum;
 
-		var p = f.content.indexOf( "\n" );
-		for( i = 1; p != -1 && i < n; i ++ )
+		var p = 0;
+		for( i = 0; p != -1 && i < n; i ++ )
 		{
 			p = f.content.indexOf( "\n", p + 1 );
 		}
@@ -68,7 +68,7 @@
 
 		if( lowerLimmit <= tX && tX < upperLimit )
 		{
-			cur.moveX( tX - lowerLimmit - cX );
+			cur.moveTo( tX );
 		}
 		else beep();
 	};
