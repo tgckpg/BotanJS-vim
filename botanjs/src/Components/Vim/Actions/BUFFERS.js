@@ -40,6 +40,9 @@
 
 		var cur = this.__cursor;
 		var Vim = cur.Vim;
+
+		/** @type {Components.Vim.VimArea} */
+		var VimArea = shadowImport( "Components.Vim.VimArea" );
 		var Insts = VimArea.Instances;
 
 
