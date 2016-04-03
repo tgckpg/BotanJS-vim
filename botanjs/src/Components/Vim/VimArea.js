@@ -42,7 +42,7 @@
 	};
 
 	/* stage @param {Dandelion.IDOMElement} */
-	var VimArea = function( stage )
+	var VimArea = function( stage, detectScreenSize )
 	{
 		if( !stage ) throw new Error( "Invalid argument" );
 
@@ -80,16 +80,84 @@
 			, new EventKey( "Blur", function() { _self.__active = false; } )
 		];
 
-		this.__removeText
 
-		// Init
-		this.VisualizeVimFrame( element.value );
+		if( detectScreenSize )
+		{
+			var val = element.value;
+			this.__testScreen(function() { _self.VisualizeVimFrame( val ); });
+		}
+		else
+		{
+			this.VisualizeVimFrame( element.value );
+		}
 
 		// Set buffer index
 		this.__instIndex = InstIndex ++;
 
 		// Push this instance
 		Insts[ this.__instIndex ] = this;
+	};
+
+	VimArea.prototype.__testScreen = function( handler )
+	{
+		var area = this.stage.element;
+		area.value = "";
+
+		var msg = "Please wait while Vim;Re is testing for screen dimensions";
+		var m = function() { return msg[ i ++ ] || "."; };
+
+		var i = 0;
+
+		var oX = area.style.overflowX;
+		var oY = area.style.overflowY;
+
+		area.style.whiteSpace = "nowrap";
+
+		var oWidth = area.scrollWidth;
+		var testWidth = function()
+		{
+			area.value += m();
+			if( oWidth == area.scrollWidth )
+			{
+				Cycle.next( testWidth );
+			}
+			else
+			{
+				var t = "";
+				i -= 3;
+				for( var k = 0; k < i; k ++ ) t += ".";
+				area.value = t;
+
+				area.style.whiteSpace = "";
+				m = function() { return "\n" + t; };
+				testHeight();
+			}
+		};
+
+		testWidth();
+
+		var oHeight = area.scrollHeight;
+
+		var l = 0;
+
+		var _self = this;
+
+		var testHeight = function() {
+			area.value += m();
+			l ++;
+
+			if( oHeight == area.scrollHeight )
+			{
+				Cycle.next( testHeight );
+			}
+			else
+			{
+				_self.rows = l;
+				_self.cols = i;
+
+				handler();
+			}
+		};
 	};
 
 	VimArea.prototype.select = function( sel )
