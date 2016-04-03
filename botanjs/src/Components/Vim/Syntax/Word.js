@@ -199,6 +199,10 @@
 			// C1 Controls and Latin-1 Supplement (Extended ASCII)
 			[ 0x00A1, 0x00AC ], [ 0x00AE, 0x00BF ]
 		]
+		,
+		[ // Spaces & tabs
+			[ 0x0020, 0x0020 ], [ 0x0009, 0x0009 ]
+		]
 	];
 
 	var NUM_KINGDOM = KINGDOMS.length;

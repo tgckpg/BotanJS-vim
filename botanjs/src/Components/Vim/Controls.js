@@ -378,7 +378,11 @@
 				break;
 			case SHIFT + L: // Last line buffer
 				break;
-			case SHIFT + _6: // ^, Start
+
+			case _0: // Really - line Start
+				ccur.lineStart();
+				break;
+			case SHIFT + _6: // ^, line Start, XXX: skip tabs
 				ccur.lineStart();
 				break;
 			case SHIFT + _4: // $, End
@@ -438,6 +442,13 @@
 				}, ANY_KEY );
 
 				break;
+
+			case W: // word
+			case SHIFT + W:
+			case B:
+			case SHIFT + B:
+				ccur.openRunAction( "WORD", e );
+				break
 
 
 			case I: // In between boundary
