@@ -38,6 +38,7 @@ VIMRE_VERSION = "1.0.0b";
 
 		// EXtended Errors
 		, "EX1": "Pattern Error( %1 )"
+		, "EX2": "This pattern is causing infinite loop: %1"
 
 		, "TODO": "%1 is not implemented yet"
 		, "MISSING_FEATURE": "Sorry, I thought this command wasn't useful enough to implement. Please file a feature request titled \"Implement %1\" in github if you think this is important."

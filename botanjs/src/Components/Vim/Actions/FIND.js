@@ -39,7 +39,7 @@
 		}
 
 		// The root bracket as back ref 0
-		var RegEx = new RegExp( "(" +  parsed + ")", "g" );
+		var RegEx = new RegExp( "(" +  parsed + ")", "gm" );
 
 		return RegEx;
 	};
@@ -104,9 +104,20 @@
 		var FirstHit;
 		var PrevStack = [];
 
+		var LoopGuard;
 		while( ( r = search.exec( content ) ) !== null )
 		{
-			if( !FirstHit ) FirstHit = r.index;
+			if( FirstHit == undefined )
+			{
+				FirstHit = r.index;
+			}
+
+			if( LoopGuard == r.index )
+			{
+				this.__msg = VimError( "EX2", PATTERN.slice( 1 ).join( "" ) );
+				return true;
+			}
+
 			if( p < r.index )
 			{
 				Hit = r.index;
@@ -114,6 +125,7 @@
 			}
 
 			PrevStack.push( r.index );
+			LoopGuard = r.index;
 		}
 
 		if( e.kMap( "N" ) )
