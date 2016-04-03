@@ -44,14 +44,25 @@
 	/* stage @param {Dandelion.IDOMElement} */
 	var VimArea = function( stage )
 	{
-		if( !stage ) return;
+		if( !stage ) throw new Error( "Invalid argument" );
+
+		stage = IDOMElement( stage );
 
 		var element = stage.element;
 
-		if( element.nodeName != "TEXTAREA" )
+		if(!( element && element.nodeName == "TEXTAREA" ))
 		{
-			debug.Error( "Element is not compatible for VimArea" );
-			return;
+			throw new Error( "This element is not compatible for VimArea" );
+		}
+
+		for( var i in Insts )
+		{
+			var inst = Insts[ i ];
+			if( inst.stage.element == element )
+			{
+				debug.Info( "Instance exists" );
+				return inst;
+			}
 		}
 
 		stage.setAttribute( new DataKey( "vimarea", 1 ) );
