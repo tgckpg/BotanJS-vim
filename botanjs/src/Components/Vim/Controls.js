@@ -262,6 +262,7 @@
 			case SHIFT + I: // Append before the line start, after spaces
 				break;
 			case SHIFT + J: // Join lines
+				ccur.openRunAction( "JOIN_LINES", e );
 				break;
 			case SHIFT + K: // Find the manual entry
 				break;
