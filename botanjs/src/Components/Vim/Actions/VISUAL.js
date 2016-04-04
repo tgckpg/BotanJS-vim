@@ -233,6 +233,18 @@
 			if( startLine.aPos < minAp )
 			{
 				pstart = 0;
+
+				if( this.__mode == MODE_LINE )
+				{
+					cur.suppressEvent();
+
+					cur.lineEnd( true );
+					nstart = cur.PStart;
+
+					cur.moveTo( currAp, true );
+
+					cur.unsuppressEvent();
+				}
 			}
 			// highlight from the end
 			else if( maxAp < startLine.aPos )
@@ -309,7 +321,7 @@
 
 			// Sets the visual position
 			// s-->e
-			if( 0 < posDiff )
+			if( 0 <= posDiff )
 			{
 				newPos = newPos + 1;
 			}
