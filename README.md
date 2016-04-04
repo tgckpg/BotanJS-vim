@@ -1,37 +1,28 @@
 # BotanJS-vim
 This is a functional vim using the *screen buffer* approach. What I am trying to do is to achieve that smooth-vim-feeling as close as possible to the original Vim in a general terminal.
 
+## Demo
 Visit the demo over [here](https://tgckpg.github.io/BotanJS-vim)
 
-## This is still working in progress
-The below commands are currently working. ( will be updated if I remembered, might not be synced with the demo )
+## This is going to be release soon
+Common commands are now supported. I am now going to list the commands that yet to be made.
 ```
-Cursor movements
-hjkl
-G
-Ctrl + f, Ctrl + b
-%$^
-nN
-/{pattern}
+Commands that are going to implement soon:
+auto indent, <>, [action]i[quote], [count]
+:'<,'>
 
-INSERT:
-aA i
-oO
+Commands that are planning to implement in near future:
+macro
+code auto format
+:set nowrap
 
-commands that starts with g:
-gg
-g8
+Commands that are planning to implement in far future:
+Split screen - this is possible by design
 
-VISUAL:
-v{motion} ( viw, vi{bracket} )
-v{motion}y // YANK
-
-YANK / DELETE:
-iw, i{bracket}
-
-Undo / Redo: ( might have bugs, please file issue if bugged. But I think I will finish other features first if it is not very critical )
-u / Ctrl + r
-
+Commands that are impossible to implement:
+VISUAL BLOCK - Multiple highlighting in textarea is not possible
+Syntax highlighting - individual styles cannot be applied into a textarea
+plugins - I am NOT going to make this
 ```
 
 ### How it works
@@ -40,7 +31,7 @@ By *screen buffer*, it means that the textarea is treated as a screen buffer. Yo
 ### Why use screen buffer?
 By treating the textarea as a *screen*. I could archive almost everything except for coloring. And it is easier to precisely track the cursor this way.
 
-Visit this [blog](https://blog.astropenguin.net/article/view/vimarea-day-1-hjkl/) entries for more information.
+Visit this [blog](https://blog.astropenguin.net/article/view/vimarea-day-1-hjkl/) entry for details.
 
 ### How the source code works
 This is based on a framework I wrote called BotanJS. Which is a frontend framework & Service API that is so big that I am too busy ( lazy ) to explain. If you are only interested in the Vim itself only. It is recommended to download the compiled source code provided in the demo site above.
