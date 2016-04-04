@@ -30,6 +30,8 @@
 		this.__cursor = Cursor;
 
 		this.__stator = new Stator( Cursor );
+		this.__minReach = 0;
+		this.__insertLen = 0;
 
 		// Initialize this stack
 		this.__rec( "", true );
@@ -57,18 +59,27 @@
 			if( this.__stack )
 			{
 				// If nothings changed
-				if( this.__insertLength == 0
+				if( this.__minReach == 0
+					&& this.__punch == 0
 					&& this.__contentUndo === ""
 				) return;
 
+				if( this.__punch < this.__minReach )
+				{
+					this.__minReach = this.__punch;
+				}
+
 				this.__stack.store(
-					this.__stator.save( this.__insertLength, this.__contentUndo )
+					this.__stator.save(
+						this.__insertLen
+						, this.__contentUndo
+						, -this.__minReach )
 				);
 
 				this.__cursor.rec.record( this.__stack );
 			}
 
-			this.__insertLength = 0;
+			this.__punch = 0;
 			this.__contentUndo = "";
 			this.__stack = new Stack();
 		}
@@ -78,7 +89,14 @@
 			// todo
 		}
 
-		this.__insertLength += c.length;
+		if( this.__punch < this.__minReach )
+		{
+			this.__insertLen = 0;
+			this.__minReach = this.__punch;
+		}
+
+		this.__punch += c.length;
+		this.__insertLen += c.length;
 	};
 
 	INSERT.prototype.__specialKey = function( e, inputChar )
@@ -96,7 +114,7 @@
 
 			var f = cur.aPos;
 
-			if( this.__insertLength <= 0 )
+			if( this.__punch <= this.__minReach )
 			{
 				this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
 			}
@@ -105,7 +123,8 @@
 				feeder.content.substring( 0, f )
 				+ feeder.content.substring( f + 1 );
 
-			this.__insertLength --;
+			if( 0 < this.__insertLen ) this.__insertLen --;
+			this.__punch --;
 		}
 		else if( e.kMap( "Del" ) )
 		{
@@ -126,6 +145,9 @@
 	INSERT.prototype.handler = function( e )
 	{
 		e.preventDefault();
+
+		if( e.ModKeys ) return;
+
 		var inputChar = Translate( e.key );
 
 		if( inputChar.length != 1 )
@@ -160,7 +182,6 @@
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 
 		this.__rec( inputChar );
-
 	};
 
 	INSERT.prototype.getMessage = function()

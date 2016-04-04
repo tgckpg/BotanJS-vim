@@ -8,17 +8,12 @@
 		this.__startState = this.__saveCur();
 	};
 
-	Stator.prototype.save = function( insertLength, contentUndo )
+	Stator.prototype.save = function( insertLength, contentUndo, removeLen )
 	{
+		if( removeLen == undefined ) removeLen = 0;
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
-		var startPos = this.__startPosition;
-
-		if( insertLength < 0 )
-		{
-			startPos += insertLength;
-			insertLength = 0;
-		}
+		var startPos = this.__startPosition - removeLen;
 
 		var sSt = this.__startState;
 		var eSt = this.__saveCur();
@@ -38,6 +33,7 @@
 			cur.PEnd = st.p + 1;
 			cur.X = st.x;
 			cur.Y = st.y;
+			cur.pX = st.cpX - 1;
 			feeder.panX = st.px;
 			feeder.panY = st.py;
 
@@ -54,6 +50,7 @@
 			p: c.PStart
 			, x: c.X
 			, y: c.Y
+			, cpX: c.pX
 			, px: c.feeder.panX
 			, py: c.feeder.panY
 		};

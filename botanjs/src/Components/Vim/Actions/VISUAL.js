@@ -294,7 +294,7 @@
 				var i = 0;
 				do
 				{
-					if( line.lineNum == l ) break;
+					if( line.lineNum == l || line.placeholder ) break;
 					pstart += line.toString().length + 1;
 				}
 				while( line = line.next );

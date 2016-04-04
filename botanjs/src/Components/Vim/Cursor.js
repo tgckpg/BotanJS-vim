@@ -147,7 +147,9 @@
 
 		if( 0 < this.__off )
 		{
-			d += this.__off;
+			if( 0 < d && phantomSpace )
+				d += this.__off;
+
 			this.__off = 0;
 		}
 
