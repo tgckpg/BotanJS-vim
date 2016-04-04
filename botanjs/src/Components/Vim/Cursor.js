@@ -217,7 +217,7 @@
 
 		if( boundary )
 		{
-			x = 0 < d ? lineEnd : 0;
+			x = 0 < x ? lineEnd : 0;
 		}
 		else if( c == "\n" )
 		{

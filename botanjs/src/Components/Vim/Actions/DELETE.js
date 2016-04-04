@@ -45,6 +45,13 @@
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
 
+		// Do nothing if content is considered empty
+		if( feeder.firstBuffer.next.placeholder && feeder.content.length < 2 )
+		{
+			debug.Info( "Content is empty" );
+			return true;
+		}
+
 		var Triggered = false;
 
 		if( sp == undefined )
@@ -134,7 +141,8 @@
 			}
 		}
 
-		var c = feeder.content;
+		// last "\n" padding
+		var c = feeder.content.slice( 0, -1 );
 
 		var s = sp;
 		var e = cur.aPos;
@@ -151,6 +159,7 @@
 		this.__nline = occurence( removed, "\n" );
 
 		feeder.content = c.substring( 0, s ) + c.substring( e + 1 );
+		if( feeder.content === "" ) feeder.content = "\n";
 
 		// Try to keep the original panning if possible
 		feeder.pan( undefined

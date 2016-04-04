@@ -110,9 +110,7 @@
 			var oY = feeder.panY + cur.Y;
 			if( cur.X == 0 && feeder.panY == 0 && cur.Y == 0 ) return;
 
-			cur.moveX( -1, true, true );
-
-			var f = cur.aPos;
+			var f = cur.aPos - 1;
 
 			if( this.__punch <= this.__minReach )
 			{
@@ -122,6 +120,10 @@
 			feeder.content =
 				feeder.content.substring( 0, f )
 				+ feeder.content.substring( f + 1 );
+
+			feeder.pan();
+
+			cur.moveX( -1, true, true );
 
 			if( 0 < this.__insertLen ) this.__insertLen --;
 			this.__punch --;
@@ -135,10 +137,11 @@
 			feeder.content =
 				feeder.content.substring( 0, f )
 				+ feeder.content.substring( f + 1 );
+
+			feeder.pan();
 		}
 		else return;
 
-		feeder.pan();
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
 	};
 
