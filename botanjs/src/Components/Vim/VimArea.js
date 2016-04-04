@@ -222,6 +222,11 @@
 			_self.select( cfeeder.cursor.position );
 		};
 
+		cfeeder.dispatcher.addEventListener( "SelectionChanged", function()
+		{
+			_self.select( cfeeder.cursor.position );
+		} );
+
 		cfeeder.dispatcher.addEventListener( "VisualUpdate", Update );
 		Update();
 

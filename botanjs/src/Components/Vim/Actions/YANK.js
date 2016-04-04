@@ -27,7 +27,7 @@
 		this.__cursor.unsuppressEvent();
 	};
 
-	YANK.prototype.handler = function( e, sp )
+	YANK.prototype.handler = function( e, sp, newLine )
 	{
 		e.preventDefault();
 
@@ -41,7 +41,6 @@
 
 		var Triggered = false;
 
-		var newLine = false;
 		if( sp == undefined )
 		{
 			Triggered = true;

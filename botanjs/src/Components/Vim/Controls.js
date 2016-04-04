@@ -271,10 +271,9 @@
 				break;
 
 			case V: // Visual
-				ccur.openAction( "VISUAL" );
-				break;
 			case SHIFT + V: // Visual line
-				ccur.openAction( "VISUAL_LINE" );
+				ccur.openAction( "VISUAL" );
+				ccur.action.handler( e );
 				break;
 
 			case SHIFT + SEMI_COLON: // ":" Command line

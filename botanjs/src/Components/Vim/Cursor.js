@@ -435,7 +435,7 @@
 		return null;
 	};
 
-	// The absX for current Line
+	// The position offset relative to current line
 	__readOnly( Cursor.prototype, "aX", function()
 	{
 		var X = this.X;
@@ -473,6 +473,7 @@
 				}
 			}
 		}
+		else return this.X;
 
 		return w;
 	} );

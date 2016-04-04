@@ -33,7 +33,7 @@
 		this.__cursor.unsuppressEvent();
 	};
 
-	DELETE.prototype.handler = function( e, sp )
+	DELETE.prototype.handler = function( e, sp, newLine )
 	{
 		e.preventDefault();
 
@@ -46,7 +46,6 @@
 		var feeder = cur.feeder;
 
 		var Triggered = false;
-		var newLine = false;
 
 		if( sp == undefined )
 		{

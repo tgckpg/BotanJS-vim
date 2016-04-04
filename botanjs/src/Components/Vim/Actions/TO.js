@@ -40,9 +40,6 @@
 
 		var lowerLimmit = p;
 
-		var cX = cur.X;
-		var tX = cX;
-
 		var Char = et.key;
 		if( et.kMap( "Tab" ) )
 		{
@@ -55,15 +52,16 @@
 			return;
 		}
 
+		var tX = -1;
 		// Forward
 		if( em.kMap( "t" ) || em.kMap( "f" ) )
 		{
-			tX = f.content.indexOf( Char, p + cX + 1 );
+			tX = f.content.indexOf( Char, cur.aPos + 1 );
 		}
 		// backward
 		else
 		{
-			tX = f.content.lastIndexOf( Char, p + cX - 1 );
+			tX = f.content.lastIndexOf( Char, cur.aPos - 1 );
 		}
 
 		if( lowerLimmit <= tX && tX < upperLimit )
