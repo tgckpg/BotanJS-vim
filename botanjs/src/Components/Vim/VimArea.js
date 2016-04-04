@@ -33,6 +33,7 @@
 	{
 		return function( e )
 		{
+			sender.__active = true;
 			e = e || window.event;
 			if ( e.keyCode ) code = e.keyCode;
 			else if ( e.which ) code = e.which;
@@ -124,7 +125,7 @@
 			else
 			{
 				var t = "";
-				i -= 3;
+				-- i;
 				for( var k = 0; k < i; k ++ ) t += ".";
 				area.value = t;
 
@@ -144,7 +145,7 @@
 
 		var testHeight = function() {
 			area.value += m();
-			l ++;
+			++ l;
 
 			if( oHeight == area.scrollHeight )
 			{
@@ -228,7 +229,8 @@
 		} );
 
 		cfeeder.dispatcher.addEventListener( "VisualUpdate", Update );
-		Update();
+		element.value = "Please wait ...";
+		Cycle.delay( Update, 70 );
 
 		this.__visualUpdate = Update;
 
