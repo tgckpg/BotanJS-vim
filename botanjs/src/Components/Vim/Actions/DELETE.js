@@ -158,8 +158,7 @@
 
 		this.__nline = occurence( removed, "\n" );
 
-		feeder.content = c.substring( 0, s ) + c.substring( e + 1 );
-		if( feeder.content === "" ) feeder.content = "\n";
+		feeder.content = c.substring( 0, s ) + c.substring( e + 1 ) + "\n";
 
 		// Try to keep the original panning if possible
 		feeder.pan( undefined
