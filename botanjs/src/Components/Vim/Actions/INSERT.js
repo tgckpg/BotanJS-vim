@@ -10,6 +10,11 @@
 
 	var Mesg = __import( "Components.Vim.Message" );
 
+	// Phantom indent
+	var IN_START = 0;
+	var IN_END = 1;
+	var IN_DEL = 2;
+
 	var Translate = function( c )
 	{
 		switch( c )
@@ -47,6 +52,10 @@
 
 	INSERT.prototype.dispose = function()
 	{
+		if( this.__cancelIndent() )
+		{
+			this.__cursor.feeder.pan();
+		}
 		this.__msg = "";
 		this.__rec( "", true );
 		this.__cursor.moveX( -1 );
@@ -105,8 +114,9 @@
 		var feeder = cur.feeder;
 
 		// Backspace
-		if( e.kMap( "BS" ) )
+		if( e.kMap( "BS" ) || e.kMap( "S-BS" ) )
 		{
+			this.__realizeIndent();
 			var oY = feeder.panY + cur.Y;
 			if( cur.X == 0 && feeder.panY == 0 && cur.Y == 0 ) return;
 
@@ -128,8 +138,9 @@
 			if( 0 < this.__insertLen ) this.__insertLen --;
 			this.__punch --;
 		}
-		else if( e.kMap( "Del" ) )
+		else if( e.kMap( "Del" ) || e.kMap( "S-Del" ) )
 		{
+			this.__realizeIndent();
 			var f = cur.aPos;
 
 			this.__contentUndo += feeder.content.substr( f, 1 );
@@ -175,9 +186,11 @@
 			feeder.pan();
 			cur.moveY( 1 );
 			cur.lineStart();
+			this.__autoIndent( e );
 		}
 		else
 		{
+			this.__realizeIndent();
 			feeder.pan();
 			cur.moveX( 1, false, true );
 		}
@@ -186,6 +199,88 @@
 
 		this.__rec( inputChar );
 	};
+
+	INSERT.prototype.__realizeIndent = function()
+	{
+		var ind = this.__phantomIndent;
+		if( !this.__phantomIndent ) return;
+		l = ind[ IN_END ];
+		for( var i = ind[ IN_START ]; i < l; i ++ )
+		{
+			this.__rec( this.__cursor.feeder.content[ i ] );
+		}
+		this.__contentUndo = ind[ IN_DEL ] + this.__contentUndo;
+		this.__phantomIndent = null;
+	};
+
+	INSERT.prototype.__autoIndent = function( e )
+	{
+		var carried = this.__cancelIndent();
+
+		var cur = this.__cursor;
+		var feeder = cur.feeder;
+
+		var f = cur.aPos;
+
+		// Get the last indent
+		var i = feeder.content.lastIndexOf( "\n", f - 2 );
+		var line = feeder.content.substring( i + 1, f - 1 ) || carried;
+
+		// Find Last indent
+		while( line == "" && 0 < i )
+		{
+			var j = i;
+			i = feeder.content.lastIndexOf( "\n", j - 2 );
+			line = feeder.content.substring( i + 1, j - 1 );
+		}
+
+		var inDel = "";
+		// Indent removed
+		for( var ir = f; "\t ".indexOf( feeder.content[ ir ] ) != -1; ir ++ )
+		{
+			inDel += feeder.content[ ir ];
+		}
+
+		// Copy the indentation
+		for( i = 0; "\t ".indexOf( line[i] ) != -1; i ++ );
+
+		if( line )
+		{
+			feeder.content =
+				feeder.content.substring( 0, f )
+				+ line.substr( 0, i )
+				+ feeder.content.substring( ir );
+
+			feeder.softReset();
+			feeder.pan();
+			cur.moveX( i, false, true );
+
+			var a = [];
+			a[ IN_START ] = f;
+			a[ IN_END ] = f + i;
+			a[ IN_DEL ] = inDel;
+
+			this.__phantomIndent = a;
+		}
+	};
+
+	INSERT.prototype.__cancelIndent = function()
+	{
+		var ind = this.__phantomIndent;
+		if( !ind ) return "";
+
+		var cur = this.__cursor;
+		var feeder = cur.feeder;
+
+		var canceled = feeder.content.substring( ind[ IN_START ], ind[ IN_END ] );
+		feeder.content =
+			feeder.content.substring( 0, ind[ IN_START ] )
+			+ feeder.content.substring( ind[ IN_END ] );
+
+		this.__phantomIndent = null;
+
+		return canceled;
+	}
 
 	INSERT.prototype.getMessage = function()
 	{
