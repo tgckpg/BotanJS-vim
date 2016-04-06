@@ -217,7 +217,7 @@
 
 		if( tabs )
 		{
-			tabStat = "-" + ( X + tabs.length * line.tabWidth );
+			tabStat = "-" + ( X + tabs.length * ( line.tabWidth - 1 ) );
 		}
 
 		return ( line.lineNum + 1 ) + "," + X + tabStat;
