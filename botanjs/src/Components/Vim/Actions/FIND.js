@@ -128,6 +128,8 @@
 			LoopGuard = r.index;
 		}
 
+		this.__msg = PATTERN.join( "" )
+
 		if( e.kMap( "N" ) )
 		{
 			Hit = PrevStack[ PrevStack.length - 2 ];
@@ -143,10 +145,6 @@
 			// Search Hit Bottom
 			Hit = FirstHit;
 			this.__msg = Mesg( "SEARCH_HIT_BOTTOM" );
-		}
-		else
-		{
-			this.__msg = PATTERN.join( "" )
 		}
 
 		if( Hit == undefined )

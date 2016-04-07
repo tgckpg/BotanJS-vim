@@ -23,7 +23,7 @@
 	var StatusBar = ns[ NS_INVOKE ]( "StatusBar" );
 
 	var VimControls = ns[ NS_INVOKE ]( "Controls" );
-	var InputEvent = ns[ NS_INVOKE ]( "InputEvent" );
+	var ActionEvent = ns[ NS_INVOKE ]( "ActionEvent" );
 	var mesg = ns[ NS_INVOKE ]( "Message" );
 
 	var Insts = [];
@@ -38,7 +38,7 @@
 			if ( e.keyCode ) code = e.keyCode;
 			else if ( e.which ) code = e.which;
 
-			handler( sender, new InputEvent( sender, e ) );
+			handler( sender, new ActionEvent( sender, e ) );
 		};
 	};
 

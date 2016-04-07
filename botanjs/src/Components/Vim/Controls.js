@@ -47,6 +47,8 @@
 	var COMMA = 188; var FULLSTOP = 190;
 	var SLASH = 191; var BACK_SLASH = 220;
 
+	var QUOTE = 222;
+
 	var ANY_KEY = -1;
 
 	var __maps = {};
@@ -177,9 +179,8 @@
 			{
 				if( compReg.i == keys.length )
 				{
-					compReg.handler( e );
 					this.__compositeReg = null;
-					this.__cMovement = false;
+					compReg.handler( e );
 				}
 
 				return true;
@@ -188,7 +189,6 @@
 
 		if( this.__compositeReg ) beep();
 		this.__compositeReg = null;
-		this.__cMovement = false;
 		return false;
 	};
 
@@ -219,13 +219,13 @@
 			case SHIFT + O: // new line before insert
 				ccur.lineStart();
 				ccur.openAction( "INSERT" );
-				ccur.action.handler( new InputEvent( e.sender, "Enter" ) );
+				ccur.action.handler( new ActionEvent( e.sender, "Enter" ) );
 				ccur.moveY( -1 );
 				break;
 			case O: // new line insert
 				ccur.lineEnd( true );
 				ccur.openAction( "INSERT" );
-				ccur.action.handler( new InputEvent( e.sender, "Enter" ) );
+				ccur.action.handler( new ActionEvent( e.sender, "Enter" ) );
 				break;
 
 			case U: // Undo
@@ -320,6 +320,60 @@
 		return false;
 	};
 
+	Controls.prototype.__modCommand = function( e )
+	{
+		var catchCommand = false;
+		if( this.__mod )
+		{
+			e.preventDefault();
+			this.__composite( e );
+			return catchCommand;
+		}
+
+		var _self = this;
+		var mod = true;
+
+		var cur = this.__cursor;
+		switch( e.keyCode )
+		{
+			case SHIFT + QUOTE:
+				this.__composite( e, function( e2 ) {
+					e2.target.registers.select( e2.key );
+					_self.__mod = false;
+				}, ANY_KEY );
+				break;
+			case _0: case _1: case _2: case _3: case _4:
+			case _5: case _6: case _7: case _8: case _9:
+
+				var Count = e.key;
+				var recurNum = function( e2 ) {
+					switch( e2.keyCode )
+					{
+						case _0: case _1: case _2:
+						case _3: case _4: case _5:
+						case _6: case _7: case _8: case _9:
+							Count += e2.key;
+							_self.__composite( e2, recurNum, ANY_KEY );
+							return;
+					}
+
+					debug.Info( "Count is: " + Count );
+					catchCommand = true;
+					_self.__mod = false;
+				};
+
+				this.__composite( e, recurNum, ANY_KEY );
+				break;
+			default:
+				mod = false;
+		}
+
+		this.__mod = mod;
+		if( mod ) e.preventDefault();
+
+		return mod;
+	};
+
 	Controls.prototype.__cursorCommand = function( e )
 	{
 		var kCode = e.keyCode;
@@ -329,6 +383,7 @@
 			if( !e.ModKeys )
 			{
 				this.__composite( e );
+				this.__cMovement = false;
 				return true;
 			}
 		}
@@ -520,7 +575,7 @@
 
 	/**
 	 * sender @param  {Components.Vim.VimArea}
-	 * e @param {Components.Vim.Controls.InputEvent}
+	 * e @param {Components.Vim.Controls.ActionEvent}
 	 * */
 	Controls.prototype.handler = function( sender, e )
 	{
@@ -567,6 +622,8 @@
 			if( e.canceled ) return;
 		}
 
+		if( this.__modCommand( e ) ) return;
+
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
 
@@ -607,7 +664,7 @@
 		if( this.__actionCommand( e ) ) return;
 	};
 
-	var InputEvent = function( sender, e )
+	var ActionEvent = function( sender, e )
 	{
 		this.__target = sender;
 		this.__canceled = false;
@@ -641,19 +698,20 @@
 			this.__key = e.key;
 		}
 
+		this.__count = 1;
 		this.__range = null;
 	};
 
-	InputEvent.prototype.cancel = function() { this.__canceled = true; };
+	ActionEvent.prototype.cancel = function() { this.__canceled = true; };
 
-	__readOnly( InputEvent.prototype, "target", function() { return this.__target; } );
-	__readOnly( InputEvent.prototype, "key", function() { return this.__key; } );
-	__readOnly( InputEvent.prototype, "keyCode", function() { return this.__kCode; } );
-	__readOnly( InputEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
-	__readOnly( InputEvent.prototype, "Escape", function() { return this.__escape; } );
-	__readOnly( InputEvent.prototype, "canceled", function() { return this.__canceled; } );
+	__readOnly( ActionEvent.prototype, "target", function() { return this.__target; } );
+	__readOnly( ActionEvent.prototype, "key", function() { return this.__key; } );
+	__readOnly( ActionEvent.prototype, "keyCode", function() { return this.__kCode; } );
+	__readOnly( ActionEvent.prototype, "ModKeys", function() { return this.__modKeys; } );
+	__readOnly( ActionEvent.prototype, "Escape", function() { return this.__escape; } );
+	__readOnly( ActionEvent.prototype, "canceled", function() { return this.__canceled; } );
 
-	__readOnly( InputEvent.prototype, "range", function() {
+	__readOnly( ActionEvent.prototype, "range", function() {
 
 		/** @type {Components.Vim.Syntax.TokenMatch} */
 		var r = this.__range;
@@ -666,16 +724,20 @@
 		return r;
 	} );
 
-	InputEvent.prototype.kMap = function( map )
+	__readOnly( ActionEvent.prototype, "count", function() {
+		return this.__count;
+	} );
+
+	ActionEvent.prototype.kMap = function( map )
 	{
 		return this.__kCode == Map( map );
 	};
 
-	InputEvent.prototype.preventDefault = function()
+	ActionEvent.prototype.preventDefault = function()
 	{
 		if( this.__e ) this.__e.preventDefault();
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Controls", Controls );
-	ns[ NS_EXPORT ]( EX_CLASS, "InputEvent", InputEvent );
+	ns[ NS_EXPORT ]( EX_CLASS, "ActionEvent", ActionEvent );
 })();

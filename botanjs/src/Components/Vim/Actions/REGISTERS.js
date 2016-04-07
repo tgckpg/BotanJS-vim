@@ -37,7 +37,7 @@
 		var msg = ":register";
 		msg += "\n" + Mesg( "REGISTERS" );
 
-		var regs = "\"0123456789-.:%/=";
+		var regs = "\"0123456789abcdefghijklmnopqrstuvwxyz-.:%/=";
 		for( var i = 0, j = regs[ i ]; j != undefined; i ++, j = regs[ i ] )
 		{
 			var r = reg.get( j );

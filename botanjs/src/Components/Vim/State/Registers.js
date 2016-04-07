@@ -15,6 +15,9 @@
 */
 	var ns = __namespace( "Components.Vim.State" );
 
+	/** @type {System.Debug} */
+	var debug = __import( "System.Debug" );
+
 	var Register = function( str, n )
 	{
 		this.__str = str + "";
@@ -43,7 +46,8 @@
 	{
 		var reg = new Register( str, newLine );
 		this.__unnamed( reg );
-		this.__registers[ 0 ] = reg;
+		this.__registers[ this.__selRegister || 0 ] = reg;
+		this.__selRegister = false;
 	};
 
 	Registers.prototype.change = function( str, newLine )
@@ -60,14 +64,22 @@
 		}
 
 		r[ 1 ] = reg;
+		this.__selRegister = false;
 	};
 
 	Registers.prototype.get = function( r )
 	{
 		// 0 is one of the registers
-		if( !r && r !== 0  ) r = "\"";
+		if( !r && r !== 0  ) r = this.__selRegister || "\"";
 
+		this.__selRegister = false;
 		return this.__registers[ r ];
+	};
+
+	Registers.prototype.select = function( r )
+	{
+		debug.Info( "Selecting Register: " + r );
+		this.__selRegister = r;
 	};
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Registers", Registers );
