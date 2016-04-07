@@ -322,12 +322,11 @@
 
 	Controls.prototype.__modCommand = function( e )
 	{
-		var catchCommand = false;
 		if( this.__mod )
 		{
 			e.preventDefault();
 			this.__composite( e );
-			return catchCommand;
+			return;
 		}
 
 		var _self = this;
@@ -339,6 +338,8 @@
 			case SHIFT + QUOTE:
 				this.__composite( e, function( e2 ) {
 					e2.target.registers.select( e2.key );
+					e2.cancel();
+
 					_self.__mod = false;
 				}, ANY_KEY );
 				break;
@@ -346,19 +347,21 @@
 			case _5: case _6: case _7: case _8: case _9:
 
 				var Count = e.key;
-				var recurNum = function( e2 ) {
-					switch( e2.keyCode )
+				var recurNum = function( e )
+				{
+					switch( e.keyCode )
 					{
 						case _0: case _1: case _2:
 						case _3: case _4: case _5:
 						case _6: case _7: case _8: case _9:
-							Count += e2.key;
-							_self.__composite( e2, recurNum, ANY_KEY );
+							Count += e.key;
+							_self.__composite( e, recurNum, ANY_KEY );
+							e.cancel();
 							return;
 					}
 
+					e.__count = Number( Count );
 					debug.Info( "Count is: " + Count );
-					catchCommand = true;
 					_self.__mod = false;
 				};
 
@@ -369,9 +372,10 @@
 		}
 
 		this.__mod = mod;
-		if( mod ) e.preventDefault();
-
-		return mod;
+		if( mod )
+		{
+			e.cancel();
+		}
 	};
 
 	Controls.prototype.__cursorCommand = function( e )
@@ -622,7 +626,8 @@
 			if( e.canceled ) return;
 		}
 
-		if( this.__modCommand( e ) ) return;
+		this.__modCommand( e );
+		if( e.canceled ) return;
 
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
@@ -702,8 +707,6 @@
 		this.__range = null;
 	};
 
-	ActionEvent.prototype.cancel = function() { this.__canceled = true; };
-
 	__readOnly( ActionEvent.prototype, "target", function() { return this.__target; } );
 	__readOnly( ActionEvent.prototype, "key", function() { return this.__key; } );
 	__readOnly( ActionEvent.prototype, "keyCode", function() { return this.__kCode; } );
@@ -731,6 +734,12 @@
 	ActionEvent.prototype.kMap = function( map )
 	{
 		return this.__kCode == Map( map );
+	};
+
+	ActionEvent.prototype.cancel = function()
+	{
+		this.preventDefault();
+		this.__canceled = true;
 	};
 
 	ActionEvent.prototype.preventDefault = function()

@@ -29,19 +29,28 @@
 	{
 		e.preventDefault();
 
-		// TODO: Get the input for determinating registers
-		var inputStack = false;
-
-		var cput = this.__cursor.Vim.registers.get( inputStack );
+		var cput = this.__cursor.Vim.registers.get();
 		if( !cput ) return true;
-
-		var clen = cput.length;
-		var nLines = occurence( cput, "\n" );
 
 		var cur = this.__cursor;
 		var feeder = cur.feeder;
 
 		var newLine = cput.newLine;
+
+		if( 1 < e.count )
+		{
+			var oput = cput;
+			for( var i = 1; i < e.count; i ++ )
+			{
+				oput += cput;
+			}
+
+			cput = oput;
+			oput = null;
+		}
+
+		var nLines = occurence( cput, "\n" );
+		var clen = cput.length;
 
 		// Compensation
 		var c = e.kMap( "P" ) ? 0 : -1;
