@@ -62,12 +62,14 @@
 
 		var start = this.__slineNum;
 		var nline = this.__lines;
+		var indentMult = 1;
 
 		if( 1 < e.count )
 		{
 			nline += e.count;
 		}
 
+		// default: >>, <<, >l, <h
 		var end = start;
 
 		var shiftCount = 1;
@@ -81,29 +83,85 @@
 
 			if( this.__startX != currAp )
 			{
-				if( e.kMap( "h" ) || e.kMap( "l" ) ){}
-				else if( e.kMap( "j" ) )
+				if( currAp < sp )
 				{
-					end = start + nline;
+					sp = sp + currAp;
+					currAp = sp - currAp;
+					sp = sp - currAp;
 				}
-				else if( e.kMap( "k" ) )
+
+				start = end = 0;
+				for( var i = 0; i < currAp; i ++ )
 				{
-					start -= nline;
-				}
-				else // TODO: Dectect movement line count
-				{
+					if( feeder.content[ i ] == "\n" )
+					{
+						end ++;
+						if( i < sp )
+						{
+							start ++;
+						}
+					}
 				}
 			}
 			else
 			{
-				if( !( ( 0 < dir && ( e.kMap( ">" ) || e.kMap( "l" ) ) )
-					|| ( dir < 0 && ( e.kMap( "<" ) || e.kMap( "h" ) ) )
-				) )
+				if( e.range )
+				{
+					sp = e.range.close;
+
+					start = 1; end = -1;
+					for( var i = 0; i < sp; i ++ )
+					{
+						if( feeder.content[ i ] == "\n" )
+						{
+							end ++;
+							if( i < e.range.open )
+							{
+								start ++;
+							}
+						}
+					}
+
+					if( end == -1 )
+					{
+						start = end = 0;
+					}
+
+					if( end < start )
+					{
+						end = -- start;
+					}
+
+					indentMult = e.count;
+				}
+				else if( 0 < dir && ( e.kMap( ">" ) || e.kMap( "l" ) ) );
+				else if( dir < 0 && ( e.kMap( "<" ) || e.kMap( "h" ) ) );
+				else
 				{
 					beep();
 					return true;
 				}
 			}
+		}
+		// VISUAL Mode
+		else
+		{
+			start = 0;
+			for( var i = 0; i < sp; i ++ )
+			{
+				if( feeder.content[ i ] == "\n" ) start ++;
+			}
+
+			end = this.__slineNum;
+
+			indentMult = e.count;
+		}
+
+		if( end < start )
+		{
+			start = start + end;
+			end = start - end;
+			start = start - end;
 		}
 
 		// last "\n" padding
@@ -124,7 +182,7 @@
 				var spOccr = 0;
 
 				// Guess indent
-				var tabStat = {};
+				var tabStat = [];
 
 				for( var i = 0; i < l; i ++ )
 				{
@@ -146,6 +204,7 @@
 				var indentCLen = 0;
 				for( var i in tabStat )
 				{
+					i = Number( i );
 					var p = tabStat[ i ];
 					if( upperDiff < p )
 					{
@@ -179,12 +238,14 @@
 		var nLen = 0;
 
 		var started = false;
-		var indentTimes = 1;
 
 		var recStart = 0;
 
 		feeder.content = "";
 		nline = 0;
+
+		var indented = "";
+		for( var i = 0; i < indentMult; i ++ ) indented += indentChar;
 
 		for( var i = 0, j = 0; 0 <= i; i = c.indexOf( "\n", i ), j ++ )
 		{
@@ -216,24 +277,24 @@
 				var indentedLine;
 				if( 0 < dir )
 				{
-					indentedLine = indentChar + line;
+					indentedLine = indented + line;
 				}
 				else
 				{
-					for( var si = 0, sj = 1; si < indentTimes; si ++ )
+					for( var si = 0, sj = 0; si < indentMult; si ++ )
 					{
-						var startC = line[ si ];
+						var startC = line[ sj ];
 						if( startC == " " )
 						{
-							for( ; sj < tabwidth; sj ++ )
+							for( var swidth = tabwidth + ( sj ++ ); sj < swidth; sj ++ )
 							{
-								if( !~"\t ".indexOf( line[ si + sj ] ) ) break;
+								if( !~"\t ".indexOf( line[ sj ] ) ) break;
 							}
 						}
 						else if( startC != "\t" ) break;
 					}
 
-					indentedLine = line.substring( si + sj - 1 );
+					indentedLine = line.substring( sj );
 				}
 
 				feeder.content += indentedLine;
@@ -267,7 +328,14 @@
 
 		cur.rec.record( stack );
 
-		this.__msg = Mesg( "LINES_SHIFTED", nline, dir < 0 ? "<" : ">", 1 );
+		if( nline )
+		{
+			this.__msg = Mesg( "LINES_SHIFTED", nline, dir < 0 ? "<" : ">", indentMult );
+		}
+		else
+		{
+			this.__msg = Mesg( "NO_SHIFT", dir < 0 ? "<" : ">" );
+		}
 
 		return Triggered;
 	};

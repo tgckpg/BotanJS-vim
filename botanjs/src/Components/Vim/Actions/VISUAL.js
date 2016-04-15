@@ -10,6 +10,8 @@
 	var YANK = ns[ NS_INVOKE ]( "YANK" );
 	/** @type {Components.Vim.IAction} */
 	var DELETE = ns[ NS_INVOKE ]( "DELETE" );
+	/** @type {Components.Vim.IAction} */
+	var SHIFT_LINES = ns[ NS_INVOKE ]( "SHIFT_LINES" );
 
 	var MODE_NULL = -1;
 	var MODE_VISUAL = 0;
@@ -128,6 +130,10 @@
 				this.__mode = MODE_LINE;
 				this.__msg = Mesg( "VISLINE" );
 			}
+		}
+		else if( e.kMap( "<" ) || e.kMap( ">" ) )
+		{
+			Action = new SHIFT_LINES( cur, e );
 		}
 		else if( e.kMap( "v" ) )
 		{

@@ -300,8 +300,9 @@
 		var ccur = this.__ccur;
 
 		var x = ccur.X;
+		var y = ccur.Y;
 		ccur.moveX( a, b, c || ccur.pSpace );
-		if( ccur.X == x )
+		if( ccur.X == x && ccur.Y == y )
 		{
 			beep();
 			return false;
@@ -559,15 +560,32 @@
 				this.__composite( e, curlyBracket, SHIFT + S_BRACKET_R );
 				break;
 
-			case G: // Go to top
+			case G:
+
 				this.__cMovement = true;
-				this.__composite( e, function(){
+
+				// Go to top
+				this.__composite( e, function() {
 					ccur.moveY( -Number.MAX_VALUE );
 					ccur.moveX( -Number.MAX_VALUE, true );
 				}, G );
-				this.__composite( e, function(){
+
+				// Print Hex
+				this.__composite( e, function() {
 					ccur.openRunAction( "PRINT_HEX", e );
 				}, _8 );
+
+				// to lowercase
+				this.__composite( e, function( e2 ) {
+					if( ccur.action ) { beep(); return; }
+					// TODO
+				}, U );
+
+				// to uppercase
+				this.__composite( e, function( e2 ) {
+					if( ccur.action ) { beep(); return; }
+					// TODO
+				}, SHIFT + U );
 				break;
 
 			case SHIFT + N: // Next Search

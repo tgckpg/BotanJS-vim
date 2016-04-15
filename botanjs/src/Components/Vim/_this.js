@@ -26,6 +26,8 @@ VIMRE_VERSION = "1.0.0b";
 		, "LINES_YANKED": "%1 line(s) yanked"
 		, "LINES_SHIFTED": "%1 line(s) %2ed %3 time(s)"
 
+		, "NO_SHIFT": "No line to %1"
+
 		, "SEARCH_HIT_BOTTOM": "search hit BOTTOM, continuing at TOP"
 		, "SEARCH_HIT_TOP": "search hit TOP, continuing at BOTTOM"
 		, "REPLACE": "%1 substitution(s) on %2 line(s)"
