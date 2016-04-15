@@ -5,6 +5,8 @@
 	var debug                                 = __import( "System.Debug" );
 	var beep = __import( "Components.Vim.Beep" );
 
+	/** @type {Components.Vim.State.Stator} */
+	var Stator                                 = __import( "Components.Vim.State.Stator" );
 	/** @type {Components.Vim.State.Stack} */
 	var Stack                                  = __import( "Components.Vim.State.Stack" );
 
@@ -174,9 +176,12 @@
 
 		debug.Info( "Start: " + start, "End: " + end );
 		var rBlock = "";
+		var nLen = 0;
 
 		var started = false;
 		var indentTimes = 1;
+
+		var recStart = 0;
 
 		feeder.content = "";
 		nline = 0;
@@ -190,19 +195,28 @@
 			{
 				started = true;
 				feeder.content = c.substring( 0, i - 1 );
+				recStart = feeder.content.length;
 			}
 
 			if( end < j ) break;
 
 			var line = c.substring( 1 < i ? i : i - 1, c.indexOf( "\n", i ) );
 
-			if( 1 < i ) feeder.content += "\n";
+			if( 1 < i )
+			{
+				feeder.content += "\n";
+				rBlock += "\n";
+				nLen ++;
+			}
+
+			rBlock += line;
 
 			if( line !== "" )
 			{
+				var indentedLine;
 				if( 0 < dir )
 				{
-					feeder.content += indentChar + line;
+					indentedLine = indentChar + line;
 				}
 				else
 				{
@@ -219,14 +233,39 @@
 						else if( startC != "\t" ) break;
 					}
 
-					feeder.content += line.substring( si + sj - 1 );
+					indentedLine = line.substring( si + sj - 1 );
 				}
+
+				feeder.content += indentedLine;
+
+				nLen += indentedLine.length;
 				nline ++;
 			}
 		}
  
+		var nPos = feeder.content.length;
 		feeder.content += "\n" + c.substring( i ) + "\n";
 		feeder.pan();
+
+		cur.moveTo( nPos );
+
+		var stator = new Stator( cur, recStart );
+		var stack = new Stack();
+
+		recStart ++;
+		for( ; ~"\t ".indexOf( feeder.content[ recStart ] ); recStart ++ );
+
+		var f = stator.save( nLen, rBlock );
+		stack.store( function() {
+			f();
+			// Offset correction after REDO / UNDO
+			cur.moveTo( recStart );
+			cur.lineStart();
+		} );
+
+		cur.moveTo( recStart );
+
+		cur.rec.record( stack );
 
 		this.__msg = Mesg( "LINES_SHIFTED", nline, dir < 0 ? "<" : ">", 1 );
 
