@@ -8,12 +8,12 @@ Visit the demo over [here](https://tgckpg.github.io/BotanJS-vim)
 Common commands are now supported. I am now going to list the commands that yet to be made.
 ```
 Commands that are going to implement soon:
-auto indent, <>, [action]i[quote], [count]
+auto indent ( new line from bracket ), [action]i[quote]
 :'<,'>
 
 Commands that are planning to implement in near future:
 macro
-code auto format
+code auto format "="
 :set nowrap
 
 Commands that are planning to implement in far future:
@@ -26,7 +26,7 @@ plugins - I am NOT going to make this
 ```
 
 ### How it works
-By *screen buffer*, it means that the textarea is treated as a screen buffer. You are not directly interacting with the textarea. Instead you type into the script, then the result is *rendered* through the textarea.
+By *screen buffer*, it means that the textarea is treated as a screen. You are not directly interacting with the textarea. Instead you type into the script, then the result is *rendered* through the textarea.
 
 ### Why use screen buffer?
 By treating the textarea as a *screen*. I could archive almost everything except for coloring. And it is easier to precisely track the cursor this way.
@@ -49,6 +49,3 @@ I tried porting it into the browser tho. But I am too stupid to do that. But sti
 
 ### How can I contribute?
 First, you need to understand the framework behind it. Then file a merge request. Sounds easy right?... prepare to DIEEE!
-
-### You made this? I made this.
-Licensed under GNU Pubic License
