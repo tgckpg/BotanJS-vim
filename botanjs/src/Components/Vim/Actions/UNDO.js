@@ -24,8 +24,10 @@
 		var stack = this.__cursor.rec.undo();
 		if( stack )
 		{
+			this.__cursor.suppressEvent();
 			stack.play();
-			this.__message = "<<TODO>>; before #" + stack.id + "  " + stack.time;
+			this.__cursor.unsuppressEvent();
+			this.__message = Mesg( "NCHANGES", "<TODO>", stack.id, stack.time );
 		}
 		else
 		{

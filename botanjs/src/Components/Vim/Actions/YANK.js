@@ -50,22 +50,18 @@
 			var currAp = cur.aPos;
 			if( this.__startX != currAp )
 			{
-				// Remove to start
 				if( e.kMap( "^" ) )
 				{
 					sp --;
 				}
-				// Remove char in cursor
 				else if( e.kMap( "l" ) )
 				{
 					cur.moveX( -1 );
 				}
-				// Remove char before cursor
 				else if( e.kMap( "h" ) )
 				{
 					sp = currAp;
 				}
-				// Remove the current and the following line
 				else if( e.kMap( "j" ) )
 				{
 					newLine = true;
@@ -75,7 +71,6 @@
 					cur.lineStart();
 					this.__startX = cur.aPos;
 				}
-				// Remove the current and the preceding line
 				else if( e.kMap( "k" ) )
 				{
 					newLine = true;
@@ -94,7 +89,6 @@
 					cur.moveTo( this.__startX );
 				}
 			}
-			// Remove the current line
 			else
 			{
 				if( e.kMap( "y" ) )
@@ -111,8 +105,6 @@
 				}
 				else if( e.kMap( "^" ) )
 				{
-					// Do nothing as nothing can be removed
-					// since there is no successful movement
 					return true;
 				}
 				// this is the same as kMap( "h" ) above

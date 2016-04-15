@@ -204,6 +204,9 @@
 	{
 		var ind = this.__phantomIndent;
 		if( !this.__phantomIndent ) return;
+
+		debug.Info( "Realize Indentation: " + ind );
+
 		l = ind[ IN_END ];
 		for( var i = ind[ IN_START ]; i < l; i ++ )
 		{
@@ -261,6 +264,7 @@
 			a[ IN_DEL ] = inDel;
 
 			this.__phantomIndent = a;
+			debug.Info( "Phantom indent: " + a );
 		}
 	};
 
@@ -268,6 +272,8 @@
 	{
 		var ind = this.__phantomIndent;
 		if( !ind ) return "";
+
+		debug.Info( "Erase phantom indent: " + ind );
 
 		var cur = this.__cursor;
 		var feeder = cur.feeder;

@@ -205,7 +205,7 @@
 			case A: // Append
 				ccur.moveX( 1, true, true );
 			case I: // Insert
-				ccur.openAction( "INSERT" );
+				ccur.openAction( "INSERT", e );
 				break;
 
 			case S: // Delete Char and start insert
@@ -213,18 +213,18 @@
 				{
 					ccur.openRunAction( "DELETE", e, ccur.aPos );
 				}
-				ccur.openAction( "INSERT" );
+				ccur.openAction( "INSERT", e );
 				break;
 
 			case SHIFT + O: // new line before insert
 				ccur.lineStart();
-				ccur.openAction( "INSERT" );
+				ccur.openAction( "INSERT", e );
 				ccur.action.handler( new ActionEvent( e.sender, "Enter" ) );
 				ccur.moveY( -1 );
 				break;
 			case O: // new line insert
 				ccur.lineEnd( true );
-				ccur.openAction( "INSERT" );
+				ccur.openAction( "INSERT", e );
 				ccur.action.handler( new ActionEvent( e.sender, "Enter" ) );
 				break;
 
@@ -236,10 +236,10 @@
 				break;
 
 			case D: // Del with motion
-				ccur.openAction( "DELETE" );
+				ccur.openAction( "DELETE", e );
 				break;
 			case Y: // Yank with motion
-				ccur.openAction( "YANK" );
+				ccur.openAction( "YANK", e );
 				break;
 
 			case P: // Put
@@ -272,13 +272,18 @@
 
 			case V: // Visual
 			case SHIFT + V: // Visual line
-				ccur.openAction( "VISUAL" );
+				ccur.openAction( "VISUAL", e );
 				ccur.action.handler( e );
 				break;
 
 			case SHIFT + SEMI_COLON: // ":" Command line
 				this.__divedCCmd = new ExCommand( ccur, ":" );
 				this.__divedCCmd.handler( e );
+				break;
+
+			case SHIFT + COMMA: // <
+			case SHIFT + FULLSTOP: // >
+				ccur.openAction( "SHIFT_LINES", e );
 				break;
 
 			case F1: // F1, help
@@ -349,15 +354,21 @@
 				var Count = e.key;
 				var recurNum = function( e )
 				{
+					var intercept = e.ModKeys;
 					switch( e.keyCode )
 					{
 						case _0: case _1: case _2:
 						case _3: case _4: case _5:
 						case _6: case _7: case _8: case _9:
 							Count += e.key;
-							_self.__composite( e, recurNum, ANY_KEY );
-							e.cancel();
-							return;
+							intercept = true;
+					}
+
+					if( intercept )
+					{
+						_self.__composite( e, recurNum, ANY_KEY );
+						e.cancel();
+						return;
 					}
 
 					e.__count = Number( Count );

@@ -92,7 +92,7 @@
 		this.__cursor.unsuppressEvent();
 	};
 
-	REPLACE.prototype.handler = function( e, p, range )
+	REPLACE.prototype.handler = function( e, p )
 	{
 		e.preventDefault();
 
@@ -143,12 +143,15 @@
 		var content = feeder.content.slice( 0, -1 )
 			.replace( search, this.__replCallback ) + "\n";
 
-		if( !this.__replacedGroups.length )
+		var numSubs = this.__replacedGroups.length;
+		if( !numSubs )
 		{
 			this.__msg = VimError( "E486", spattern.join( "" ) );
 		}
 
 		feeder.content = content;
+
+		this.__msg = Mesg( "REPLACE", numSubs, "<TODO>" );
 
 		// Record this step for UNDO / REDO
 		this.__rec();

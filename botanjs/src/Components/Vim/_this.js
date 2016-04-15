@@ -19,10 +19,12 @@ VIMRE_VERSION = "1.0.0b";
 
 		, "UNDO_LIMIT": "Already at oldest change"
 		, "REDO_LIMIT": "Already at newest change"
+		, "NCHANGES": "%1 change(s); before #%2  %3"
 
 		, "LINES_FEWER": "%1 fewer line(s)"
 		, "LINES_MORE": "%1 more line(s)"
 		, "LINES_YANKED": "%1 line(s) yanked"
+		, "LINES_SHIFTED": "%1 line(s) %2ed %3 time(s)"
 
 		, "SEARCH_HIT_BOTTOM": "search hit BOTTOM, continuing at TOP"
 		, "SEARCH_HIT_TOP": "search hit TOP, continuing at BOTTOM"

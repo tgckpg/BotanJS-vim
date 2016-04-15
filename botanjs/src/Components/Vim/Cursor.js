@@ -376,13 +376,13 @@
 
 	// Open an action handler
 	// i.e. YANK, VISUAL, INSERT, UNDO, etc.
-	Cursor.prototype.openAction = function( name )
+	Cursor.prototype.openAction = function( name, e )
 	{
 		if( this.action ) this.action.dispose();
 
 		debug.Info( "openAction: " + name );
 
-		this.action = new (Actions[ name ])( this );
+		this.action = new (Actions[ name ])( this, e );
 		this.__pulseMsg = null;
 
 		this.__visualUpdate();
