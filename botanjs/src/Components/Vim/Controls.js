@@ -415,6 +415,7 @@
 			case H: this.__cMoveX( -1 ); break; // Left
 			case L: this.__cMoveX( 1 ); break; // Right
 			case K: this.__cMoveY( -1 ); break; // Up
+			case ENTER:
 			case J: this.__cMoveY( 1 ); break; // Down
 
 			case CTRL + F: // Page Down
@@ -650,6 +651,7 @@
 				this.__divedCCmd.dispose();
 				this.__cMovement = false;
 				this.__divedCCmd = null;
+				return;
 			}
 
 			if( e.canceled ) return;
