@@ -15,10 +15,6 @@
 
 	var occurence = __import( "System.utils.Perf.CountSubstr" );
 
-	var REPL_BEFORE = 0;
-	var REPL_OFFSET = 1;
-	var REPL_LENGTH = 2;
-
 	/** @type {Components.Vim.IAction}
 	 *  Cursor @param {Components.Vim.Cursor}
 	 *  e @param {Components.Vim.ActionEvent}
@@ -261,7 +257,15 @@
 
 			if( end < j ) break;
 
-			var line = c.substring( 1 < i ? i : i - 1, c.indexOf( "\n", i ) );
+			var line = c.indexOf( "\n", i );
+			if( ~line )
+			{
+				line = c.substring( 1 < i ? i : i - 1, line );
+			}
+			else
+			{
+				line = c.substring( 1 < i ? i : i - 1 );
+			}
 
 			if( 1 < i )
 			{
@@ -291,7 +295,11 @@
 								if( !~"\t ".indexOf( line[ sj ] ) ) break;
 							}
 						}
-						else if( startC != "\t" ) break;
+						else if( startC == "\t" )
+						{
+							sj ++;
+						}
+						else break;
 					}
 
 					indentedLine = line.substring( sj );
@@ -305,7 +313,9 @@
 		}
  
 		var nPos = feeder.content.length;
-		feeder.content += "\n" + c.substring( i ) + "\n";
+		feeder.content += "\n";
+
+		if( ~i ) feeder.content += c.substring( i ) + "\n";
 		feeder.pan();
 
 		cur.moveTo( nPos );
