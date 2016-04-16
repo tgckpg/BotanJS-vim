@@ -407,7 +407,13 @@
 					_self.__mod = false;
 				}, ANY_KEY );
 				break;
-			case _0: case _1: case _2: case _3: case _4:
+			case _0: // No 0 for first count
+				if( !this.__compositeReg )
+				{
+					mod = false;
+					break;
+				}
+			case _1: case _2: case _3: case _4:
 			case _5: case _6: case _7: case _8: case _9:
 
 				var Count = e.key;
@@ -470,11 +476,12 @@
 		switch( kCode )
 		{
 			case BACKSPACE: this.__cMoveX( -1, true ); break; // Backspace, go back 1 char
-			case H: this.__cMoveX( -1 ); break; // Left
-			case L: this.__cMoveX( 1 ); break; // Right
-			case K: this.__cMoveY( -1 ); break; // Up
+			case H: this.__cMoveX( - e.count ); break; // Left
+			case L: this.__cMoveX( e.count ); break; // Right
+			case DASH: case GECKO_DASH:
+			case K: this.__cMoveY( - e.count ); break; // Up
 			case ENTER:
-			case J: this.__cMoveY( 1 ); break; // Down
+			case J: this.__cMoveY( e.count ); break; // Down
 
 			case CTRL + F: // Page Down
 				if( cfeeder.firstBuffer.nextLine.placeholder )

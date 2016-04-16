@@ -28,8 +28,8 @@
 
 		this.__slineNum = Cursor.getLine().lineNum;
 
-		this.__lines = e.count;
-		debug.Info( "Open shift: " + this.__lines + " line(s) below the cursor" );
+		this.__lines = e.count - 1;
+		debug.Info( "Open shift: " + this.__lines + " line(s) from the cursor" );
 
 		this.__direction = e.kMap( ">" ) ? 1 : -1;
 		debug.Info( "Direction is: " + ( this.__direction == 1 ? ">" : "<" ) );
@@ -62,7 +62,7 @@
 
 		if( 1 < e.count )
 		{
-			nline += e.count;
+			nline += ( e.count - 1 );
 		}
 
 		// default: >>, <<, >l, <h
@@ -79,6 +79,21 @@
 
 			if( this.__startX != currAp )
 			{
+				start = 0; end = 0;
+
+				if( nline )
+				{
+					if( currAp < sp )
+					{
+						start -= ( nline - 1 );
+					}
+					else
+					{
+						end += ( nline - 1 );
+					}
+					console.log( start, end );
+				}
+
 				if( currAp < sp )
 				{
 					sp = sp + currAp;
@@ -86,7 +101,6 @@
 					sp = sp - currAp;
 				}
 
-				start = end = 0;
 				for( var i = 0; i < currAp; i ++ )
 				{
 					if( feeder.content[ i ] == "\n" )
