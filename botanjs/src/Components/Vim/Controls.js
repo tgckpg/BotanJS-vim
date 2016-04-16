@@ -21,13 +21,16 @@
 	var TAB = 9;
 	var ENTER = 13;
 	var DELETE = 46;
+	var SPACE = 32;
 
 	var UP = 38; var DOWN = 40; var LEFT = 37; var RIGHT = 39;
 
 	var _0 = 48; var _1 = 49; var _2 = 50; var _3 = 51; var _4 = 52;
 	var _5 = 53; var _6 = 54; var _7 = 55; var _8 = 56; var _9 = 57;
 
-	var SEMI_COLON = 59;
+	var SEMI_COLON = 59; var GECKO_SEMI_COLON = 186;
+
+	var EQUAL = 61; var GECKO_EQUAL = 187;
 
 	var A = 65; var B = 66; var C = 67; var D = 68; var E = 69;
 	var F = 70; var G = 71; var H = 72; var I = 73; var J = 74;
@@ -44,6 +47,7 @@
 	var F6 = 117; var F7 = 118; var F8 = 119; var F9 = 120; var F10 = 121;
 	var F11 = 122; var F12 = 123;
 
+	var DASH = 173; var GECKO_DASH = 189;
 	var COMMA = 188; var FULLSTOP = 190;
 	var SLASH = 191; var BACK_SLASH = 220;
 
@@ -137,6 +141,59 @@
 		}
 
 		return __maps[ str ] = kCode;
+	};
+
+	// Polyfill for Chrome < 51
+	var RMap = function( kCode )
+	{
+		switch( kCode )
+		{
+			case SPACE: return " ";
+			case A: return "a"; case B: return "b"; case C: return "c"; case D: return "d";
+			case E: return "e"; case F: return "f"; case G: return "g"; case H: return "h";
+			case I: return "i"; case J: return "j"; case K: return "k"; case L: return "l";
+			case M: return "m"; case N: return "n"; case O: return "o"; case P: return "p";
+			case Q: return "q"; case R: return "r"; case S: return "s"; case T: return "t";
+			case U: return "u"; case V: return "v"; case W: return "w"; case X: return "x";
+			case Y: return "y"; case Z: return "z";
+			case _1: return "1"; case _2: return "2"; case _3: return "3";
+			case _4: return "4"; case _5: return "5"; case _6: return "6"; case _7: return "7";
+			case _8: return "8"; case _9: return "9"; case _0: return "0";
+
+			case S_BRACKET_L: return "["; case S_BRACKET_R: return "]";
+			case SEMI_COLON: case GECKO_SEMI_COLON: return ";";
+			case QUOTE: return "'"; case COMMA: return ",";
+			case FULLSTOP: return "."; case SLASH: return "/"; case BACK_SLASH: return "\\";
+			case DASH: case GECKO_DASH: return "-"; case EQUAL: case GECKO_EQUAL: return "=";
+
+			case SHIFT + _1: return "!"; case SHIFT + _2: return "@"; case SHIFT + _3: return "#";
+			case SHIFT + _4: return "$"; case SHIFT + _5: return "%"; case SHIFT + _6: return "^";
+			case SHIFT + _7: return "&"; case SHIFT + _8: return "*"; case SHIFT + _9: return "(";
+			case SHIFT + _0: return ")";
+
+			case SHIFT + S_BRACKET_L: return "{"; case SHIFT + S_BRACKET_R: return "}";
+			case SHIFT + SEMI_COLON: case SHIFT + GECKO_SEMI_COLON: return ":";
+			case SHIFT + QUOTE: return "\"";
+			case SHIFT + COMMA: return "<"; case SHIFT + FULLSTOP: return ">";
+			case SHIFT + SLASH: return "?"; case SHIFT + BACK_SLASH: return "|";
+			case SHIFT + DASH: case SHIFT + GECKO_DASH: return "_";
+			case SHIFT + EQUAL: case SHIFT + GECKO_EQUAL: return "+";
+
+			case SHIFT + A: return "A"; case SHIFT + B: return "B"; case SHIFT + C: return "C";
+			case SHIFT + D: return "D"; case SHIFT + E: return "E"; case SHIFT + F: return "F";
+			case SHIFT + G: return "G"; case SHIFT + H: return "H"; case SHIFT + I: return "I";
+			case SHIFT + J: return "J"; case SHIFT + K: return "K"; case SHIFT + L: return "L";
+			case SHIFT + M: return "M"; case SHIFT + N: return "N"; case SHIFT + O: return "O";
+			case SHIFT + P: return "P"; case SHIFT + Q: return "Q"; case SHIFT + R: return "R";
+			case SHIFT + S: return "S"; case SHIFT + T: return "T"; case SHIFT + U: return "U";
+			case SHIFT + V: return "V"; case SHIFT + W: return "W"; case SHIFT + X: return "X";
+			case SHIFT + Y: return "Y"; case SHIFT + Z: return "Z";
+			case ESC: return "Escape"; case BACKSPACE: return "Backspace"; case DELETE: return "Delete";
+			case SHIFT: return "Shift"; case ALT: return "Alt"; case CTRL: return "Control";
+			case ENTER: return "Enter"; case TAB: return "Tab";
+		}
+
+		return "?";
 	};
 
 	var Controls = function( vimArea )
@@ -277,6 +334,7 @@
 				break;
 
 			case SHIFT + SEMI_COLON: // ":" Command line
+			case SHIFT + GECKO_SEMI_COLON:
 				this.__divedCCmd = new ExCommand( ccur, ":" );
 				this.__divedCCmd.handler( e );
 				break;
@@ -657,11 +715,14 @@
 			if( e.canceled ) return;
 		}
 
-		this.__modCommand( e );
-		if( e.canceled ) return;
-
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
+
+		if( !ccur.action || ccur.action.allowMovement )
+		{
+			this.__modCommand( e );
+			if( e.canceled ) return;
+		}
 
 		var kCode = e.keyCode;
 
@@ -731,7 +792,7 @@
 				+ ( e.altKey ? ALT : 0 );
 
 			this.__modKeys = c == KEY_SHIFT || c == KEY_CTRL || c == KEY_ALT;
-			this.__key = e.key;
+			this.__key = e.key || RMap( this.__kCode );
 		}
 
 		this.__count = 1;
