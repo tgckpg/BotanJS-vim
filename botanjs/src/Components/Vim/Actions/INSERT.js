@@ -37,6 +37,7 @@
 		this.__stator = new Stator( Cursor );
 		this.__minReach = 0;
 		this.__insertLen = 0;
+		this.__chopIndent = false;
 
 		// Initialize this stack
 		this.__rec( "", true );
@@ -52,6 +53,7 @@
 
 	INSERT.prototype.dispose = function()
 	{
+		if( this.__chopIndent ) this.__realizeIndent();
 		if( this.__cancelIndent() )
 		{
 			this.__cursor.feeder.pan();
@@ -175,6 +177,8 @@
 
 		var f = cur.aPos;
 
+		var chopIndent = feeder.content[ f ] != "\n";
+
 		feeder.content =
 			feeder.content.substring( 0, f )
 			+ inputChar
@@ -187,6 +191,7 @@
 			cur.moveY( 1 );
 			cur.lineStart();
 			this.__autoIndent( e );
+			this.__chopIndent = chopIndent;
 		}
 		else
 		{
@@ -218,6 +223,7 @@
 
 	INSERT.prototype.__autoIndent = function( e )
 	{
+		var oInd = this.__phantomIndent;
 		var carried = this.__cancelIndent();
 
 		var cur = this.__cursor;
@@ -237,7 +243,7 @@
 			line = feeder.content.substring( i + 1, j - 1 );
 		}
 
-		var inDel = "";
+		var inDel = carried ? oInd[ IN_DEL ] : "";
 		// Indent removed
 		for( var ir = f; "\t ".indexOf( feeder.content[ ir ] ) != -1; ir ++ )
 		{
