@@ -2,7 +2,7 @@
 This is a functional vim using the *screen buffer* approach. What I am trying to do is to achieve that smooth-vim-feeling as close as possible to the original Vim in a general terminal.
 
 ## Demo
-Visit the demo over [here](https://tgckpg.github.io/BotanJS-vim)
+Visit the demo over [here](https://tgckpg.github.io/VimArea)
 
 ## This is going to be release soon
 Common commands are now supported. I am now going to list the commands that yet to be made.
