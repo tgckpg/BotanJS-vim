@@ -12,6 +12,8 @@
 	var DELETE = ns[ NS_INVOKE ]( "DELETE" );
 	/** @type {Components.Vim.IAction} */
 	var SHIFT_LINES = ns[ NS_INVOKE ]( "SHIFT_LINES" );
+	/** @type {Components.Vim.IAction} */
+	var PUT = ns[ NS_INVOKE ]( "PUT" );
 
 	var MODE_NULL = -1;
 	var MODE_VISUAL = 0;
@@ -121,6 +123,10 @@
 		{
 			Action = new DELETE( cur );
 		}
+		else if( e.kMap( "p" ) )
+		{
+			Action = new PUT( cur );
+		}
 		else if( e.kMap( "V" ) )
 		{
 			if( this.__mode == MODE_LINE ) return true;
@@ -180,7 +186,8 @@
 			// this swap the cursor direction from LTR to RTL
 			// i.e. treat all delete as "e<----s" flow
 			// to keep the cursor position as the top on UNDO / REDO
-			if( Action.constructor == DELETE && startLine.aPos < cur.aPos )
+			var IsContMod = ~[ DELETE, PUT ].indexOf( Action.constructor );
+			if( IsContMod && startLine.aPos < cur.aPos )
 			{
 				var o = cur.aPos;
 				cur.moveTo( startLine.aPos, true );
@@ -189,7 +196,7 @@
 
 			Action.handler( e, startLine.aPos, lineMode );
 
-			if( Action.constructor != DELETE )
+			if( !IsContMod )
 			{
 				cur.moveTo( startLine.aPos );
 			}

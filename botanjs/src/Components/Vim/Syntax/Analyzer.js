@@ -4,6 +4,8 @@
 	/** @type {System.Debug} */
 	var debug                                   = __import( "System.Debug" );
 
+	var beep = __import( "Components.Vim.Beep" );
+
 	/** @type {Components.Vim.Syntax.Word} */
 	var Word = ns[ NS_INVOKE ]( "Word" );
 
@@ -261,6 +263,73 @@
 
 			return tMatch;
 		}
+
+		return new TokenMatch();
+	};
+
+	Analyzer.prototype.quoteIn = function( Char )
+	{
+		var f = this.__feeder;
+		var cur = f.cursor;
+		var n = cur.getLine().lineNum;
+
+		var p = 0;
+		for( var i = 0; p != -1 && i < n; i ++ ) p = f.content.indexOf( "\n", p + 1 );
+
+		var upperLimit = f.content.indexOf( "\n", p + 1 );
+
+		if( 0 < n ) p ++;
+
+		var lowerLimit = p;
+
+		// Cursor is at the quote character
+		// Move cursor inside the matching quote
+		if( f.content[ cur.aPos ] == Char )
+		{
+			// Mark all quotes on current line
+			var quotePos = [];
+			var l = 0;
+
+			for( var i = lowerLimit; i < upperLimit; i ++ )
+			{
+				if( f.content[ i ] == Char )
+					quotePos[ l ++ ] = i;
+			}
+
+			var indexQuote = quotePos.indexOf( cur.aPos );
+			var indexEnd = ( indexQuote == ( l - 1 ) );
+
+			// Length is even: Quotes are matched
+			// OR
+			// Length is odd and cursor is not at the last quote
+			if( l % 2 == 0 || !indexEnd )
+			{
+				cur.moveX( indexQuote % 2 == 0 ? 1 : -1 );
+			}
+			// Cursor is at the last quote
+			else
+			{
+				// Beep because last quote of odd length is an unmatch quote
+				beep();
+				return new TokenMatch();
+			}
+
+		}
+
+		// Forward
+		var fX = f.content.indexOf( Char, cur.aPos + 1 );
+		// backward
+		var bX = f.content.lastIndexOf( Char, cur.aPos - 1 );
+
+		if( lowerLimit <= bX && fX < upperLimit )
+		{
+			var tMatch = new TokenMatch();
+			tMatch.__open = bX + 1;
+			tMatch.__close = fX - 1;
+			tMatch.__selected = Char;
+			return tMatch;
+		}
+		else beep();
 
 		return new TokenMatch();
 	};

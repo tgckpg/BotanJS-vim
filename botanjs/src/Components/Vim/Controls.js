@@ -616,14 +616,26 @@
 					var BracketMatch = analyzer.bracketIn( "[", ccur.aPos );
 					e2.__range = BracketMatch;
 				};
+				var singleQuote = function( e2 ) {
+					var BracketMatch = analyzer.quoteIn( "'", ccur.aPos );
+					e2.__range = BracketMatch;
+				};
+				var doubleQuote = function( e2 ) {
+					var BracketMatch = analyzer.quoteIn( "\"", ccur.aPos );
+					e2.__range = BracketMatch;
+				};
 
 				// Bracket boundaries
-				this.__composite( e, bracket , SHIFT + _0 );
+				this.__composite( e, bracket, SHIFT + _0 );
 				this.__composite( e, bracket, SHIFT + _9 );
 				this.__composite( e, squareBracket, S_BRACKET_L );
 				this.__composite( e, squareBracket, S_BRACKET_R );
 				this.__composite( e, curlyBracket, SHIFT + S_BRACKET_L );
 				this.__composite( e, curlyBracket, SHIFT + S_BRACKET_R );
+
+				// Quote boundaries
+				this.__composite( e, singleQuote, QUOTE );
+				this.__composite( e, doubleQuote, SHIFT + QUOTE );
 				break;
 
 			case G:
@@ -725,7 +737,7 @@
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
 
-		if( !ccur.action || ccur.action.allowMovement )
+		if( !this.__cMovement && ( !ccur.action || ccur.action.allowMovement ) )
 		{
 			this.__modCommand( e );
 			if( e.canceled ) return;

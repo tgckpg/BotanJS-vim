@@ -25,7 +25,7 @@
 		this.__cursor.unsuppressEvent();
 	};
 
-	PUT.prototype.handler = function( e )
+	PUT.prototype.handler = function( e, sp, newLine )
 	{
 		e.preventDefault();
 
@@ -63,20 +63,32 @@
 
 		var stator = new Stator( cur );
 		var aP = cur.aPos;
+		var contentUndo = "";
 
-		feeder.content = feeder.content.substring( 0, aP )
-			+ cput
-			+ feeder.content.substring( aP );
+		if( sp == undefined )
+		{
+			feeder.content = feeder.content.substring( 0, aP )
+				+ cput + feeder.content.substring( aP );
 
-		feeder.pan();
+			feeder.pan();
+			cur.moveTo( 0 < nLines ? aP : aP + clen, true );
+		}
+		else
+		{
+			sp ++;
+			contentUndo = feeder.content.substring( aP, sp );
+			feeder.content = feeder.content.substring( 0, aP )
+				+ cput + feeder.content.substring( sp );
 
-		cur.moveTo( 0 < nLines ? aP : aP + clen, true );
+			feeder.pan();
+			cur.moveTo( aP + clen, true );
+		}
 
 		var stack = new Stack();
 
 		if( newLine )
 		{
-			var f = stator.save( clen, "" );
+			var f = stator.save( clen, contentUndo );
 			stack.store( function()
 			{
 				f();
@@ -85,7 +97,7 @@
 		}
 		else
 		{
-			stack.store( stator.save( clen, "" ) );
+			stack.store( stator.save( clen, contentUndo ) );
 		}
 		cur.rec.record( stack );
 

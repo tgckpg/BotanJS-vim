@@ -6,6 +6,8 @@ Components.Vim.Syntax.Analyzer.bracketAt;
 /** @type Function */
 Components.Vim.Syntax.Analyzer.bracketIn;
 /** @type Function */
+Components.Vim.Syntax.Analyzer.quoteIn;
+/** @type Function */
 Components.Vim.Syntax.Analyzer.wordAt;
 /** @type Function */
 Components.Vim.Syntax.Analyzer.quoteAt;

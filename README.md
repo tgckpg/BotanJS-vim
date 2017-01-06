@@ -8,7 +8,7 @@ Visit the demo over [here](https://tgckpg.github.io/VimArea)
 Common commands are now supported. I am now going to list the commands that yet to be made.
 ```
 Commands that are going to implement soon:
-auto indent ( new line from bracket ), [action]i[quote]
+auto indent ( new line from bracket )
 :'<,'>
 
 Commands that are planning to implement in near future:

@@ -38,7 +38,7 @@
 
 		if( 0 < n ) p ++;
 
-		var lowerLimmit = p;
+		var lowerLimit = p;
 
 		var Char = et.key;
 		if( et.kMap( "Tab" ) )
@@ -64,7 +64,7 @@
 			tX = f.content.lastIndexOf( Char, cur.aPos - 1 );
 		}
 
-		if( lowerLimmit <= tX && tX < upperLimit )
+		if( lowerLimit <= tX && tX < upperLimit )
 		{
 			cur.moveTo( tX );
 		}
