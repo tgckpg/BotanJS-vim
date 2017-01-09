@@ -158,9 +158,7 @@
 			}
 		}
 
-		this.firstBuffer.Push(
-			this.content.substr( f + 1 )
-			, this.wrap, i );
+		this.firstBuffer.Push( this.content.substr( f + 1 ), this.wrap, i );
 
 		this.panX = X;
 		this.panY = Y;
@@ -213,11 +211,19 @@
 		var line = this.cursor.getLine();
 		var tabStat = "";
 
-		var tabs = line.content.match( /\t/g );
+		var tabs = 0;
+		var l = this.cursor.aPos;
+		var i = l - X;
+		do
+		{
+			if( this.content[ i + 1 ] == "\t" ) tabs ++;
+			i ++;
+		}
+		while( i < l )
 
 		if( tabs )
 		{
-			tabStat = "-" + ( X + tabs.length * ( line.tabWidth - 1 ) );
+			tabStat = "-" + ( X + tabs * ( line.tabWidth - 1 ) );
 		}
 
 		return ( line.lineNum + 1 ) + "," + X + tabStat;

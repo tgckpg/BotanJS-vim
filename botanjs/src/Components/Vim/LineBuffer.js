@@ -13,7 +13,9 @@
 		this.br = false;
 		this.placeholder = true;
 		this.lineNum = 0;
-		this.tabWidth = 8;
+		this.tabWidth = 4;
+		this.__tabc = "";
+		for( var i = 0; i < this.tabWidth; i ++ ) this.__tabc += " ";
 
 		if( nextLineBuffer )
 		{
@@ -105,13 +107,14 @@
 
 	LineBuffer.prototype.toString = function()
 	{
-		var c = this.cols - occurence( this.content, "\t" ) * ( this.tabWidth - 1 );
-		if( this.content.length < c )
+		var cont = this.content.replace( /\t/g, this.__tabc );
+
+		if( cont.length < this.cols )
 		{
-			return this.content + " ";
+			return cont + " ";
 		}
 
-		return this.content || " ";
+		return cont || " ";
 	};
 
 	__readOnly( LineBuffer.prototype, "nextLine", function()

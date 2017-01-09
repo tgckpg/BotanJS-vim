@@ -63,3 +63,5 @@ Components.Vim.Cursor.position;
 Components.Vim.Cursor.position.start;
 /** @type Number */
 Components.Vim.Cursor.position.end;
+/** @type String */
+Components.Vim.Cursor.rawLine;

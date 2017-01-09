@@ -9,6 +9,8 @@
 
 	var Actions = __import( "Components.Vim.Actions.*" );
 
+	var occurence = __import( "System.utils.Perf.CountSubstr" );
+
 	var LineOffset = function( buffs, l )
 	{
 		/** @type {Components.Vim.LineBuffer} */
@@ -69,6 +71,8 @@
 		this.cols = feeder.firstBuffer.cols;
 
 		// The preferred X position
+		// i.e. last line was at pos 23
+		// moving to next line will prefer pos at 23
 		this.pX = 0;
 
 		// The displaying X position
@@ -129,10 +133,11 @@
 		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 
 		jumpX += Math.ceil( jumpX / pline.cols ) - 1;
+		jumpX += occurence( content.substring( lineStart + 1, aPos ), "\t" ) * ( pline.tabWidth - 1 );
 
 		if( jumpY ) this.moveY( jumpY );
 
-		// This needed because first line does not contain first "\n" character
+		// This is needed because first line does not contain the first "\n" character
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
 
 		this.moveX( - Number.MAX_VALUE );
@@ -179,26 +184,14 @@
 		var hasPhantomSpace = true;
 
 		// Empty lines has length of 1
-		// If length larger than a, need to compensate the lineEnd
-		// for phantomSpace
+		// Need to compensate the lineEnd for phantomSpace
+		// if length is 1 < and != line.cols
 		if( 1 < cLen )
 		{
-			// Begin check if whether this line contains phantomSpace
-			var lineNum = line.lineNum - 1;
-			var str = feeder.content;
-			for( var i = str.indexOf( "\n" ), j = 0; 0 <= i; i = str.indexOf( "\n", i ), j ++ )
-			{
-				if( lineNum == j ) break;
-				i ++;
-			}
-
-			if( j == 0 && i == -1 ) i = 0;
-
-			var end = str.indexOf( "\n", i + 1 );
-			end = end == -1 ? str.length : end;
-
-			// Actual LineLength
-			var hasPhantomSpace = 0 < ( end - i - 1 ) % line.cols;
+			// Begin check if this line contains phantomSpace
+			// hasPhantomSpace = 0 < ( rawLine.displayLength ) % cols
+			var rline = this.rawLine;
+			hasPhantomSpace = 0 < ( rline.length + occurence( rline, "\t" ) * ( line.tabWidth - 1 ) ) % line.cols;
 
 			if( hasPhantomSpace )
 			{
@@ -421,14 +414,12 @@
 	Cursor.prototype.suppressEvent = function() { ++ this.__suppEvt; };
 	Cursor.prototype.unsuppressEvent = function() { -- this.__suppEvt; };
 
-	Cursor.prototype.getLine = function()
+	Cursor.prototype.getLine = function( raw )
 	{
 		var feeder = this.feeder;
 		var line = feeder.firstBuffer;
 		var eBuffer = feeder.lastBuffer.next;
-		for( var i = 0;
-			line != eBuffer;
-			line = line.next )
+		for( var i = 0; line != eBuffer; line = line.next )
 		{
 			if( line.br ) i ++;
 			if( this.Y == i ) return line;
@@ -437,26 +428,49 @@
 		return null;
 	};
 
+	__readOnly( Cursor.prototype, "rawLine", function()
+	{
+		var str = this.feeder.content;
+		var lineNum = this.getLine().lineNum - 1;
+		var i = str.indexOf( "\n" ), j = 0;
+
+		for( ; 0 <= i; i = str.indexOf( "\n", i ), j ++ )
+		{
+			if( lineNum == j ) break;
+			i ++;
+		}
+
+		if( j == 0 && i == -1 ) i = 0;
+
+		var end = str.indexOf( "\n", i + 1 );
+		return str.substring( i + 1, end );
+	} );
+
 	// The position offset relative to current line
 	__readOnly( Cursor.prototype, "aX", function()
 	{
 		var X = this.X;
 		var f = this.feeder;
 
-		var w = 1;
+		var w = 0;
 
 		// Calculate wordwrap offset
 		if( f.wrap )
 		{
 			var lines = this.getLine().visualLines;
 
+			// Since w represent valid absX position
+			// w couldn't handle INSERT at the line end with phantomSpace
+			// because phantomSpace is not a valid character
+			// So we calculate along with the phantomSpace here
+			var phantomSpace = X;
 			for( var i in lines )
 			{
 				/** @type {Components.Vim.LineBuffer} */
 				var vline = lines[ i ];
 
 				// Actual length
-				var aLen = vline.content.toString().length;
+				var aLen = vline.content.length;
 
 				// Visual length
 				var vLen = vline.toString().length;
@@ -467,10 +481,36 @@
 				if( 0 <= X )
 				{
 					w += aLen;
+					phantomSpace -= 1 + occurence( vline.content, "\t" ) * ( vline.tabWidth - 1 );
 				}
 				else if( X < 0 )
 				{
-					w += X + vLen;
+					X += vLen + 1;
+
+					var rline = this.rawLine.substr( w );
+					var l = rline.length;
+
+					var j = 0;
+
+					if( rline[ 0 ] == "\t" )
+					{
+						X -= vline.tabWidth - 1;
+						phantomSpace -= vline.tabWidth - 1;
+					}
+
+					for( var i = 1; j < X && i < rline.length; i ++ )
+					{
+						if( rline[ i ] == "\t" )
+						{
+							X -= vline.tabWidth - 1;
+							phantomSpace -= vline.tabWidth - 1;
+						}
+						j ++;
+					}
+
+					w += j;
+
+					if( w < phantomSpace ) w = phantomSpace;
 					break;
 				}
 			}
