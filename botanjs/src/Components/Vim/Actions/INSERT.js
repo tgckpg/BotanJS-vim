@@ -197,7 +197,7 @@
 		{
 			this.__realizeIndent();
 			feeder.pan();
-			cur.moveX( 1, false, true );
+			cur.moveX( inputChar == "\t" ? feeder.firstBuffer.tabWidth : 1, false, true );
 		}
 
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
@@ -262,7 +262,7 @@
 
 			feeder.softReset();
 			feeder.pan();
-			cur.moveX( i, false, true );
+			cur.moveX( i * feeder.firstBuffer.tabWidth, false, true );
 
 			var a = [];
 			a[ IN_START ] = f;
