@@ -204,8 +204,33 @@
 		}
 
 		// Hacky tab compensations
-		if( !skipTab )
+		if( skipTab )
 		{
+			// Handles INSERT on first tab char
+			if( penetrate && 0 < d )
+			{
+				if( ( content.length - 1 ) <= x )
+				{
+					this.moveY( 1 );
+					this.X = 0;
+					this.updatePosition();
+					return;
+				}
+			}
+		}
+		else
+		{
+			// Handles INSERT on first tab char
+			if( penetrate )
+			{
+				if( line.content[0] == "\t" && x < tabStep )
+				{
+					this.moveY( -1 );
+					this.lineEnd( phantomSpace );
+					return;
+				}
+			}
+
 			var s = this.aX;
 			var a = rline[ s + d ];
 			var e = s;
@@ -281,6 +306,13 @@
 			this.updatePosition();
 		}
 
+	};
+
+	// fix the tab position
+	Cursor.prototype.fixTab = function()
+	{
+		this.moveX( 1, false, true );
+		this.moveX( -1 );
 	};
 
 	Cursor.prototype.lineStart = function( atWord )

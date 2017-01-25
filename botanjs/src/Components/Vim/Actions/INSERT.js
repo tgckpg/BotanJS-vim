@@ -61,6 +61,7 @@
 		this.__msg = "";
 		this.__rec( "", true );
 		this.__cursor.moveX( -1, false, false, true );
+		this.__cursor.fixTab();
 	};
 
 	INSERT.prototype.__rec = function( c, newRec )
@@ -129,13 +130,15 @@
 				this.__contentUndo = feeder.content.substr( f, 1 ) + this.__contentUndo;
 			}
 
+			cur.moveX(
+				feeder.content[f] == "\t" ? -feeder.firstBuffer.tabWidth : -1
+				, true, true, true );
+
 			feeder.content =
 				feeder.content.substring( 0, f )
 				+ feeder.content.substring( f + 1 );
 
 			feeder.pan();
-
-			cur.moveX( -1, true, true );
 
 			if( 0 < this.__insertLen ) this.__insertLen --;
 			this.__punch --;

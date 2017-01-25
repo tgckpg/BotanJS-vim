@@ -23,6 +23,8 @@ Components.Vim.Cursor.lineEnd;
 /** @type Function */
 Components.Vim.Cursor.updatePosition;
 /** @type Function */
+Components.Vim.Cursor.fixTab;
+/** @type Function */
 Components.Vim.Cursor.openAction;
 /** @type Function */
 Components.Vim.Cursor.openRunAction;

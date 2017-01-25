@@ -259,13 +259,20 @@
 		{
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
-				ccur.moveX( 1, true, true, true );
+				ccur.moveX( 1, false, true, true );
 				ccur.openAction( "INSERT", e );
 				break;
 			case I: // Insert
-				ccur.moveX( -1 );
+				if( 0 < ccur.X )
+				{
+					ccur.moveX( -1, true );
+					ccur.moveX( 1, true, true, true );
+				}
+				ccur.openAction( "INSERT", e );
+				break;
 			case A: // Append
-				ccur.moveX( 1, true, true, true );
+				ccur.fixTab();
+				ccur.moveX( 1, false, true, true );
 				ccur.openAction( "INSERT", e );
 				break;
 			case SHIFT + I: // Append at line start
