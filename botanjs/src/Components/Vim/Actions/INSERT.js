@@ -60,7 +60,7 @@
 		}
 		this.__msg = "";
 		this.__rec( "", true );
-		this.__cursor.moveX( -1 );
+		this.__cursor.moveX( -1, false, false, true );
 	};
 
 	INSERT.prototype.__rec = function( c, newRec )
@@ -197,7 +197,7 @@
 		{
 			this.__realizeIndent();
 			feeder.pan();
-			cur.moveX( inputChar == "\t" ? feeder.firstBuffer.tabWidth : 1, false, true );
+			cur.moveX( inputChar == "\t" ? feeder.firstBuffer.tabWidth : 1, false, true, true );
 		}
 
 		feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
@@ -262,7 +262,7 @@
 
 			feeder.softReset();
 			feeder.pan();
-			cur.moveX( i * feeder.firstBuffer.tabWidth, false, true );
+			cur.moveX( i, false, true );
 
 			var a = [];
 			a[ IN_START ] = f;

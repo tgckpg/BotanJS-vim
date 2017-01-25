@@ -6,7 +6,7 @@ VIMRE_VERSION = "1.0.0b";
 		"INSERT": "-- INSERT --"
 		, "REPLACE": "-- REPLACE --"
 		, "MORE": "-- MORE --"
-		, "VISUAL": "-- VISUAL  --"
+		, "VISUAL": "-- VISUAL --"
 		, "VISLINE": "-- VISUAL LINE --"
 		, "REGISTERS": "--- Registers ---"
 		, "WRITE": "\"%1\" %2L, %3C written"

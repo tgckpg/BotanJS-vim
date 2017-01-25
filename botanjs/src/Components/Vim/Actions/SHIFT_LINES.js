@@ -345,7 +345,7 @@
 			f();
 			// Offset correction after REDO / UNDO
 			cur.moveTo( recStart );
-			cur.lineStart();
+			cur.lineStart( true );
 		} );
 
 		cur.moveTo( recStart );

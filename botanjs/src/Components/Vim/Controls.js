@@ -259,9 +259,17 @@
 		{
 			case SHIFT + A: // Append at the line end
 				ccur.lineEnd();
-			case A: // Append
-				ccur.moveX( 1, true, true );
+				ccur.moveX( 1, true, true, true );
+				ccur.openAction( "INSERT", e );
+				break;
 			case I: // Insert
+				ccur.moveX( -1 );
+			case A: // Append
+				ccur.moveX( 1, true, true, true );
+				ccur.openAction( "INSERT", e );
+				break;
+			case SHIFT + I: // Append at line start
+				ccur.lineStart( true );
 				ccur.openAction( "INSERT", e );
 				break;
 
@@ -515,11 +523,11 @@
 			case SHIFT + L: // Last line buffer
 				break;
 
-			case _0: // Really - line Start
+			case _0: // Really line Start
 				ccur.lineStart();
 				break;
-			case SHIFT + _6: // ^, line Start, XXX: skip tabs
-				ccur.lineStart();
+			case SHIFT + _6: // ^, line Start at word
+				ccur.lineStart( true );
 				break;
 			case SHIFT + _4: // $, End
 				ccur.lineEnd( ccur.pSpace );

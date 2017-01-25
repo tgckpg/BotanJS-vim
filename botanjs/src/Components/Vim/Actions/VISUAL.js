@@ -220,13 +220,13 @@
 
 				if( cur.aPos == startLine.aPos )
 				{
-					cur.moveTo( r.open, true );
+					cur.moveTo( r.open, true, false, true );
 					this.__reset( cur );
 					startLine = this.__startLine;
 				}
 
 				cur.unsuppressEvent();
-				cur.moveTo( r.close, true );
+				cur.moveTo( r.close, true, false, true );
 			}
 
 			var currAp = cur.aPos;

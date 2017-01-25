@@ -103,7 +103,7 @@
 	Cursor.prototype.Vim;
 
 	// Move to an absolute position
-	Cursor.prototype.moveTo = function( aPos, phantomSpace )
+	Cursor.prototype.moveTo = function( aPos, phantomSpace, skipTabs )
 	{
 		var content = this.feeder.content;
 		var pline = this.getLine();
@@ -133,19 +133,18 @@
 		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 
 		jumpX += Math.ceil( jumpX / pline.cols ) - 1;
-		jumpX += occurence( content.substring( lineStart + 1, aPos ), "\t" ) * ( pline.tabWidth - 1 );
 
 		if( jumpY ) this.moveY( jumpY );
 
 		// This is needed because first line does not contain the first "\n" character
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
 
-		this.moveX( - Number.MAX_VALUE );
-		this.moveX( jumpX, false, phantomSpace );
+		this.moveX( - Number.MAX_VALUE, false, false, true );
+		this.moveX( jumpX, false, phantomSpace, skipTabs );
 	};
 
 	// 0 will be treated as default ( 1 )
-	Cursor.prototype.moveX = function( d, penetrate, phantomSpace )
+	Cursor.prototype.moveX = function( d, penetrate, phantomSpace, skipTab )
 	{
 		var x = this.pX;
 		var updatePx = Boolean( d );
@@ -177,6 +176,8 @@
 
 		/** @type {Components.Vim.LineBuffer} */
 		var line = this.getLine();
+		var tabStep = line.tabWidth - 1;
+		var rline = this.rawLine;
 		var content = line.visualLines.join( "\n" );
 		var cLen = content.length;
 
@@ -190,8 +191,7 @@
 		{
 			// Begin check if this line contains phantomSpace
 			// hasPhantomSpace = 0 < ( rawLine.displayLength ) % cols
-			var rline = this.rawLine;
-			hasPhantomSpace = 0 < ( rline.length + occurence( rline, "\t" ) * ( line.tabWidth - 1 ) ) % line.cols;
+			hasPhantomSpace = 0 < ( rline.length + occurence( rline, "\t" ) * tabStep ) % line.cols;
 
 			if( hasPhantomSpace )
 			{
@@ -200,6 +200,56 @@
 			else
 			{
 				lineEnd = phantomSpace ? cLen : cLen - 1;
+			}
+		}
+
+		// Hacky tab compensations
+		if( !skipTab )
+		{
+			var s = this.aX;
+			var a = rline[ s + d ];
+			var e = s;
+			if( d < 0 )
+			{
+				if( rline[ s ] == "\t" )
+				{
+					x -= tabStep;
+					if( x < 0 )
+						x = tabStep;
+				}
+
+				s += d;
+
+				var ntabs = occurence( rline.substring( s, e ), "\t" ) - 1;
+				if( 0 < ntabs ) x -= ntabs * tabStep;
+			}
+			else if( updatePx ) // && 0 < d ( assuming d can never be 0 )
+			{
+				// Going from one line to next
+				// linebreaks are *invisible*
+				var isLF = ( content[ x ] == "\n" ) ? 1 : 0;
+
+				if( s == 0 )
+				{
+					x = 1;
+					if ( rline[ 0 ] == "\t" )
+					{
+						x += tabStep;
+					}
+				}
+
+				e += d;
+
+				var ntabs = occurence( rline.substring( s + 1, e + 1 ), "\t" );
+				x += ntabs * tabStep + isLF;
+				if( 1 < d ) x += d - 1;
+			}
+			else // jk, non-X navigation. i.e., pX does not change
+			{
+				// s = 0, which is unused here
+				e = x + d;
+				x += ( occurence( rline.substring( 0, e ), "\t" ) ) * tabStep;
+				if( 1 < d ) x += d - 1;
 			}
 		}
 
@@ -227,22 +277,31 @@
 
 		if( updatePx )
 		{
-			this.pX = x;
+			this.pX = this.aX;
 			this.updatePosition();
 		}
 
 	};
 
-	Cursor.prototype.lineStart = function()
+	Cursor.prototype.lineStart = function( atWord )
 	{
-		this.pX = 0;
+		if( atWord )
+		{
+			var a = this.rawLine.match( /^[ \t]+/g );
+			this.pX = a ? a[0].length : 0;
+		}
+		else
+		{
+			this.pX = 0;
+		}
+
 		this.moveX();
 		this.updatePosition();
 	};
 
 	Cursor.prototype.lineEnd = function( phantomSpace )
 	{
-		this.moveX( Number.MAX_VALUE, false, phantomSpace );
+		this.moveX( Number.MAX_VALUE, false, phantomSpace, true );
 	};
 
 	Cursor.prototype.updatePosition = function()
