@@ -4,7 +4,7 @@ This is a functional vim using the *screen buffer* approach. What I am trying to
 ## Demo
 Visit the demo over [here](https://tgckpg.github.io/VimArea)
 
-## This is going to be release soon
+## Version 1.0.0
 Common commands are now supported. I am now going to list the commands that yet to be made.
 ```
 Commands that are going to implement soon:
@@ -34,12 +34,12 @@ By treating the textarea as a *screen*. I could archive almost everything except
 Visit this [blog](https://blog.astropenguin.net/article/view/vimarea-day-1-hjkl/) entry for details.
 
 ### How the source code works
-This is based on a framework I wrote called BotanJS. Which is a frontend framework & Service API that is so big that I am too busy ( lazy ) to explain. If you are only interested in the Vim itself only. It is recommended to download the compiled source code provided in the demo site above.
+This is based on a framework I wrote called BltanJS. Which is a frontend framework & Service API that is so big that I am too busy ( lazy ) to explain. If you are only interested in the Vim itself only. It is recommended to download the compiled source code provided in the demo site above.
 
-If you are also interested in [BotanJS](https://github.com/tgckpg/BotanJS). Please head to the project page [here](https://github.com/tgckpg/BotanJS). *Warning*, it might NOT be easy to understand.
+If you are also interested in [BotanJS](https://github.com/tgckpg/BotanJS). Please head to the project page [here](https://github.com/tgckpg/BotanJS). *Warning*, it might NOT be easy to understand. ( but it should be easy to setup )
 
 ### Why make another one?
-Because [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for me. I know peoples are busy so fuck me I am going to make one myself, alright?
+Because [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for me. I know people are busy so fuck me I am going to make one myself, alright?
 
 ### Use wasavi if you can
 #### [wasavi! wasavi! wasavi!](https://github.com/akahuku/wasavi)
@@ -48,4 +48,4 @@ Because [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for
 I tried porting it into the browser tho. But I am too stupid to do that. But still I highly recommend using it.
 
 ### How can I contribute?
-First, you need to understand the framework behind it. Then file a merge request. Sounds easy right?... prepare to DIEEE!
+First, you need to understand the framework behind it ( see "How the source code works" above ). Setup the environment and you are ready to go! Feel free to ask by opening an issue :)
