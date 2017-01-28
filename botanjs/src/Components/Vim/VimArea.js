@@ -87,11 +87,11 @@
 		if( detectScreenSize )
 		{
 			var val = element.value;
-			this.__testScreen(function() { _self.VisualizeVimFrame( val ); });
+			this.__testScreen(function() { _self.__visualize( val ); });
 		}
 		else
 		{
-			this.VisualizeVimFrame( element.value );
+			this.__visualize( element.value );
 		}
 
 		// Set buffer index
@@ -177,7 +177,8 @@
 		}
 	};
 
-	VimArea.prototype.VisualizeVimFrame = function( content )
+	// Visualize the Vim Frame
+	VimArea.prototype.__visualize = function( content )
 	{
 		var _self = this;
 		this.content = content;
@@ -263,6 +264,7 @@
 		);
 
 		this.stage.addEventListeners( this.__stagedEvents );
+		this.dispatchEvent( new BotanEvent( "Visualized" ) );
 	};
 
 	VimArea.prototype.demo = function( seq )

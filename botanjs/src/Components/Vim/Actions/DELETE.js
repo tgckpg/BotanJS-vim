@@ -153,6 +153,9 @@
 			e = sp;
 		}
 
+		// For removing the very last line
+		if( c[ sp ] == undefined ) s --;
+
 		var removed = c.substring( s, e + 1 );
 		reg.change( removed, newLine );
 
