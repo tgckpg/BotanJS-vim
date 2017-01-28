@@ -27,9 +27,9 @@
 		this.__cursor.unsuppressEvent();
 	};
 
-	VA_REC.prototype.handler = function( e, endReplay )
+	VA_REC.prototype.handler = function( e, args, range )
 	{
-		if( endReplay )
+		if( args == true )
 		{
 			var msg = Mesg( "VA_REC_END" );
 			var lastLine = Mesg( "WAIT_FOR_INPUT" );
@@ -60,9 +60,16 @@
 		if( session.started )
 		{
 			session.__dispose();
-			this.__msg = "Exported Session Data";
+			var head = "Press Escape to conitnue edit\n===\n";
+			var data = JSON.stringify( session.data );
+
+			var element = sender.element;
 			setTimeout( function() {
-				window.prompt( "Session data ( Ctrl + C )", JSON.stringify( session.data ) );
+				inst.display(
+					head + data, function(){
+					element.selectionStart = head.length;
+					element.selectionEnd = element.selectionStart + data.length;
+				} );
 			}, 1 );
 			return;
 		}

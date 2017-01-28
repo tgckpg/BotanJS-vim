@@ -267,6 +267,40 @@
 		this.dispatchEvent( new BotanEvent( "Visualized" ) );
 	};
 
+	VimArea.prototype.display = function( data, handler )
+	{
+		var _self = this;
+		var stage = this.stage;
+		var cursor = this.__cursor;
+
+		var evts = this.__stagedEvents;
+		for( var i in evts ) stage.removeEventListener( evts[ i ] );
+		cursor.suppressEvent();
+		this.__active = false;
+
+		stage.removeAttribute( "data-vimarea" );
+		setTimeout( function() {
+			stage.element.value = data;
+			if( handler ) handler();
+		}, 100 );
+
+		var ContinueEdit = new EventKey( "KeyDown", function( e ) {
+			var evt = new ActionEvent( _self, e );
+			if( evt.kMap( "Escape" ) )
+			{
+				stage.removeEventListener( ContinueEdit );
+				stage.setAttribute( new DataKey( "vimarea", 1 ) );
+				stage.addEventListeners( _self.__stagedEvents );
+				cursor.unsuppressEvent();
+				cursor.feeder.dispatcher.dispatchEvent( new BotanEvent( "VisualUpdate" ) );
+				_self.__active = true;
+				stage.element.focus();
+			}
+		} );
+
+		stage.addEventListener( ContinueEdit );
+	};
+
 	VimArea.prototype.demo = function( seq )
 	{
 		if( this.__demoActive ) return;

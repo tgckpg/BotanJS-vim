@@ -14,6 +14,8 @@ Components.Vim.VimArea.statusBar;
 
 /** @type Function */
 Components.Vim.VimArea.demo;
+/** @type Function */
+Components.Vim.VimArea.display;
 
 /** @type Number */
 Components.Vim.VimArea.index;
