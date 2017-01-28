@@ -87,6 +87,9 @@
 			case "help":
 				out[ CMD_TYPE ] = "HELP";
 				break;
+			case "varec":
+				out[ CMD_TYPE ] = "VA_REC";
+				break;
 		}
 
 		if( range !== "" )

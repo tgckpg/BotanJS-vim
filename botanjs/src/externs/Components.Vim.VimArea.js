@@ -1,4 +1,6 @@
-/** @constructor */
+/** @constructor
+ *  @extends {EventDispatcher}
+ */
 Components.Vim.VimArea = function(){};
 
 /** @type {Components.Vim.LineFeeder} */
@@ -9,6 +11,9 @@ Components.Vim.VimArea.contentAnalyzer;
 Components.Vim.VimArea.statusFeeder;
 /** @type {Components.Vim.StatusBar} */
 Components.Vim.VimArea.statusBar;
+
+/** @type Function */
+Components.Vim.VimArea.demo;
 
 /** @type Number */
 Components.Vim.VimArea.index;

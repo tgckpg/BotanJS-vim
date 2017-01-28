@@ -90,6 +90,7 @@
 			case "Del": kCode = Mod + DELETE; break;
 			case "Enter": kCode = Mod + ENTER; break;
 			case "Tab": kCode = Mod + TAB; break;
+			case "Escape": kCode = Mod + ESC; break;
 
 			case "Up": kCode = Mod + UP; break;
 			case "Down": kCode = Mod + DOWN; break;
@@ -148,7 +149,7 @@
 	{
 		switch( kCode )
 		{
-			case SPACE: return " ";
+			case SPACE: case SHIFT + SPACE: return " ";
 			case A: return "a"; case B: return "b"; case C: return "c"; case D: return "d";
 			case E: return "e"; case F: return "f"; case G: return "g"; case H: return "h";
 			case I: return "i"; case J: return "j"; case K: return "k"; case L: return "l";
@@ -188,7 +189,8 @@
 			case SHIFT + S: return "S"; case SHIFT + T: return "T"; case SHIFT + U: return "U";
 			case SHIFT + V: return "V"; case SHIFT + W: return "W"; case SHIFT + X: return "X";
 			case SHIFT + Y: return "Y"; case SHIFT + Z: return "Z";
-			case ESC: return "Escape"; case BACKSPACE: return "Backspace"; case DELETE: return "Delete";
+			case SHIFT + BACKSPACE: case BACKSPACE: return "Backspace";
+			case ESC: return "Escape"; case DELETE: return "Delete";
 			case SHIFT: return "Shift"; case ALT: return "Alt"; case CTRL: return "Control";
 			case ENTER: return "Enter"; case TAB: return "Tab";
 		}
@@ -484,7 +486,6 @@
 		}
 
 		var ccur = this.__ccur;
-		var vima = this.__vimArea;
 		var cfeeder = ccur.feeder;
 
 		var cursorHandled = true;
@@ -806,6 +807,13 @@
 			this.__modKeys = 0;
 			this.__kCode = Map( e );
 			this.__escape = this.__kCode == ESC;
+		}
+		else if( typeof( e ) == "number" )
+		{
+			this.__key = RMap( e );
+			this.__modKeys = 0;
+			this.__kCode = e;
+			this.__escape = this.__kCode == ESC || this.__kCode == ( CTRL + C );
 		}
 		else
 		{

@@ -24,7 +24,7 @@
 
 	var VimControls = ns[ NS_INVOKE ]( "Controls" );
 	var ActionEvent = ns[ NS_INVOKE ]( "ActionEvent" );
-	var mesg = ns[ NS_INVOKE ]( "Message" );
+	var Mesg = ns[ NS_INVOKE ]( "Message" );
 
 	var Insts = [];
 	var InstIndex = 0;
@@ -46,6 +46,8 @@
 	var VimArea = function( stage, detectScreenSize )
 	{
 		if( !stage ) throw new Error( "Invalid argument" );
+
+		EventDispatcher.call( this );
 
 		stage = IDOMElement( stage );
 
@@ -98,6 +100,8 @@
 		// Push this instance
 		Insts[ this.__instIndex ] = this;
 	};
+
+	__extends( VimArea, EventDispatcher );
 
 	VimArea.prototype.__testScreen = function( handler )
 	{
@@ -205,7 +209,7 @@
 		// Set the stamps
 		var statusBar = new StatusBar( c );
 		statusBar.stamp( -18, function(){ return cfeeder.lineStat; } );
-		statusBar.stamp( -3, function(){ return mesg( cfeeder.docPos ); } );
+		statusBar.stamp( -3, function(){ return Mesg( cfeeder.docPos ); } );
 		statusBar.stamp( 0, function(){ return cfeeder.cursor.message; } );
 
 		sfeeder.init( statusBar.statusText );
@@ -261,6 +265,60 @@
 		this.stage.addEventListeners( this.__stagedEvents );
 	};
 
+	VimArea.prototype.demo = function( seq )
+	{
+		if( this.__demoActive ) return;
+
+		var _self = this;
+
+		this.__demoActive = true;
+		var l = seq.length;
+
+		var s = 0;
+
+		var controls = new VimControls( this );
+		var cursor = this.__cursor;
+		var statusBar = this.statusBar;
+
+		var demoEnd = function()
+		{
+			statusBar.stamp( 1, false );
+			controls.handler( _self, new ActionEvent( _self, "Escape" ) );
+			setTimeout( function() {
+				cursor.openRunAction( "VA_REC", undefined, true );
+				_self.__demoActive = false;
+				_self.stage.addEventListeners( _self.__stagedEvents );
+			}, 100 );
+		};
+
+		var demoChain = function()
+		{
+			_self.stage.element.focus();
+
+			var key = seq[ s + 1 ];
+			controls.handler( _self, new ActionEvent( _self, key ) );
+			s += 2;
+
+			if( s < l )
+			{
+				// Wait time cannot be 0
+				setTimeout( demoChain, seq[ s ] || 20 );
+			}
+			else
+			{
+				setTimeout( demoEnd, 100 );
+			}
+		};
+
+		statusBar.stamp( 1, function(){ return Mesg( "VA_REC_REPLAY" ); } );
+
+		var evts = this.__stagedEvents;
+		for( var i in evts ) this.stage.removeEventListener( evts[ i ] );
+		this.__active = true;
+
+		setTimeout( demoChain, seq[ s ] );
+	};
+
 	VimArea.prototype.dispose = function()
 	{
 		var stage = this.stage;
@@ -272,6 +330,7 @@
 		debug.Info( "Destroy instance: " + id );
 
 		feeder.dispatcher.removeEventListener( "VisualUpdate", this.__visualUpdate );
+		this.dispatchEvent( new BotanEvent( "Dispose" ) );
 
 		stage.removeAttribute( "data-vimarea" );
 

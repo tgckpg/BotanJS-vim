@@ -1,4 +1,4 @@
-VIMRE_VERSION = "1.0.0b";
+var VIMRE_VERSION = "1.0.0";
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
@@ -31,6 +31,10 @@ VIMRE_VERSION = "1.0.0b";
 		, "SEARCH_HIT_BOTTOM": "search hit BOTTOM, continuing at TOP"
 		, "SEARCH_HIT_TOP": "search hit TOP, continuing at BOTTOM"
 		, "REPLACE": "%1 substitution(s) on %2 line(s)"
+
+		, "VA_REC_START": "Recording Session ..."
+		, "VA_REC_REPLAY": "Replaying Session ..."
+		, "VA_REC_END": "Session Ended"
 	};
 
 	var errors = {
