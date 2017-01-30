@@ -30,22 +30,60 @@
 		var p = cur.aPos;
 
 
-		var d = 1;
-		// forward
+		// Forword WORD start
 		if( e.kMap( "w" ) || e.kMap( "W" ) )
 		{
-			if( feeder.content[ p + 1 ] == "\n" )
+			// +2 because there is a closing "\n"
+			if( feeder.content[ p + 2 ] == undefined )
 			{
-				p ++;
+				beep();
+				return;
 			}
 
 			var wordRange = analyzer.wordAt( p );
 			if( wordRange.open != -1 )
 			{
 				p = wordRange.close + 1;
+
+				while( " \t\n".indexOf( feeder.content[ p ] ) != -1 ) p ++;
+
+				if( feeder.content[ p ] == undefined )
+				{
+					// This is the last character
+					p --;
+				}
 			}
 		}
-		// Backward
+
+		// Forward WORD end
+		if( e.kMap( "e" ) || e.kMap( "E" ) )
+		{
+			if( feeder.content[ p + 2 ] == undefined )
+			{
+				beep();
+				return;
+			}
+
+			p ++;
+			while( " \t\n".indexOf( feeder.content[ p ] ) != -1 ) p ++;
+
+			// This is the last character
+			if( feeder.content[ p ] == undefined )
+			{
+				p --;
+			}
+			else
+			{
+				var wordRange = analyzer.wordAt( p );
+
+				if( wordRange.open != -1 )
+				{
+					p = wordRange.close;
+				}
+			}
+		}
+
+		// Backward WORD start
 		if( e.kMap( "b" ) || e.kMap( "B" ) )
 		{
 			if( p == 0 )
@@ -54,21 +92,17 @@
 				return;
 			}
 
-			d = -1;
-
-			while( " \t".indexOf( feeder.content[ p + d ] ) != -1 )
-			{
-				d --;
-			}
+			p --;
+			while( " \t".indexOf( feeder.content[ p ] ) != -1 ) p --;
 
 			// No more results
-			if( ( p + d ) == -1 )
+			if( p == -1 )
 			{
 				p = 0;
 			}
 			else
 			{
-				var wordRange = analyzer.wordAt( p + d );
+				var wordRange = analyzer.wordAt( p );
 				if( wordRange.open != -1 )
 				{
 					p = wordRange.open;

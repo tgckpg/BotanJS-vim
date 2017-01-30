@@ -599,6 +599,8 @@
 			case SHIFT + W:
 			case B:
 			case SHIFT + B:
+			case E:
+			case SHIFT + E:
 				ccur.openRunAction( "WORD", e );
 				break
 
@@ -813,7 +815,7 @@
 			this.__key = RMap( e );
 			this.__modKeys = 0;
 			this.__kCode = e;
-			this.__escape = this.__kCode == ESC || this.__kCode == ( CTRL + C );
+			this.__escape = this.__kCode == ESC || this.__kCode == ( CTRL + C ) || this.__key == ( CTRL + S_BRACKET_L );
 		}
 		else
 		{
@@ -827,7 +829,7 @@
 
 			var c = this.__e.keyCode;
 
-			this.__escape = c == ESC || ( e.ctrlKey && c == C );
+			this.__escape = c == ESC || ( e.ctrlKey && ( c == C || c == S_BRACKET_L ) );
 			this.__kCode = c
 				+ ( e.shiftKey || e.getModifierState( "CapsLock" ) ? SHIFT : 0 )
 				+ ( e.ctrlKey ? CTRL : 0 )
