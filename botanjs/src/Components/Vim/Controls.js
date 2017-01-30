@@ -215,9 +215,10 @@
 
 	Controls.prototype.__composite = function( e, handler )
 	{
+		if( !this.__compositeReg ) this.__compositeReg = [];
+
 		if( handler )
 		{
-			if( !this.__compositeReg ) this.__compositeReg = [];
 			this.__compositeReg.push({
 				keys: Array.prototype.slice.call( arguments, 2 )
 				, handler: handler
@@ -528,7 +529,7 @@
 				cfeeder.pan( undefined, 1 );
 				cfeeder.softReset();
 
-				ccur.moveY(  0 < ccur.Y ? -1 : 0 );
+				ccur.moveY( 0 < ccur.Y ? -1 : 0 );
 				ccur.moveX();
 				break;
 			case CTRL + Y: // Pan Y, Scroll Up
@@ -544,10 +545,33 @@
 				ccur.moveY( ccur.Y == cfeeder.moreAt ? 0 : 1 );
 				ccur.moveX();
 				break;
+			case CTRL + D: // Page Down, keep cursor.Y
+				cfeeder.pan( undefined, cfeeder.moreAt );
+				cfeeder.softReset();
+				ccur.moveY( 0 );
+				break;
+			case CTRL + U: // Page Up, keep cursor.Y
+				if( cfeeder.panY == 0 )
+				{
+					beep();
+					break;
+				}
+				cfeeder.pan( undefined, -cfeeder.moreAt );
+				cfeeder.softReset();
+				ccur.moveY( 0 );
+				break;
 
 			case SHIFT + H: // First line buffer
+				ccur.moveY( -ccur.Y );
+				ccur.lineStart( true );
+				break;
+			case SHIFT + M: // Middle line buffer
+				ccur.moveY( Math.floor( 0.5 * cfeeder.moreAt ) - ccur.Y );
+				ccur.lineStart( true );
 				break;
 			case SHIFT + L: // Last line buffer
+				ccur.moveY( cfeeder.moreAt - ccur.Y );
+				ccur.lineStart( true );
 				break;
 
 			case _0: // Really line Start
@@ -684,6 +708,45 @@
 					ccur.moveY( -Number.MAX_VALUE );
 					ccur.moveX( -Number.MAX_VALUE, true );
 				}, G );
+
+				// Wordwrap next display line
+				this.__composite( e, function() {
+					var dispLine = ccur.getLine( true );
+					ccur.moveX( dispLine.content.length + 1 );
+				}, J );
+
+				// Wordwrap prev display line
+				this.__composite( e, function() {
+					var dispLine = ccur.getLine( true ).prev;
+					var thisLine = ccur.getLine().lineNum;
+
+					if( !dispLine )
+					{
+						ccur.lineStart();
+						beep();
+						return;
+					}
+
+					if( dispLine.content != "" && dispLine.lineNum == thisLine )
+					{
+						ccur.moveX( -( dispLine.content.length + 1 ) );
+					}
+					else
+					{
+						ccur.moveY( -1 );
+						var lines = ccur.getLine().visualLines;
+						if( 1 < lines.length )
+						{
+							var l = lines.length - 1;
+							var j = 0;
+							for( var i = 0; i < l; i ++ )
+							{
+								j += lines[i].content.length;
+							}
+							ccur.moveX( j );
+						}
+					}
+				}, K );
 
 				// Print Hex
 				this.__composite( e, function() {

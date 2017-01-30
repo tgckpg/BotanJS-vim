@@ -132,7 +132,14 @@
 		var jumpY = expLineNum - lastLineNum;
 		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 
-		jumpX += Math.ceil( jumpX / pline.cols ) - 1;
+		var kX = jumpX - pline.content.length;
+		while( 0 < kX )
+		{
+			jumpX ++;
+			pline = pline.next
+			if(!( pline && pline.lineNum == expLineNum )) break;
+			kX -= pline.content.length;
+		}
 
 		if( jumpY ) this.moveY( jumpY );
 
@@ -256,7 +263,7 @@
 
 				if( s == 0 )
 				{
-					x = 1;
+					x = d;
 					if ( rline[ 0 ] == "\t" )
 					{
 						x += tabStep;
@@ -266,14 +273,19 @@
 				e += d;
 
 				var ntabs = occurence( rline.substring( s + 1, e + 1 ), "\t" );
+				if( 1 < ntabs && rline[ e ] == "\t" ) ntabs --;
 				x += ntabs * tabStep + isLF;
-				if( 1 < d ) x += d - 1;
+				x += Math.max( 0, Math.floor( d / line.cols ) - 1 );
+
+				// Reset the distance to 1 as x is now calculated
+				d = 1;
 			}
 			else // jk, non-X navigation. i.e., pX does not change
 			{
 				// s = 0, which is unused here
 				e = x + d;
 				x += ( occurence( rline.substring( 0, e ), "\t" ) ) * tabStep;
+				x += Math.floor( x / line.cols );
 				if( 1 < d ) x += d - 1;
 			}
 		}
@@ -286,6 +298,13 @@
 		if( boundary )
 		{
 			x = 0 < x ? lineEnd : 0;
+
+			// This happens on backspacing max filled lines on INSERT mode
+			if( d < 0 && 0 < x )
+			{
+				boundary = false;
+				x += d;
+			}
 		}
 		else if( c == "\n" )
 		{
@@ -505,7 +524,7 @@
 	Cursor.prototype.suppressEvent = function() { ++ this.__suppEvt; };
 	Cursor.prototype.unsuppressEvent = function() { -- this.__suppEvt; };
 
-	Cursor.prototype.getLine = function( raw )
+	Cursor.prototype.getLine = function( display )
 	{
 		var feeder = this.feeder;
 		var line = feeder.firstBuffer;
@@ -513,7 +532,21 @@
 		for( var i = 0; line != eBuffer; line = line.next )
 		{
 			if( line.br ) i ++;
-			if( this.Y == i ) return line;
+			if( this.Y == i )
+			{
+				// Return the display line
+				if( display )
+				{
+					var x = this.aX + 1;
+					while( 0 < ( x -= line.content.length ) )
+					{
+						if( !line.next ) return line;
+						line = line.next;
+					}
+				}
+
+				return line;
+			}
 		}
 
 		return null;
