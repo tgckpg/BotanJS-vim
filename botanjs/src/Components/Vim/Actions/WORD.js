@@ -3,6 +3,7 @@
 
 	/** @type {System.Debug} */
 	var debug                                 = __import( "System.Debug" );
+	var beep = __import( "Components.Vim.Beep" );
 
 	/** @type {Components.Vim.IAction} */
 	var WORD = function( Cursor )
@@ -47,19 +48,35 @@
 		// Backward
 		if( e.kMap( "b" ) || e.kMap( "B" ) )
 		{
-			if( p == 0 ) return;
+			if( p == 0 )
+			{
+				beep();
+				return;
+			}
+
 			d = -1;
 
-			var wordRange = analyzer.wordAt( p - 1 );
-			if( wordRange.open != -1 )
+			while( " \t".indexOf( feeder.content[ p + d ] ) != -1 )
 			{
-				p = wordRange.open;
+				d --;
 			}
-		}
 
-		while( " \t".indexOf( feeder.content[ p ] ) != -1 )
-		{
-			p += d;
+			// No more results
+			if( ( p + d ) == -1 )
+			{
+				p = 0;
+			}
+			else
+			{
+				var wordRange = analyzer.wordAt( p + d );
+				if( wordRange.open != -1 )
+				{
+					p = wordRange.open;
+				}
+
+				// If the very first char is " " or "\t"
+				if( " \t".indexOf( feeder.content[ p ] ) != -1 ) p ++;
+			}
 		}
 
 		cur.moveTo( p );
