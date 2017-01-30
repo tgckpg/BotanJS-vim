@@ -311,6 +311,7 @@
 				break;
 
 			case D: // Del with motion
+			case C: // Then insert
 				ccur.openAction( "DELETE", e );
 				break;
 			case Y: // Yank with motion
@@ -743,6 +744,7 @@
 							{
 								j += lines[i].content.length;
 							}
+							j += Math.max( 0, Math.floor( j / dispLine.cols ) - 1 );
 							ccur.moveX( j );
 						}
 					}

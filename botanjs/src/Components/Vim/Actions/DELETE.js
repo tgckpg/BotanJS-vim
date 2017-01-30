@@ -15,13 +15,17 @@
 	var occurence = __import( "System.utils.Perf.CountSubstr" );
 
 	/** @type {Components.Vim.IAction} */
-	var DELETE = function( Cursor )
+	var DELETE = function( Cursor, e )
 	{
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 		this.__nline = 0;
 		this.__startX = Cursor.aPos;
 		this.__panY = this.__cursor.feeder.panY;
+
+		this.__cMode = e.kMap( "c" );
+		this.__cMode_c = false;
+		this.__enterEvent = e;
 
 		Cursor.suppressEvent();
 	};
@@ -30,7 +34,26 @@
 
 	DELETE.prototype.dispose = function()
 	{
-		this.__cursor.unsuppressEvent();
+		var cur = this.__cursor;
+		cur.unsuppressEvent();
+
+		if( this.__cMode )
+		{
+			if( this.__cMode_c ) // Append, a
+			{
+				cur.fixTab();
+				cur.moveX( 1, false, true, true );
+			}
+			else // Insert, i
+			{
+				cur.moveX( -1, true );
+				cur.moveX( 1, true, true, true );
+			}
+
+			setTimeout( function() {
+				cur.openAction( "INSERT", this.__enterEvent );
+			}, 20 );
+		}
 	};
 
 	DELETE.prototype.handler = function( e, sp, newLine )
@@ -116,6 +139,13 @@
 					cur.lineEnd( true );
 					sp = cur.aPos;
 					cur.lineStart();
+				}
+				else if( this.__cMode && e.kMap( "c" ) )
+				{
+					cur.lineEnd();
+					sp = cur.aPos;
+					cur.lineStart( true );
+					this.__cMode_c = true;
 				}
 				else if( e.range )
 				{

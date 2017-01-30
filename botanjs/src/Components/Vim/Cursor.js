@@ -275,7 +275,6 @@
 				var ntabs = occurence( rline.substring( s + 1, e + 1 ), "\t" );
 				if( 1 < ntabs && rline[ e ] == "\t" ) ntabs --;
 				x += ntabs * tabStep + isLF;
-				x += Math.max( 0, Math.floor( d / line.cols ) - 1 );
 
 				// Reset the distance to 1 as x is now calculated
 				d = 1;
