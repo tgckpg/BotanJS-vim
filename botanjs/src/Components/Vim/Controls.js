@@ -506,7 +506,6 @@
 					break;
 				}
 
-				var oPan = cfeeder.panY;
 				cfeeder.pan( undefined, cfeeder.moreAt );
 				cfeeder.softReset();
 
@@ -524,6 +523,26 @@
 
 				ccur.moveY( -ccur.Y );
 				if( !cfeeder.EOF ) ccur.moveY( cfeeder.moreAt );
+				break;
+			case CTRL + E: // Pan Y, Scroll Down
+				cfeeder.pan( undefined, 1 );
+				cfeeder.softReset();
+
+				ccur.moveY(  0 < ccur.Y ? -1 : 0 );
+				ccur.moveX();
+				break;
+			case CTRL + Y: // Pan Y, Scroll Up
+				if( cfeeder.panY == 0 )
+				{
+					beep();
+					break;
+				}
+
+				cfeeder.pan( undefined, -1 );
+				cfeeder.softReset();
+
+				ccur.moveY( ccur.Y == cfeeder.moreAt ? 0 : 1 );
+				ccur.moveX();
 				break;
 
 			case SHIFT + H: // First line buffer
