@@ -23,7 +23,7 @@
 		this.__startX = Cursor.aPos;
 		this.__panY = this.__cursor.feeder.panY;
 
-		this.__cMode = e.kMap( "c" );
+		this.__cMode = e && e.kMap( "c" );
 		this.__cMode_c = false;
 		this.__enterEvent = e;
 
