@@ -43,6 +43,7 @@ var VIMRE_VERSION = "1.0.1";
 		, "E481": "No range allowed"
 		, "E492": "Not an editor command: %1"
 		, "E486": "Pattern not found: %1"
+		, "E488": "Trailing characters"
 
 		// EXtended Errors
 		, "EX1": "Pattern Error( %1 )"

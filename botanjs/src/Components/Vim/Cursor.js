@@ -13,11 +13,12 @@
 
 	var LineOffset = function( buffs, l )
 	{
-		/** @type {Components.Vim.LineBuffer} */
 		var offset = 0;
 
 		LineLoop:
-		for( var i = 0, line = buffs[0];
+		for( var i = 0,
+			/** @type {Components.Vim.LineBuffer} */
+			line = buffs[0];
 			line && i < l; i ++ )
 		{
 			while( line )

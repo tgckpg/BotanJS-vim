@@ -83,7 +83,6 @@
 			, new EventKey( "Blur", function() { _self.__active = false; } )
 		];
 
-
 		if( detectScreenSize )
 		{
 			var val = element.value;

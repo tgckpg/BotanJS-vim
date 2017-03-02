@@ -35,7 +35,14 @@
 		var cur = this.__cursor;
 		var Vim = cur.Vim;
 
-		if( cur.rec.changed )
+		var forceQuit = p.join( "" ).trim();
+		if( forceQuit && forceQuit[0] == "!" && 1 < forceQuit.length )
+		{
+			this.__msg = VimError( "E488" );
+			return false;
+		}
+
+		if( !forceQuit && cur.rec.changed )
 		{
 			var msg = VimError( "E37" );
 
