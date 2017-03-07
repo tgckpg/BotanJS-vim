@@ -1,11 +1,16 @@
-# BotanJS-vim
-This is a functional vim using the *screen buffer* approach. What I am trying to do is to achieve that smooth-vim-feeling as close as possible to the original Vim in a general terminal.
+VimArea is a lightweight functional vim using the *screen buffer* approach. What I am trying to do is to achieve that smooth-vim-feeling as close as possible to the original Vim in a general terminal.
+
+## Downloads
+Please head to the release section of this repo.
+
+## Dependency
+All downloadable versions are standalone. For development, see [contribution](/#user-content-how-can-i-contribute)
 
 ## Demo
 Visit the demo over [here](https://tgckpg.github.io/VimArea)
 
-## Version 1.0.0
-Common commands are now supported. I am now going to list the commands that yet to be made.
+## As of version 1.0.x
+Common commands are now supported. I am now going to list the commands that is yet to be made.
 ```
 Commands that are going to implement soon:
 auto indent ( new line from bracket )
@@ -25,21 +30,21 @@ Syntax highlighting - individual styles cannot be applied into a textarea
 plugins - I am NOT going to make this
 ```
 
-### How it works
+### How does it work
 By *screen buffer*, it means that the textarea is treated as a screen. You are not directly interacting with the textarea. Instead you type into the script, then the result is *rendered* through the textarea.
 
-### Why use screen buffer?
-By treating the textarea as a *screen*. I could archive almost everything except for coloring. And it is easier to precisely track the cursor this way.
+### Why use a screen buffer
+By treating the textarea as a *screen*. I could archive almost everything except for coloring. Plus it is easier to precisely track the cursor in this way.
 
-Visit this [blog](https://blog.astropenguin.net/article/view/vimarea-day-1-hjkl/) entry for details.
+Visit this [blog entry](https://blog.astropenguin.net/article/view/vimarea-day-1-hjkl/) for details.
 
 ### How the source code works
-This is based on a framework I wrote called BltanJS. Which is a frontend framework & Service API that is so big that I am too busy ( lazy ) to explain. If you are only interested in the Vim itself only. It is recommended to download the compiled source code provided in the demo site above.
+This is based on a framework I wrote called BotanJS. Which is a frontend framework & Service API that is so big that I am too busy ( lazy ) to explain. If you are only interested in the Vim itself only. It is recommended to download the compiled source code provided in the demo site above.
 
 If you are also interested in [BotanJS](https://github.com/tgckpg/BotanJS). Please head to the project page [here](https://github.com/tgckpg/BotanJS). *Warning*, it might NOT be easy to understand. ( but it should be easy to setup )
 
 ### Why make another one?
-Because [wasavi](https://github.com/akahuku/wasavi) in firefox does not work for me. I know people are busy so fuck me I am going to make one myself, alright?
+Because ( at the time of this repository created ) the addon [wasavi](https://github.com/akahuku/wasavi) in firefox does not work. I know people are busy so fuck me I am going to make one myself, alright?
 
 ### Use wasavi if you can
 #### [wasavi! wasavi! wasavi!](https://github.com/akahuku/wasavi)
