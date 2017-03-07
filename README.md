@@ -4,7 +4,7 @@ VimArea is a lightweight functional vim using the *screen buffer* approach. What
 Please head to the release section of this repo.
 
 ## Dependency
-All downloadable versions are standalone. For development, see [contribution](/#user-content-how-can-i-contribute)
+All downloadable versions are standalone. For development, see the bottom of this readme.
 
 ## Demo
 Visit the demo over [here](https://tgckpg.github.io/VimArea)
