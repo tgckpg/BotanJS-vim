@@ -598,7 +598,8 @@
 			// because phantomSpace is not a valid character
 			// So we calculate along with the phantomSpace here
 			var phantomSpace = X;
-			for( var i in lines )
+			var lc = lines.length;
+			for( var i = 0; i < lc; i ++ )
 			{
 				/** @type {Components.Vim.LineBuffer} */
 				var vline = lines[ i ];

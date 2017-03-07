@@ -48,10 +48,12 @@
 
 		var msg = ":buffers";
 
-		for( var i in Insts )
+		var l = Insts.length;
+		for( var i = 0; i < l; i ++ )
 		{
 			/** @type {Components.Vim.VimArea} */
 			var inst = Insts[ i ];
+			if( !inst ) continue;
 
 			var b = inst.index + " ";
 			var icur = inst.contentFeeder.cursor;

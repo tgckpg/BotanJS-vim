@@ -58,10 +58,10 @@
 			throw new Error( "This element is not compatible for VimArea" );
 		}
 
-		for( var i in Insts )
+		for( var i = 0; i < InstIndex; i ++ )
 		{
 			var inst = Insts[ i ];
-			if( inst.stage.element == element )
+			if( inst && inst.stage.element == element )
 			{
 				debug.Info( "Instance exists" );
 				return inst;
@@ -387,7 +387,12 @@
 
 	__readOnly( VimArea, "Instances", function() {
 		var clone = [];
-		for( var i in Insts ) clone.push( Insts[ i ] );
+
+		for( var i = 0; i < InstIndex; i ++ )
+		{
+			if( Insts[ i ] ) clone.push( Insts[ i ] );
+		}
+
 		return clone;
 	} );
 
