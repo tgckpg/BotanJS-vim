@@ -121,6 +121,7 @@
 					cur.moveY( -1 );
 					cur.lineStart();
 				}
+				// Remove to Cursor jumps
 				else if( this.__startX < currAp )
 				{
 					// Swap the movement
@@ -128,6 +129,10 @@
 					// position to the earlier position
 					sp = currAp;
 					cur.moveTo( this.__startX );
+
+					// Special case for cw dn cursor jumps that
+					// does not remove the start position
+					if( e.kMap( "w" ) || e.kMap( "n" ) ) sp --;
 				}
 			}
 			// Remove the current line

@@ -131,7 +131,14 @@
 		}
 
 		var jumpY = expLineNum - lastLineNum;
-		if( jumpY ) this.moveY( jumpY );
+		if( jumpY )
+		{
+			this.moveY( jumpY );
+
+			// Because moveTo is a direct jump function
+			// We'll auto reveal the target line here
+			if( this.feeder.moreAt == this.Y ) this.moveY( 1 );
+		}
 
 		pline = this.getLine();
 

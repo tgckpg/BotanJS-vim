@@ -102,6 +102,8 @@
 		var r;
 		var Hit;
 		var FirstHit;
+
+		var l = 0;
 		var PrevStack = [];
 
 		var LoopGuard;
@@ -125,6 +127,7 @@
 			}
 
 			PrevStack.push( r.index );
+			l ++;
 			LoopGuard = r.index;
 		}
 
@@ -132,11 +135,19 @@
 
 		if( e.kMap( "N" ) )
 		{
-			Hit = PrevStack[ PrevStack.length - 2 ];
+			// The search loop above always search for next match
+			// So use the previous match
+			Hit = PrevStack[ l - 1 ];
+
+			// Adjust if cursor is already in the previous match
+			if( Hit == p ) Hit = PrevStack[ l - 2 ];
+
 			if( Hit == undefined )
 			{
 				this.__msg = Mesg( "SEARCH_HIT_TOP" );
 
+				// This resets the exec state in previous loop
+				search = new RegExp( search );
 				while( ( r = search.exec( content ) ) !== null ) Hit = r.index;
 			}
 		}
