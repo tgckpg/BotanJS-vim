@@ -131,9 +131,14 @@
 		}
 
 		var jumpY = expLineNum - lastLineNum;
-		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
+		if( jumpY ) this.moveY( jumpY );
 
+		pline = this.getLine();
+
+		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 		var kX = jumpX - pline.content.length;
+
+		// This handles word-wrapped long line phantom "\n"
 		while( 0 < kX )
 		{
 			jumpX ++;
@@ -141,8 +146,6 @@
 			if(!( pline && pline.lineNum == expLineNum )) break;
 			kX -= pline.content.length;
 		}
-
-		if( jumpY ) this.moveY( jumpY );
 
 		// This is needed because first line does not contain the first "\n" character
 		if( 0 < this.getLine().lineNum && lineStart <= aPos ) jumpX --;
