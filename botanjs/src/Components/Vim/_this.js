@@ -1,4 +1,4 @@
-var VIMRE_VERSION = "1.0.1";
+var VIMRE_VERSION = "1.0.2";
 (function(){
 	var ns = __namespace( "Components.Vim" );
 
