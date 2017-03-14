@@ -134,13 +134,17 @@
 		if( jumpY )
 		{
 			this.moveY( jumpY );
-
-			// Because moveTo is a direct jump function
-			// We'll auto reveal the target line here
-			if( this.feeder.moreAt == this.Y ) this.moveY( 1 );
 		}
 
 		pline = this.getLine();
+
+		// Because moveTo is a direct jump function
+		// We'll have to auto reveal the target line here
+		if( pline.lineNum != expLineNum )
+		{
+			this.moveY( expLineNum - pline.lineNum );
+			pline = this.getLine();
+		}
 
 		var jumpX = aPos < lineStart ? lineStart - aPos : aPos - lineStart;
 		var kX = jumpX - pline.content.length;

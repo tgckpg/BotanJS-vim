@@ -182,10 +182,13 @@
 					startLine.aPos = startLine.aEnd;
 				}
 			}
-			// Cursor position adjustment
-			// this swap the cursor direction from LTR to RTL
-			// i.e. treat all delete as "e<----s" flow
-			// to keep the cursor position as the top on UNDO / REDO
+
+			/**
+			 * Content Modifier:
+			 *   This swaps the cursor direction from LTR to RTL
+			 *   i.e. treat all delete as "e<----s" flow to keep
+			 *        the cursor position as the top on UNDO / REDO
+			 **/
 			var IsContMod = ~[ DELETE, PUT ].indexOf( Action.constructor );
 			if( IsContMod && startLine.aPos < cur.aPos )
 			{
@@ -196,7 +199,12 @@
 
 			Action.handler( e, startLine.aPos, lineMode );
 
-			if( !IsContMod )
+			/**
+			 * Cursor Modifier:
+			 *   Whether the cursor position is already handled
+			 **/
+			var IsCurMod = ~[ DELETE, PUT, SHIFT_LINES ].indexOf( Action.constructor );
+			if( !IsCurMod )
 			{
 				cur.moveTo( startLine.aPos );
 			}

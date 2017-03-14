@@ -136,6 +136,7 @@
 			case ")": Mod = SHIFT; case "0": kCode = Mod + _0; break;
 			case "<": Mod = SHIFT; case ",": kCode = Mod + COMMA; break;
 			case ">": Mod = SHIFT; case ".": kCode = Mod + FULLSTOP; break;
+			case "\"": Mod = SHIFT; case "'": kCode = Mod + QUOTE; break;
 
 			default:
 				throw new Error( "Unsupport keys: " + str );
@@ -779,6 +780,30 @@
 				this.__divedCCmd = new ExCommand( ccur, "/" );
 				this.__divedCCmd.handler( e );
 				break;
+
+			case SHIFT + SEMI_COLON: // ":", only happens within action
+				if( !ccur.action )
+				{
+					cursorHandled = false;
+					break;
+				}
+
+				this.__cMovement = true;
+
+				var exCmd = new ExCommand( ccur, ":" );
+				exCmd.handler( e );
+
+				// Auto define range '< and '>
+				var cSel = ccur.position;
+				if( 1 < ( cSel.end - cSel.start ) )
+				{
+					ActionEvent
+						.__createEventList( e.sender, "'<,'>" )
+						.forEach( function( e2 ) { exCmd.handler( e2 ); } );
+				}
+
+				this.__divedCCmd = exCmd;
+				break;
 			default:
 				cursorHandled = false;
 		}
@@ -861,7 +886,10 @@
 				{
 					var SubCommand = !this.__compositeReg;
 					this.__cursorCommand( e, kCode );
-					if( SubCommand && this.__compositeReg )
+
+					// Check if Sub / Dived composite command has been initiated
+					// within the CursorCommand
+					if( ( SubCommand && this.__compositeReg ) || this.__divedCCmd )
 					{
 						e.preventDefault();
 						return;
@@ -925,6 +953,18 @@
 
 		this.__count = 1;
 		this.__range = null;
+	};
+
+	ActionEvent.__createEventList = function( sender, KeyDefs )
+	{
+		var l = KeyDefs.length;
+		var List = [];
+		for( var i = 0; i < l; i ++ )
+		{
+			List.push( new ActionEvent( sender, KeyDefs[ i ] ) );
+		}
+
+		return List;
 	};
 
 	__readOnly( ActionEvent.prototype, "target", function() { return this.__target; } );
