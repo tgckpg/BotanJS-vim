@@ -66,7 +66,10 @@
 
 			var content = feeder.content;
 
-			contentUndo = feeder.content.substring( start, end );
+			var l = content.length;
+			while( "\t ".indexOf( content[ end ] ) != -1 && end < l ) end ++;
+
+			contentUndo = content.substring( start, end );
 			feeder.content = content.substring( 0, start ) + " " + content.substr( end );
 		}
 
