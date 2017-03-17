@@ -566,11 +566,11 @@
 	};
 
 	// Open, Run, then close an action
-	Cursor.prototype.openRunAction = function( name, e, arg1, arg2, arg3, arg4, arg5 )
+	Cursor.prototype.openRunAction = function( name, e, eO, arg1, arg2, arg3, arg4, arg5 )
 	{
 		debug.Info( "OpenRunAction: " + name );
 		/** @type {Components.Vim.IAction} */
-		var action = new (Actions[ name ])( this );
+		var action = new (Actions[ name ])( this, eO );
 		action.handler( e, arg1, arg2, arg3, arg4, arg5 );
 		this.__pulseMsg = action.getMessage();
 		action.dispose();

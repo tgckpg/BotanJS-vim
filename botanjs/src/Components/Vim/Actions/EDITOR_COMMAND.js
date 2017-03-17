@@ -82,6 +82,9 @@
 			case "marks":
 				out[ CMD_TYPE ] = "MARKS";
 				break;
+			case "mark":
+				out[ CMD_TYPE ] = "MARK";
+				break;
 			case "ver":
 			case "version":
 				out[ CMD_TYPE ] = "VERSION";
@@ -156,7 +159,7 @@
 		try
 		{
 			this.__cursor.openRunAction(
-				cmd[ CMD_TYPE ], e, cmd[ CMD_ARGS ], cmd[ CMD_RANGE ]
+				cmd[ CMD_TYPE ], e, false, cmd[ CMD_ARGS ], cmd[ CMD_RANGE ]
 			);
 			this.__msg = this.__cursor.message;
 		}

@@ -4,6 +4,8 @@
 	/** @type {System.Debug} */
 	var debug = __import( "System.Debug" );
 
+	var beep = __import( "Components.Vim.Beep" );
+
 	var Keys = "'ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxy\"[]^.<>";
 
 	var Marks = function()
@@ -13,7 +15,11 @@
 
 	Marks.prototype.set = function( t, line, col )
 	{
-		if( Keys.indexOf( t ) == -1 ) return false;
+		if( Keys.indexOf( t ) == -1 )
+		{
+			beep();
+			return false;
+		}
 
 		this.__marks[ t ] = [ line, col ];
 		return true;

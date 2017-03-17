@@ -323,7 +323,7 @@
 			statusBar.stamp( 1, false );
 			controls.handler( _self, new ActionEvent( _self, "Escape" ) );
 			setTimeout( function() {
-				cursor.openRunAction( "VA_REC", undefined, true );
+				cursor.openRunAction( "VA_REC", false, false, true );
 				_self.__demoActive = false;
 				_self.stage.addEventListeners( _self.__stagedEvents );
 			}, 100 );

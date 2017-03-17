@@ -224,7 +224,7 @@
 		var cur = this.__cursor;
 
 		cur.suppressEvent();
-		this.__cursor.openRunAction( action, e, this.__command.slice() );
+		this.__cursor.openRunAction( action, e, false, this.__command.slice() );
 		cur.unsuppressEvent();
 	};
 

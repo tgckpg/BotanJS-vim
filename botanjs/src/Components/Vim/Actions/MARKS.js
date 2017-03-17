@@ -48,6 +48,8 @@
 		msg += "\nmark line  col file/text";
 
 		var feeder = this.__cursor.feeder;
+		var chopLen = feeder.firstBuffer.cols + 1;
+
 		for( var i = 0, j = Keys[ i ]; j != undefined; i ++, j = Keys[ i ] )
 		{
 			var r = marks.get( j );
@@ -63,7 +65,7 @@
 			var ll = 3 - col.length;
 			for( var il = 0; il < ll; il ++ ) col = " " + col;
 
-			msg += "\n " + j + "   " + line + "  " + col + " " + t;
+			msg += ( "\n " + j + "   " + line + "  " + col + " " + t ).substring( 0, chopLen );
 		}
 
 		var lastLine = Mesg( "WAIT_FOR_INPUT" );

@@ -287,7 +287,7 @@
 			case S: // Delete Char and start insert
 				if( ccur.getLine().content != "" )
 				{
-					ccur.openRunAction( "DELETE", e, ccur.aPos );
+					ccur.openRunAction( "DELETE", e, false, ccur.aPos );
 				}
 				ccur.openAction( "INSERT", e );
 				break;
@@ -315,8 +315,15 @@
 			case C: // Then insert
 				ccur.openAction( "DELETE", e );
 				break;
+			case SHIFT + S: // Synonym to cc
+				var c = new ActionEvent( this.__vimArea, "c" );
+				ccur.openRunAction( "DELETE", c, c );
+				break;
 			case Y: // Yank with motion
 				ccur.openAction( "YANK", e );
+				break;
+			case M: // Mark
+				ccur.openAction( "MARK", e );
 				break;
 
 			case P: // Put
@@ -335,7 +342,7 @@
 					beep();
 					break;
 				}
-				ccur.openRunAction( "DELETE", e, ccur.aPos );
+				ccur.openRunAction( "DELETE", e, false, ccur.aPos );
 				break;
 			case SHIFT + U: // Undo previous changes in oneline
 				break;
@@ -611,26 +618,13 @@
 
 				break;
 
-			case M:
-				this.__captureComp = true;
-
-				var marks = this.__vimArea.marks;
-				this.__composite( e, function( e2 ) {
-					var line = ccur.getLine().lineNum;
-					if( !marks.set( e2.key, line, ccur.aX ) )
-					{
-						beep();
-					}
-				}, ANY_KEY );
-				break;
-
 			case SHIFT + T: // To
 			case T: // To
 				this.__captureComp = true;
 
 				this.__composite( e, function( e2 ) {
 					var oX = ccur.X;
-					ccur.openRunAction( "TO", e, e2 );
+					ccur.openRunAction( "TO", e, false, e2 );
 
 					if( ccur.X < oX )
 					{
@@ -648,7 +642,7 @@
 				this.__captureComp = true;
 
 				this.__composite( e, function( e2 ) {
-					ccur.openRunAction( "TO", e, e2 );
+					ccur.openRunAction( "TO", e, false, e2 );
 				}, ANY_KEY );
 
 				break;

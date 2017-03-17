@@ -48,11 +48,17 @@
 		return i;
 	};
 
+	/** marker @type {Components.Vim.State.Marks} */
+	var MarkSelected = function( marker, PStart, PEnd )
+	{
+	};
+
 	/** @type {Components.Vim.IAction} */
 	var VISUAL = function( Cursor )
 	{
 		this.__reset( Cursor );
 		this.__msg = "";
+
 		Cursor.blink = false;
 		Cursor.pSpace = true;
 	};
