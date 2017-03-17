@@ -79,6 +79,9 @@
 			case "registers":
 				out[ CMD_TYPE ] = "REGISTERS";
 				break;
+			case "marks":
+				out[ CMD_TYPE ] = "MARKS";
+				break;
 			case "ver":
 			case "version":
 				out[ CMD_TYPE ] = "VERSION";
@@ -89,6 +92,13 @@
 				break;
 			case "varec":
 				out[ CMD_TYPE ] = "VA_REC";
+				break;
+
+			case "": // Range jumping
+				pattern.push( true );
+			case "p":
+				allowRange = true;
+				out[ CMD_TYPE ] = "PRINT";
 				break;
 		}
 

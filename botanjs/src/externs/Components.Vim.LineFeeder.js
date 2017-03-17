@@ -43,6 +43,8 @@ Components.Vim.LineFeeder.linesOccupied;
 /** @type String */
 Components.Vim.LineFeeder.docPos;
 /** @type String */
+Components.Vim.LineFeeder.line;
+/** @type String */
 Components.Vim.LineFeeder.lineStat;
 /** @type {String} */
 Components.Vim.LineFeeder.content;

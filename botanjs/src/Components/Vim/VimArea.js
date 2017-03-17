@@ -14,6 +14,8 @@
 
 	/** @type {Components.Vim.State.Registers} */
 	var Registers                                 = __import( "Components.Vim.State.Registers" );
+	/** @type {Components.Vim.State.Marks} */
+	var Marks                                     = __import( "Components.Vim.State.Marks" );
 	/** @type {Components.Vim.Syntax.Analyzer} */
 	var SyntaxAnalyzer                            = __import( "Components.Vim.Syntax.Analyzer" );
 
@@ -243,6 +245,7 @@
 		this.statusFeeder = sfeeder;
 		this.statusBar = statusBar;
 		this.registers = new Registers();
+		this.marks = new Marks();
 
 		this.__cursor = cfeeder.cursor;
 

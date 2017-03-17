@@ -478,16 +478,17 @@
 	{
 		var kCode = e.keyCode;
 
-		if( this.__cMovement )
+		if( this.__captureComp )
 		{
 			if( !e.ModKeys )
 			{
 				this.__composite( e );
-				this.__cMovement = false;
+				this.__captureComp = false;
 				return true;
 			}
 		}
 
+		var inst = this.__vimArea;
 		var ccur = this.__ccur;
 		var cfeeder = ccur.feeder;
 
@@ -610,10 +611,22 @@
 
 				break;
 
+			case M:
+				this.__captureComp = true;
+
+				var marks = this.__vimArea.marks;
+				this.__composite( e, function( e2 ) {
+					var line = ccur.getLine().lineNum;
+					if( !marks.set( e2.key, line, ccur.aX ) )
+					{
+						beep();
+					}
+				}, ANY_KEY );
+				break;
 
 			case SHIFT + T: // To
 			case T: // To
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				this.__composite( e, function( e2 ) {
 					var oX = ccur.X;
@@ -632,7 +645,7 @@
 				break;
 			case SHIFT + F: // To
 			case F: // To
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				this.__composite( e, function( e2 ) {
 					ccur.openRunAction( "TO", e, e2 );
@@ -659,7 +672,7 @@
 
 				var analyzer = this.__vimArea.contentAnalyzer;
 
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				// Word boundary
 				this.__composite( e, function( e2 ) {
@@ -703,7 +716,7 @@
 
 			case G:
 
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				// Go to top
 				this.__composite( e, function() {
@@ -775,7 +788,7 @@
 				break;
 
 			case SLASH: // "/" Search movement
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				this.__divedCCmd = new ExCommand( ccur, "/" );
 				this.__divedCCmd.handler( e );
@@ -788,7 +801,7 @@
 					break;
 				}
 
-				this.__cMovement = true;
+				this.__captureComp = true;
 
 				var exCmd = new ExCommand( ccur, ":" );
 				exCmd.handler( e );
@@ -827,7 +840,7 @@
 		if( e.Escape )
 		{
 			var b = false;
-			this.__cMovement = false;
+			this.__captureComp = false;
 
 			if( this.__compositeReg )
 			{
@@ -853,7 +866,7 @@
 			if( this.__divedCCmd.handler( e ) )
 			{
 				this.__divedCCmd.dispose();
-				this.__cMovement = false;
+				this.__captureComp = false;
 				this.__divedCCmd = null;
 				return;
 			}
@@ -864,7 +877,7 @@
 		var cfeeder = this.__cfeeder;
 		var ccur = this.__ccur;
 
-		if( !this.__cMovement && ( !ccur.action || ccur.action.allowMovement ) )
+		if( !this.__captureComp && ( !ccur.action || ccur.action.allowMovement ) )
 		{
 			this.__modCommand( e );
 			if( e.canceled ) return;

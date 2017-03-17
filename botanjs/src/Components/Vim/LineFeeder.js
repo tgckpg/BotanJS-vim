@@ -10,6 +10,7 @@
 	var Cursor = ns[ NS_INVOKE ]( "Cursor" );
 
 	var occurence = __import( "System.utils.Perf.CountSubstr" );
+	var C_LINE = 0;
 
 	var Feeder = function( rows, cols )
 	{
@@ -35,6 +36,7 @@
 		this.cursor = new Cursor( this );
 		this.dispatcher = new EventDispatcher();
 
+		this.__lineCache = [];
 		this.__clseLine = null;
 		this.__moreAt = -1;
 		this.__rows = rows;
@@ -42,7 +44,7 @@
 
 	Feeder.prototype.init = function( content, wrap )
 	{
-		this.content = content;
+		this.__content = content;
 		this.setWrap( wrap );
 
 		this.firstBuffer.Push( content, this.wrap, 0 ); 
@@ -142,7 +144,7 @@
 		if( Y < 0 ) Y = 0;
 
 		// Compensate the last "\n" content placeholder
-		var cont = this.content.slice( 0, -1 );
+		var cont = this.__content.slice( 0, -1 );
 		if( 0 < Y )
 		{
 			f = cont.indexOf( "\n" );
@@ -158,7 +160,7 @@
 			}
 		}
 
-		this.firstBuffer.Push( this.content.substr( f + 1 ), this.wrap, i );
+		this.firstBuffer.Push( this.__content.substr( f + 1 ), this.wrap, i );
 
 		this.panX = X;
 		this.panY = Y;
@@ -171,8 +173,27 @@
 		this.__softRender();
 	};
 
+	Feeder.prototype.line = function( n )
+	{
+		if( this.__lineCache[ n ] )
+			return this.__lineCache[ n ];
+		var str = this.__content;
+		var i = str.indexOf( "\n" ), j = 0;
+
+		for( ; 0 <= i; i = str.indexOf( "\n", i ), j ++ )
+		{
+			if( n == j ) break;
+			i ++;
+		}
+
+		if( j == 0 && i == -1 ) i = 0;
+
+		var end = str.indexOf( "\n", i + 1 );
+		return ( this.__lineCache[ n ] = str.substring( i + 1, end ) );
+	};
+
 	__readOnly( Feeder.prototype, "linesTotal", function() {
-		return occurence( this.content, "\n" );
+		return occurence( this.__content, "\n" );
 	} );
 
 	__readOnly( Feeder.prototype, "firstBuffer", function() {
@@ -216,7 +237,7 @@
 		var i = l - X;
 		do
 		{
-			if( this.content[ i + 1 ] == "\t" ) tabs ++;
+			if( this.__content[ i + 1 ] == "\t" ) tabs ++;
 			i ++;
 		}
 		while( i < l )
@@ -252,6 +273,15 @@
 		}
 
 		return pos;
+	} );
+
+	Object.defineProperty( Feeder.prototype, "content", {
+		get: function() { return this.__content; }
+		, set: function( v )
+		{
+			this.__lineCache = [];
+			this.__content = v;
+		}
 	} );
 
 	__readOnly( Feeder.prototype, "linesOccupied", function() {

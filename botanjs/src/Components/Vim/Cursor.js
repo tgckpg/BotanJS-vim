@@ -106,6 +106,8 @@
 	// Move to an absolute position
 	Cursor.prototype.moveTo = function( aPos, phantomSpace, skipTabs )
 	{
+		this.__suppressUpdate();
+
 		var content = this.feeder.content;
 		var pline = this.getLine();
 		var lastLineNum = pline.lineNum;
@@ -131,10 +133,7 @@
 		}
 
 		var jumpY = expLineNum - lastLineNum;
-		if( jumpY )
-		{
-			this.moveY( jumpY );
-		}
+		if( jumpY ) this.moveY( jumpY );
 
 		pline = this.getLine();
 
@@ -163,6 +162,50 @@
 
 		this.moveX( - Number.MAX_VALUE, false, false, true );
 		this.moveX( jumpX, false, phantomSpace, skipTabs );
+
+		this.__unsuppressUpdate();
+	};
+
+	// A line-only variant of moveTo, de-generalized for the sake of performance
+	Cursor.prototype.gotoLine = function( n )
+	{
+		this.__suppressUpdate();
+
+		var content = this.feeder.content;
+		var pline = this.getLine();
+		var lastLineNum = pline.lineNum;
+
+		if( pline.placeholder )
+		{
+			lastLineNum = 0;
+			this.Y = 0;
+		}
+
+		var expLineNum = 0;
+		var lineStart = 0;
+		for( var i = content.indexOf( "\n" ); 0 <= i ; i = content.indexOf( "\n", i ) )
+		{
+			if( expLineNum == n ) break;
+			lineStart = i;
+			i ++;
+			expLineNum ++;
+		}
+
+		if( expLineNum < n ) n = expLineNum;
+
+		var jumpY = expLineNum - lastLineNum;
+		if( jumpY ) this.moveY( jumpY );
+
+		pline = this.getLine();
+
+		if( pline.lineNum != expLineNum )
+		{
+			this.moveY( expLineNum - pline.lineNum );
+		}
+
+		this.lineStart( true );
+
+		this.__unsuppressUpdate();
 	};
 
 	// 0 will be treated as default ( 1 )
@@ -323,7 +366,7 @@
 		else if( c == "\n" )
 		{
 			x += d;
-		}
+	}
 
 		// Wordwrap phantomSpace movement compensation on max filled lines
 		if( feeder.wrap && boundary && !hasPhantomSpace && phantomSpace )
@@ -369,10 +412,12 @@
 		this.moveX( Number.MAX_VALUE, false, phantomSpace, true );
 	};
 
+	// Because LineOffset is costly, suppress unnecessary calls
 	Cursor.prototype.updatePosition = function()
 	{
-		var feeder = this.feeder;
-		var P = this.X + LineOffset( feeder.lineBuffers, this.Y ) + this.__off;
+		if( 0 < this.__suppUpdate ) return;
+
+		var P = this.X + LineOffset( this.feeder.lineBuffers, this.Y ) + this.__off;
 
 		this.PStart = P;
 		this.PEnd = P + 1;
@@ -538,6 +583,13 @@
 	Cursor.prototype.suppressEvent = function() { ++ this.__suppEvt; };
 	Cursor.prototype.unsuppressEvent = function() { -- this.__suppEvt; };
 
+	Cursor.prototype.__suppressUpdate = function() { ++ this.__suppUpdate; };
+	Cursor.prototype.__unsuppressUpdate = function()
+	{
+		-- this.__suppUpdate;
+		this.updatePosition();
+	};
+
 	Cursor.prototype.getLine = function( display )
 	{
 		var feeder = this.feeder;
@@ -568,20 +620,7 @@
 
 	__readOnly( Cursor.prototype, "rawLine", function()
 	{
-		var str = this.feeder.content;
-		var lineNum = this.getLine().lineNum - 1;
-		var i = str.indexOf( "\n" ), j = 0;
-
-		for( ; 0 <= i; i = str.indexOf( "\n", i ), j ++ )
-		{
-			if( lineNum == j ) break;
-			i ++;
-		}
-
-		if( j == 0 && i == -1 ) i = 0;
-
-		var end = str.indexOf( "\n", i + 1 );
-		return str.substring( i + 1, end );
+		return this.feeder.line( this.getLine().lineNum - 1 );
 	} );
 
 	// The position offset relative to current line

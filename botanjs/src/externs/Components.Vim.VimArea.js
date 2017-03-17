@@ -12,6 +12,11 @@ Components.Vim.VimArea.statusFeeder;
 /** @type {Components.Vim.StatusBar} */
 Components.Vim.VimArea.statusBar;
 
+/** @type {Components.Vim.State.Registers} */
+Components.Vim.VimArea.registers;
+/** @type {Components.Vim.State.Marks} */
+Components.Vim.VimArea.marks;
+
 /** @type Function */
 Components.Vim.VimArea.demo;
 /** @type Function */
