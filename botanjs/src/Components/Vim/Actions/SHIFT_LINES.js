@@ -91,7 +91,6 @@
 					{
 						end += ( nline - 1 );
 					}
-					console.log( start, end );
 				}
 
 				if( currAp < sp )
@@ -188,53 +187,62 @@
 			if( 1 < l )
 			{
 				debug.Info( "Guessing the tabstop:" );
-				var tabOccr = 0;
-				var spOccr = 0;
+				var lineTabs = 0;
+				var lineSpaces = 0;
 
 				// Guess indent
-				var tabStat = [];
+				var spStat = {};
+				var spIndents = [];
 
 				for( var i = 0; i < l; i ++ )
 				{
 					var ind = indents[ i ];
-					var indNext = indents[ i + 1 ];
-					tabOccr += occurence( ind, "\t" );
-					spOccr += occurence( ind, " " );
-					var d = indNext.length - ind.length;
-					if( d == 0 ) continue;
-
-					d = d < 0 ? -d : d;
-
-					if( !tabStat[ d ] ) tabStat[ d ] = 0;
-
-					tabStat[ d ] ++;
-				}
-
-				var upperDiff = 0;
-				var indentCLen = 0;
-				for( var i in tabStat )
-				{
-					i = Number( i );
-					var p = tabStat[ i ];
-					if( upperDiff < p )
+					var k = 0;
+					if( ind[0] == " " )
 					{
-						upperDiff = p;
-						indentCLen = i;
+						lineSpaces ++;
+						k = occurence( ind, " " );
+
+						if( spIndents.indexOf( k ) == -1 )
+						{
+							spIndents.push( k );
+							spStat[ k ] = ind;
+						}
+					}
+					else
+					{
+						lineTabs ++;
 					}
 				}
 
-				spOccr /= indentCLen;
-
-				if( tabOccr < spOccr )
+				if( lineTabs < lineSpaces )
 				{
-					indentChar = "";
-					for( var i = 0; i < indentCLen; i ++ ) indentChar += " ";
+					spIndents.sort(function( a, b ) { return a - b; });
+					var rHCF = 0;
+					for( var i = 0, l = spIndents.length; i < l; i ++ )
+					{
+						var spIdx = Number( spIndents[ i ] );
+						var nHCF = 1;
+
+						// Forward count number of factors
+						for( var j = i + 1; j < l; j ++ )
+						{
+							if( spIndents[ j ].length % spIdx == 0 )
+							{
+								nHCF ++;
+							}
+						}
+
+						if( rHCF < nHCF )
+						{
+							rHCF = nHCF;
+							indentChar = spStat[ spIdx ];
+						}
+					}
 				}
 
-				tabwidth = indentCLen;
-
-				debug.Info( "\tTab count: " + tabOccr );
-				debug.Info( "\tSpace count: " + spOccr );
+				debug.Info( "\tTab lines: " + lineTabs );
+				debug.Info( "\tSpace lines: " + lineSpaces );
 				debug.Info( "\ti.e. indent using " + JSON.stringify( indentChar ) );
 			}
 			else
