@@ -240,7 +240,7 @@
 			if( this.__content[ i + 1 ] == "\t" ) tabs ++;
 			i ++;
 		}
-		while( i < l )
+		while( i < l );
 
 		if( tabs )
 		{

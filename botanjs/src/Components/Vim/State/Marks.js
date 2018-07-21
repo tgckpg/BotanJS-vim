@@ -6,7 +6,7 @@
 
 	var beep = __import( "Components.Vim.Beep" );
 
-	var Keys = "'ABCDEFGHIJKLMNOPQRSTUVWXYabcdefghijklmnopqrstuvwxy\"[]^.<>";
+	var Keys = "'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\"[]^.<>";
 
 	var Marks = function()
 	{
@@ -25,12 +25,28 @@
 		return true;
 	};
 
+	Marks.prototype.save = function()
+	{
+		var saved = {};
+		// A-z
+		for( var i = 1; i < 53; i ++ )
+		{
+			var k = Keys[ i ];
+			if( this.__marks[ k ] != undefined )
+			{
+				saved[ k ] = this.__marks[ k ];
+			}
+		}
+
+		return saved;
+	};
+
 	Marks.prototype.get = function( t )
 	{
 		return this.__marks[ t ];
 	};
 
-	__readOnly( Marks, "Keys", function() { return Keys; } );
+	__const( Marks, "Keys", Keys );
 
 	ns[ NS_EXPORT ]( EX_CLASS, "Marks", Marks );
 

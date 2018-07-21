@@ -48,9 +48,19 @@
 		return i;
 	};
 
-	/** marker @type {Components.Vim.State.Marks} */
-	var MarkSelected = function( marker, PStart, PEnd )
+	var lineInfo = function( c )
 	{
+		return {
+			lineNum: c.getLine().lineNum
+			, aX: c.aX
+		};
+	};
+
+	/** marker @type {Components.Vim.State.Marks} */
+	var MarkSelected = function( marker, s, e )
+	{
+		marker.set( "<", s.lineNum, s.aX );
+		marker.set( ">", e.lineNum, e.aX );
 	};
 
 	/** @type {Components.Vim.IAction} */
@@ -68,14 +78,12 @@
 		/** @type {Components.Vim.Cursor} */
 		this.__cursor = Cursor;
 
-		var s = {
-			lineNum: Cursor.getLine().lineNum
-			, X: Cursor.X
-			, aPos: Cursor.aPos
-			, pstart: Cursor.PStart
-		};
+		var s = lineInfo( Cursor );
 
-		s.aStart = s.aPos - Cursor.aX;
+		s.aPos = Cursor.aPos;
+		s.X = Cursor.X;
+		s.pStart = Cursor.PStart;
+		s.aStart = s.aPos - s.aX;
 
 		Cursor.suppressEvent();
 		Cursor.lineEnd( true );
@@ -220,7 +228,7 @@
 			Action.dispose();
 			cur.unsuppressEvent();
 
-			startLine.pstart = cur.PStart;
+			startLine.pStart = cur.PStart;
 
 			return true;
 		}
@@ -253,13 +261,13 @@
 
 			debug.Info( "Min aPos: " + minAp, "Max aPos: " + maxAp );
 
-			var pstart = startLine.X;
+			var pStart = startLine.X;
 			var nstart = cur.PStart;
 
 			// highlight from the start
 			if( startLine.aPos < minAp )
 			{
-				pstart = 0;
+				pStart = 0;
 
 				if( this.__mode == MODE_LINE )
 				{
@@ -276,14 +284,14 @@
 			// highlight from the end
 			else if( maxAp < startLine.aPos )
 			{
-				pstart = -2;
+				pStart = -2;
 				var i = 0;
 				do
 				{
 					if( line.placeholder ) break;
 					if( i <= feeder.moreAt )
 					{
-						pstart += line.toString().length + 1;
+						pStart += line.toString().length + 1;
 					}
 					i ++;
 				}
@@ -295,11 +303,11 @@
 				if( this.__mode == MODE_LINE )
 				{
 					cur.suppressEvent();
-					pstart = 0;
+					pStart = 0;
 
 					if( currAp < startLine.aPos )
 					{
-						pstart = -1;
+						pStart = -1;
 						l ++;
 
 						cur.lineStart();
@@ -316,7 +324,7 @@
 						cur.lineStart();
 						nstart = cur.PStart;
 						cur.lineEnd( true );
-						pstart = cur.PStart;
+						pStart = cur.PStart;
 						l = line.lineNum;
 					}
 
@@ -334,12 +342,12 @@
 				do
 				{
 					if( line.lineNum == l || line.placeholder ) break;
-					pstart += line.toString().length + 1;
+					pStart += line.toString().length + 1;
 				}
 				while( line = line.next );
 			}
 
-			var prevPos = pstart;
+			var prevPos = pStart;
 			var newPos = nstart;
 
 			var posDiff = newPos - prevPos;
@@ -351,12 +359,14 @@
 			if( 0 <= posDiff )
 			{
 				newPos = newPos + 1;
+				MarkSelected( e.target.marks, startLine, lineInfo( cur ) );
 			}
 			// e<--s
 			else if( posDiff < 0 )
 			{
 				prevPos += posDiff;
-				newPos = pstart + 1;
+				newPos = pStart + 1;
+				MarkSelected( e.target.marks, lineInfo( cur ), startLine );
 			}
 
 			cur.PStart = prevPos;
