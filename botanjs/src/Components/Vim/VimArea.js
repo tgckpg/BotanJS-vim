@@ -381,7 +381,7 @@
 		stage.element.value = this.content;
 
 		delete Insts[ this.__instIndex ];
-		stage.dispatchEvent( new Event( "change" ) );
+		stage.element.dispatchEvent( new Event( "change" ) );
 	};
 
 	__readOnly( VimArea.prototype, "index", function()
