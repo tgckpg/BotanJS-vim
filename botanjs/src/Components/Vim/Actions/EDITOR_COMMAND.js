@@ -68,7 +68,14 @@
 				out[ CMD_TYPE ] = "BUFFERS";
 				break;
 			case "w":
+			case "wq":
+			case "wc":
 			case "write":
+				if( command == "wq" || command == "wc" )
+				{
+					// This puts the "q" / "c" into CMD_ARGS
+					i --;
+				}
 				out[ CMD_TYPE ] = "WRITE";
 				break;
 			case "q":

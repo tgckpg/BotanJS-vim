@@ -26,12 +26,42 @@
 	{
 		e.preventDefault();
 
+		var wtarget = "DEFAULT";
+		if( p )
+		{
+			wtarget = p.join( "" ).trim().toUpperCase();
+		}
+
+		var quit = false;
+
 		var cur = this.__cursor;
 		var Vim = cur.Vim;
-		Vim.content = cur.feeder.content.slice( 0, -1 );
+		switch( wtarget )
+		{
+			case "C":
+				var data = cur.feeder.content.slice( 0, -1 );
+				var tail = "/* Press Ctrl + C to copy the contents. Escape to continue editing. */"
+				setTimeout( function() {
+					Vim.display(
+						data + tail, function(){
+						Vim.stage.element.selectionStart = 0;
+						Vim.stage.element.selectionEnd = data.length;
+					} );
+				}, 1 );
+				break;
+			case "Q":
+				quit = true;
+			default:
+				Vim.content = cur.feeder.content.slice( 0, -1 );
+		}
+
+		if( quit )
+		{
+			Vim.dispose();
+			return true;
+		}
 
 		var msg = Mesg( "WRITE", Vim.stage.element.id, occurance( Vim.content, "\n" ), Vim.content.length );
-
 		cur.rec.save();
 
 		var l = this.__cursor.feeder.firstBuffer.cols;

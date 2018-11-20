@@ -288,7 +288,7 @@
 
 		var ContinueEdit = new EventKey( "KeyDown", function( e ) {
 			var evt = new ActionEvent( _self, e );
-			if( evt.kMap( "Escape" ) )
+			if( evt.Escape )
 			{
 				stage.removeEventListener( ContinueEdit );
 				stage.setAttribute( new DataKey( "vimarea", 1 ) );
